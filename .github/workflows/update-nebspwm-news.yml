@@ -1,28 +1,55 @@
-name: Update neBSPWM News
+name: Latest Blog Post Workflow
 on:
   schedule:
-    - cron: '*/30 * * * *'
+    # Se ejecuta cada hora
+    - cron: '0 * * * *'
   workflow_dispatch:
 
 jobs:
-  update-readme-with-nebspwm:
-    name: Update README with project news
+  update-readme-with-blog:
+    name: Update this repo's README with latest blog posts
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: gautamkrishnar/blog-post-workflow@master
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Pull rss feed
+        uses: gautamkrishnar/blog-post-workflow@master
         with:
-          comment_tag_name: "NEBSPWM"
+          comment_tag_name: NEBSPWM
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 3
+          # Corrección del error de SyntaxError:
           item_exec: |
-            var desc = post.description || "";
-            var title = post.title || "";
-            var keyword = /neBSPWM/i;
-            if (desc.match(keyword) || title.match(keyword)) {
-              return post;
-            } else {
-              return null;
-            }
+            (function() {
+              var desc = post.description || "";
+              var title = post.title || "";
+              var keyword = /neBSPWM/i;
+              if (desc.match(keyword) || title.match(keyword)) {
+                return post;
+              } else {
+                return null;
+              }
+            })()
           template: "- $date | [$title]($url)"
-          date_format: "dd/mm/yyyy"
+          date_format: dd/mm/yyyy
+          gh_token: ${{ secrets.GITHUB_TOKEN }}
+          readme_path: "./README.md"
+          disable_sort: false
+          sort_order: desc
+          reverse_order: false
+          filter_comments: "stackoverflow/Comment by $author/,stackexchange/Comment by $author/"
+          user_agent: rss-parser
+          accept_header: "application/rss+xml"
+          commit_message: "Updated with the latest blog posts"
+          committer_username: "blog-post-bot"
+          committer_email: "blog-post-bot@example.com"
+          output_only: false
+          enable_keepalive: true
+          retry_count: 0
+          retry_wait_time: 1
+          disable_html_encoding: false
+          categories_template: default
+          disable_item_validation: false
+          skip_commit: false
+          dummy_commit_message: "dummy commit to keep the repository active, see https://git.io/Jtm4V"
