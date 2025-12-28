@@ -45,19 +45,37 @@ cd neBSPWM-dotfiles
 > Este entorno es open source: Puedes auditar y modificar los scripts en cualquier momento. 
 
 ---
-
-### 📢 Últimas actualizaciones del proyecto
+### 📢 Últimas actualizaciones & Desarrollo en Vivo
 <table>
   <thead>
+    <tr>
+      <th colspan="2">🔥 Bitácora del Proyecto | Live Feed</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+<td colspan="2" align="center" style="padding: 15px;">
+  Aquí registro <strong>el día a día</strong>, los descubrimientos y el <em>detrás de cámaras</em> de este y otros repos.<br>
+  👉 <a href="https://www.threads.net/@netenebrae"><strong>No te pierdas ninguna actualización (@netenebrae)</strong></a>
+</td>
+    </tr>
     <tr>
       <th>Fecha 📅</th>
       <th>Update 📰</th>
     </tr>
-  </thead>
-  <tbody>
-    <!-- NEBSPWM:START --><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSy0vdNjoMP'>Integré un pequeño módulo para el repo de neBSPWM.   La idea sería poder mostrar los updades del proyecto directamente en el rea...</a></td></tr><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSyuQy3Dnm9'>Día 53 | Bugs de post-producción neBSPWM 🐛  Hoy fue día de testing intensivo. Aunque surgieron errores, lo que más valoro es cu...</a></td></tr><tr><td>27/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSv1okuiePg'>💀 Día 47–52 | Proyecto NebSPWM   Seis días de puro ricing en Arch 🐧 una guerra digna de documentar.    Objetivo: dejar mi ento...</a></td></tr><!-- NEBSPWM:END -->
+    <!-- NEBSPWM:START -->
+    <!-- NEBSPWM:END -->
+    <tr>
+      <td colspan="2" align="center">
+        <a href="https://www.threads.net/@netenebrae">
+          <img width="100%" src="https://github.com/user-attachments/assets/12763708-ebcd-4513-8cf6-11cb242208ed" alt="Ver en Threads" />
+        </a>
+      </td>
+    </tr>
   </tbody>
 </table>
+
+
 
 
 ---
