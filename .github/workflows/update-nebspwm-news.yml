@@ -36,7 +36,7 @@ jobs:
                 return null;
               }
             })()
-          template: |
-            | $date | [$title]($url) |
+          # Template en HTML puro (<tr> = fila, <td> = celda)
+          template: "<tr><td>$date</td><td><a href='$url'>$title</a></td></tr>"
           
           date_format: "dd/mm/yyyy"
