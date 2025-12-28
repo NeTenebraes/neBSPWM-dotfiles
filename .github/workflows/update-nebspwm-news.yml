@@ -1,7 +1,7 @@
 name: Update neBSPWM News
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *' # Cada 24 horas (00:00 UTC)
   workflow_dispatch:
 
 permissions:
@@ -19,16 +19,16 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # FILTRO Y LIMPIEZA EN UNA LÍNEA (EVITA SYNTAXERROR)
-          # 1. Quitamos el HTML: .replace(/<[^>]*>/g, '')
-          # 2. Verificamos si incluye 'bspwm'
-          # 3. Si pasa, asignamos el texto limpio a la descripción y devolvemos el post
-          item_exec: "post.description.replace(/<[^>]*>/g, '').toLowerCase().includes('bspwm') ? (post.description = post.description.replace(/<[^>]*>/g, ''), post) : null"
+          # LIMPIEZA NATIVA: Esto elimina imágenes y etiquetas HTML automáticamente
+          clean_html: true
+          
+          # FILTRO SEGURO: Solo pasa si contiene bspwm (insensible a mayúsculas)
+          item_exec: "post.description.toLowerCase().includes('bspwm') ? post : null"
 
-          # TEMPLATE USANDO LA DESCRIPCIÓN YA LIMPIA
+          # TEMPLATE: Usamos $description que ahora vendrá limpia por 'clean_html'
           template: "<tr><td>$date</td><td><a href='$url'>$description</a></td></tr>"
           date_format: "dd/mm/yyyy"
           
-          commit_message: "Bot: Update neBSPWM news (Clean Description)"
+          commit_message: "Bot: Update diario neBSPWM"
           committer_username: "blog-post-bot"
           committer_email: "blog-post-bot@example.com"
