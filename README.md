@@ -47,7 +47,10 @@ cd neBSPWM-dotfiles
 ---
 
 ### 📢 Últimas actualizaciones del proyecto
-<!-- NEBSPWM:START -->- **28/12/2025** | [Día 53 | Bugs de post-producción neBSPWM 🐛  Hoy fue día de testing intensivo. Aunque surgieron errores, lo que más valoro es cu...](https://threads.net/@netenebrae/post/DSyuQy3Dnm9)- **27/12/2025** | [💀 Día 47–52 | Proyecto NebSPWM   Seis días de puro ricing en Arch 🐧 una guerra digna de documentar.    Objetivo: dejar mi ento...](https://threads.net/@netenebrae/post/DSv1okuiePg)- **26/12/2025** | [Felices fiestas! Mañana traigo un update especial, han sido días de mucho formatear. Xd Mañana update de que he estado haciendo!](https://threads.net/@netenebrae/post/DStxbT5joSH)<!-- NEBSPWM:END -->
+| Fecha 📅 | Update 📰 |
+| :--- | :--- |
+<!-- NEBSPWM:START -->
+<!-- NEBSPWM:END -->
 
 ---
 
