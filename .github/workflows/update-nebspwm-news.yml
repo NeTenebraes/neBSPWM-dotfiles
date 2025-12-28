@@ -1,8 +1,8 @@
 name: Update neBSPWM News
 on:
   schedule:
-    - cron: '*/30 * * * *' # Revisa cada 30 minutos
-  workflow_dispatch: # Permite forzar la actualización manual
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
 
 jobs:
   update-readme-with-nebspwm:
@@ -15,13 +15,14 @@ jobs:
           comment_tag_name: "NEBSPWM"
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 3
-          # Filtra cualquier post que mencione "neBSPWM" (mayúsculas o minúsculas)
           item_exec: |
-            if (post.description.match(/neBSPWM/i) || post.title.match(/neBSPWM/i)) {
+            var desc = post.description || "";
+            var title = post.title || "";
+            var keyword = /neBSPWM/i;
+            if (desc.match(keyword) || title.match(keyword)) {
               return post;
             } else {
               return null;
             }
-          # Formato de salida: Fecha | Título del post con Link
           template: "- $date | [$title]($url)"
           date_format: "dd/mm/yyyy"
