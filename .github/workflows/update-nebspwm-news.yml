@@ -1,42 +1,36 @@
-name: Latest Blog Post Workflow
+name: Update neBSPWM News
 on:
   schedule:
-    # Se ejecuta cada hora
-    - cron: '0 * * * *'
+    - cron: '*/30 * * * *' # Cada 30 mins
   workflow_dispatch:
 
-# Permisos necesarios para escribir en el README
 permissions:
   contents: write
 
 jobs:
-  update-readme-with-blog:
-    name: Update this repo's README with latest blog posts
+  update-readme-with-nebspwm:
+    name: Update README with project news
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Pull rss feed
-        uses: gautamkrishnar/blog-post-workflow@master
+      - uses: actions/checkout@v3
+      - uses: gautamkrishnar/blog-post-workflow@master
         with:
-          comment_tag_name: NEBSPWM
+          comment_tag_name: "NEBSPWM"
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
+          
+          # 👇 FILTRO CORREGIDO Y SIMPLIFICADO
+          # 1. Junta título + descripción.
+          # 2. Lo pasa a minúsculas.
+          # 3. Si NO encuentra 'nebspwm', lo mata (return null).
           item_exec: |
-            (function() {
-              var desc = post.description || "";
-              var title = post.title || "";
-              var keyword = /neBSPWM/i;
-              if (desc.match(keyword) || title.match(keyword)) {
-                // Truco: Acortar el título si es muy largo para que no rompa la tabla
-                post.title = post.title.length > 60 ? post.title.substring(0, 57) + "..." : post.title;
-                return post;
-              } else {
-                return null;
-              }
-            })()
-          # Template en HTML puro (<tr> = fila, <td> = celda)
+            var text = (post.title + " " + post.description + " " + (post.content_snippet || "")).toLowerCase();
+            if (text.indexOf('nebspwm') === -1) {
+              return null;
+            }
+            return post;
+
+          # TEMPLATE HTML
           template: "<tr><td>$date</td><td><a href='$url'>$title</a></td></tr>"
           
           date_format: "dd/mm/yyyy"
