@@ -55,7 +55,7 @@ cd neBSPWM-dotfiles
     </tr>
   </thead>
   <tbody>
-    <!-- NEBSPWM:START --><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSy0vdNjoMP'>[No Title] - DSy0vdNjoMP</a></td></tr><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSyuQy3Dnm9'>[No Title] - DSyuQy3Dnm9</a></td></tr><tr><td>27/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSv1okuiePg'>[No Title] - DSv1okuiePg</a></td></tr><!-- NEBSPWM:END -->
+    <!-- NEBSPWM:START --><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSy0vdNjoMP'>Integré un pequeño módulo para el repo de neBSPWM.   La idea sería poder mostrar los updades del proyecto directamente en el rea...</a></td></tr><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSyuQy3Dnm9'>Día 53 | Bugs de post-producción neBSPWM 🐛  Hoy fue día de testing intensivo. Aunque surgieron errores, lo que más valoro es cu...</a></td></tr><tr><td>27/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSv1okuiePg'>💀 Día 47–52 | Proyecto NebSPWM   Seis días de puro ricing en Arch 🐧 una guerra digna de documentar.    Objetivo: dejar mi ento...</a></td></tr><!-- NEBSPWM:END -->
   </tbody>
 </table>
 
