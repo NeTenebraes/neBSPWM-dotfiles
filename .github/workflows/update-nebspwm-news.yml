@@ -22,26 +22,20 @@ jobs:
         with:
           comment_tag_name: NEBSPWM
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
-          max_post_count: 3
-          # Código JS para filtrar por la palabra neBSPWM
+          max_post_count: 5
           item_exec: |
             (function() {
               var desc = post.description || "";
               var title = post.title || "";
               var keyword = /neBSPWM/i;
               if (desc.match(keyword) || title.match(keyword)) {
+                // Truco: Acortar el título si es muy largo para que no rompa la tabla
+                post.title = post.title.length > 60 ? post.title.substring(0, 57) + "..." : post.title;
                 return post;
               } else {
                 return null;
               }
             })()
-          # Template mejorado con saltos de línea y negritas
-          template: |
-            - **$date** | [$title]($url)
-            
-          date_format: dd/mm/yyyy
-          gh_token: ${{ secrets.GITHUB_TOKEN }}
-          readme_path: "./README.md"
-          commit_message: "Updated with the latest blog posts"
-          committer_username: "blog-post-bot"
-          committer_email: "blog-post-bot@example.com"
+          template: "| $date | [$title]($url) |"
+          
+          date_format: "dd/mm/yyyy"
