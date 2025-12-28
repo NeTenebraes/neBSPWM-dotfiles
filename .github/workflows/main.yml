@@ -1,0 +1,27 @@
+name: Update neBSPWM News
+on:
+  schedule:
+    - cron: '*/30 * * * *' # Revisa cada 30 minutos
+  workflow_dispatch: # Permite forzar la actualización manual
+
+jobs:
+  update-readme-with-nebspwm:
+    name: Update README with project news
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: gautamkrishnar/blog-post-workflow@master
+        with:
+          comment_tag_name: "NEBSPWM"
+          feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
+          max_post_count: 3
+          # Filtra cualquier post que mencione "neBSPWM" (mayúsculas o minúsculas)
+          item_exec: |
+            if (post.description.match(/neBSPWM/i) || post.title.match(/neBSPWM/i)) {
+              return post;
+            } else {
+              return null;
+            }
+          # Formato de salida: Fecha | Título del post con Link
+          template: "- $date | [$title]($url)"
+          date_format: "dd/mm/yyyy"
