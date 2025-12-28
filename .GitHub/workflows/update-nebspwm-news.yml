@@ -1,8 +1,8 @@
 name: Update neBSPWM News
 on:
   schedule:
-    - cron: '0 */6 * * *' # Revisa cada 6 horas
-  workflow_dispatch: # Permite ejecución manual
+    - cron: '*/30 * * * *' # Revisa cada 30 minutos
+  workflow_dispatch: # Permite forzar la actualización manual
 
 jobs:
   update-readme-with-nebspwm:
