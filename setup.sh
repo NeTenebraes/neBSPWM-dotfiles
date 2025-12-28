@@ -29,6 +29,8 @@ PKGS_PACMAN_Essencials=(
     "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"  
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "conky" "pavucontrol" "polkit-gnome"
     "kvantum" "kvantum-qt5" "xdg-desktop-portal" "xdg-desktop-portal-gtk" "qt5ct" "qt6ct"
+    "ttf-jetbrains-mono" "noto-fonts noto-fonts-extra" "noto-fonts-emoji" "noto-fonts-cjk" 
+    "ttf-dejavu" "ttf-liberation" "ttf-fira-code"
 )
 
 PKGS_PACMAN_optionals=(
@@ -582,6 +584,129 @@ EOF
     echo_ok "🎉 Betterlockscreen COMPLETO (Super+L para bloquear)"
 }
 
+# Agregar DESPUÉS de la función install_betterlockscreen_lock() { ... }
+
+setup_fonts_locale() {
+    echo_msg "🅰️  Configurando FUENTES + LOCALE (JetBrains + Unicode completo)..."
+    
+    # Preguntar idioma
+    echo "Selecciona el idioma del sistema:"
+    echo "1) Inglés (en_US.UTF-8)"
+    echo "2) Español LATAM (es_MX.UTF-8)"
+    echo "3) Español España (es_ES.UTF-8)"
+    read -r -p "Opción (1, 2 o 3) [1]: " choice
+    choice=${choice:-1}
+    
+    case $choice in
+      1) LANG="en_US.UTF-8"; echo_ok "Idioma: INGLÉS (en_US.UTF-8)" ;;
+      2) LANG="es_MX.UTF-8"; echo_ok "Idioma: ESPAÑOL LATAM (es_MX.UTF-8)" ;;
+      3) LANG="es_ES.UTF-8"; echo_ok "Idioma: ESPAÑOL ESPAÑA (es_ES.UTF-8)" ;;
+      *) LANG="en_US.UTF-8"; echo_ok "Idioma: INGLÉS (por defecto)" ;;
+    esac
+    
+    # Instalar fuentes (JetBrains prioritario + Noto Unicode)
+    echo_msg "📦 Instalando fuentes JetBrains + Noto..."      
+    fc-cache -fv
+    
+    # Fontconfig GLOBAL (sistema entero)
+    echo_msg "🌐 Configurando fontconfig global..."
+    sudo mkdir -p /etc/fonts/conf.d
+    sudo tee /etc/fonts/conf.d/99-nebspwn.conf >/dev/null << 'EOF'
+<?xml version='1.0'?>
+<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+<fontconfig>
+  <alias priority="100">
+    <family>monospace</family>
+    <prefer>
+      <family>JetBrains Mono</family>
+      <family>Fira Code</family>
+      <family>Noto Sans Mono</family>
+      <family>DejaVu Sans Mono</family>
+    </prefer>
+  </alias>
+  <alias priority="100">
+    <family>sans-serif</family>
+    <prefer>
+      <family>Noto Sans</family>
+      <family>Noto Color Emoji</family>
+      <family>DejaVu Sans</family>
+    </prefer>
+  </alias>
+  <alias priority="100">
+    <family>serif</family>
+    <prefer>
+      <family>Noto Serif</family>
+      <family>DejaVu Serif</family>
+    </prefer>
+  </alias>
+</fontconfig>
+EOF
+    sudo fc-cache -fv
+    
+    # Xresources para renderizado perfecto
+    echo_msg "🖥️  Configurando X11 rendering..."
+    cat > "$HOME/.Xresources" << 'EOF'
+Xft.dpi: 96
+Xft.autohint: 1
+Xft.lcdfilter: lcddefault
+Xft.hintstyle: hintfull
+Xft.antialias: 1
+Xft.rgba: rgb
+EOF
+    
+    # Inyectar en bspwmrc (después de QT vars)
+    local bspwm_config="$HOME/.config/bspwm/bspwmrc"
+    if [[ -f "$bspwm_config" ]]; then
+        if ! grep -q "xrdb -merge.*Xresources" "$bspwm_config"; then
+            sed -i '/QT_STYLE_OVERRIDE=kvantum/a\
+xrdb -merge ~/.Xresources\
+export LANG='"${LANG}"'\
+export LC_ALL='"${LANG}"'' "$bspwm_config"
+            echo_ok "Inyectado en bspwmrc"
+        fi
+    fi
+    
+    # Locale sistema
+    echo_msg "🌍 Configurando locale: ${LANG}"
+    sudo sed -i "/^#${LANG} UTF-8/${LANG} UTF-8/" /etc/locale.gen
+    sudo locale-gen
+    echo "LANG=${LANG}" | sudo tee /etc/locale.conf >/dev/null
+    
+    echo_ok "🅰️  Fuentes + Locale COMPLETO (JetBrains + Unicode)"
+}
+
+backup_config() {
+    echo_msg "💾 Backup de .config (OPCIONAL)..."
+    
+    local CONFIG_DIR="$HOME/.config"
+    local BACKUP_DIR="$HOME/.config.backup.$(date +%Y%m%d_%H%M%S)"
+    
+    if [[ ! -d "$CONFIG_DIR" ]]; then
+        echo_skip ".config no existe (nada que respaldar)"
+        return 0
+    fi
+    
+    echo -e "\n⚠️  ¿Hacer backup de .config ANTES de deploy?"
+    echo "   → Se copiará a: $BACKUP_DIR"
+    echo "   → Carpeta actual: $(du -sh "$CONFIG_DIR" 2>/dev/null || echo "~5MB")"
+    echo -e "\n   (Y/n) ← Default NO"
+    read -r -p " > " do_backup
+    
+    if [[ "$do_backup" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        echo_msg "📦 Creando backup → $BACKUP_DIR"
+        cp -rf "$CONFIG_DIR" "$BACKUP_DIR"
+        echo_ok "✅ Backup creado: $BACKUP_DIR"
+        
+        echo -e "\n💡 Para restaurar después:"
+        echo "   cp -rf $BACKUP_DIR/* $CONFIG_DIR/"
+        echo "   rm -rf $BACKUP_DIR  # (opcional)"
+        
+    else
+        echo_skip "Backup saltado (.config se sobrescribirá)"
+    fi
+}
+
+
 
 # 🚀 EJECUCIÓN
 [ "$EUID" -eq 0 ] && { echo "❌ No root"; exit 1; }
@@ -593,12 +718,14 @@ sudo pacman -Syu --noconfirm
 
 
 setup_dependecies
+backup_config
 deploy_dotfiles
 setup_themes
 setup_zsh
 setup_qt
 setup_sddm
 install_betterlockscreen_lock
+setup_fonts_locale
 
 
 # Limpieza final
