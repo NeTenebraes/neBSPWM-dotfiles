@@ -493,23 +493,6 @@ local kvantum_path="/usr/share/Kvantum"
 local kvantum_theme=$(echo "$THEME_DEFAULT" | sed 's|-standard\+.*||' | sed 's|-hdpi||' | sed 's|-xhdpi||')
 echo_msg "🌑 GTK '$THEMEDEFAULT' → Kvantum '$kvantum_theme'"
 
-if [[ -d "$kvantum_path/$kvantum_theme" ]]; then
-    mkdir -p "$kvantum_config_dir"
-    
-    cat > "$kvantum_config_file" <<EOF
-[General]
-theme=$kvantum_theme
-EOF
-    
-    echo_ok "✅ Kvantum: $kvantum_theme aplicado[file:19]"
-else
-    echo_warn "❌ '$kvantum_theme' no encontrado → KvArcDark"
-    cat > "$kvantum_config_file" <<EOF
-[General]
-theme=KvArcDark
-EOF
-    echo_ok "✅ Kvantum: KvArcDark (fallback)[file:19]"
-fi
 
     # 4. Iniciar servicios de Portal (Run-time fix para la sesión actual)
     if ! pgrep -f "xdg-desktop-portal" >/dev/null; then
