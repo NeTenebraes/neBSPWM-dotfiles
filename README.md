@@ -37,18 +37,6 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 
 ### Instalación del Entorno grafico
 ```
-curl -sSL https://raw.githubusercontent.com/NeTenebraes/neBSPWM-dotfiles/main/setup.sh | bash
-```
-**Reiniciar:** `systemctl reboot`
-
-### Instalación de herramientas Ciberseguridad.
-```
-curl -sSL https://raw.githubusercontent.com/NeTenebraes/neBSPWM-dotfiles/main/Cybersecurity.sh | bash
-```
-**Reiniciar:** `systemctl reboot`
-
-### Manual
-```
 git clone https://github.com/NeTenebraes/neBSPWM-dotfiles.git
 cd neBSPWM-dotfiles
 ./setup.sh
