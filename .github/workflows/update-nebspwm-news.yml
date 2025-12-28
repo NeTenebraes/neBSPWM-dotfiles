@@ -36,6 +36,7 @@ jobs:
                 return null;
               }
             })()
-          template: "| $date | [$title]($url) |"
+          template: |
+            | $date | [$title]($url) |
           
           date_format: "dd/mm/yyyy"
