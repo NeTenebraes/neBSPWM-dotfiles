@@ -330,7 +330,7 @@ InputMethod=qtvirtualkeyboard" | sudo tee /etc/sddm.conf.d/virtualkbd.conf >/dev
         return 1
     fi
     
-    echo_msg "⚫ Configurando variante: Black Hole"
+    echo_msg "⚫ Configurando Tema"
     # Forzamos la configuración
     sudo sed -i "s|^ConfigFile=.*|ConfigFile=Themes/netenebrae.conf|" "$METADATA"
     
