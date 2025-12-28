@@ -162,13 +162,9 @@ En resumen: Un script que convierte tu instalación limpia de Arch en un **labor
 
 > **Nota:** Consulta [`CREDITS.md`](CREDITS.md) para detalles completos.
 ---
-> ⚠️ **Aviso / Disclaimer**  
-> Este entorno fue probado únicamente en **dos equipos** con la **misma resolución** *(1920x1080)* y hardware similar *(Intel i3 2da + 8 GB RAM)*.  
-> Es totalmente funcional en esas condiciones, pero en otros entornos pueden aparecer **errores visuales o pequeños bugs**.  
->
-> 💡 **Recomendación:** Antes de ejecutar cualquier script, **haz una copia de seguridad de tu carpeta `~/.config/`**.  
-> Durante la instalación, varios directorios se reemplazan por completo para aplicar la configuración.  
-> 
-> 🔧 **Compatibilidad:** Este script está diseñado para una **instalación limpia de Arch Linux** o derivados como **Manjaro** y **EndeavourOS**.  
-> 
+⚠️ **Disclaimer**  
+Este entorno fue probado únicamente en **dos equipos** con la **misma resolución** *(1920x1080)* y hardware similar *(Intel i3 2da + 8 GB RAM)*. Es totalmente funcional en esas condiciones, pero en otros entornos pueden aparecer **errores visuales o pequeños bugs**.  
+
+ 🔧 **Compatibilidad:** Este script está diseñado para una **instalación limpia de Arch Linux** o derivados como **Manjaro** y **EndeavourOS**.  
+
 > Si algo se rompe: Saca un pantallazo y **abre un issue en GitHub**. Cada bug ayuda a mejorar este proyecto, versión tras versión.
