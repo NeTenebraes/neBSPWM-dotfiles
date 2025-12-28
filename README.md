@@ -46,6 +46,12 @@ cd neBSPWM-dotfiles
 
 ---
 
+### 📢 Últimas actualizaciones del proyecto
+<!-- NEBSPWM:START -->
+<!-- NEBSPWM:END -->
+
+---
+
 ## ✨ Características
 
 - **Window Manager:** bspwm + sxhkd
