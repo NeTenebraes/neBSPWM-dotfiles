@@ -1,7 +1,7 @@
 name: Update neBSPWM News
 on:
   schedule:
-    - cron: '*/30 * * * *' # Cada 30 mins
+    - cron: '*/30 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -19,14 +19,14 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # USAMOS FILTRO POR TEXTO EN LUGAR DE ITEM_EXEC
-          filter_comments: "(?i)nebspwn"
-          
+          # FILTRO EN UNA SOLA LÍNEA
+          item_exec: "post.title.toLowerCase().includes('nebspwm') || post.description.toLowerCase().includes('nebspwm') ? post : null"
+
           # TEMPLATE HTML
           template: "<tr><td>$date</td><td><a href='$url'>$title</a></td></tr>"
           date_format: "dd/mm/yyyy"
           
-          # OPCIONAL: Configuración de commit para evitar errores de permisos
-          commit_message: "Updated with the latest neBSPWM posts"
+          # Forzamos que el bot haga el commit
+          commit_message: "Updated with filtered neBSPWM posts"
           committer_username: "blog-post-bot"
           committer_email: "blog-post-bot@example.com"
