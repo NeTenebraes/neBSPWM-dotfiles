@@ -19,16 +19,13 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # FILTRO DEFINITIVO SIN 'RETURN'
-          # Explicación: Si (titulo + descripcion) incluye 'bspwm', mantiene el post. 
-          # Si no, lo convierte en null (lo que hace que la acción lo ignore).
-          item_exec: "(post.title + post.description).toLowerCase().includes('nebspwm') ? post : null"
+          # FILTRO POR DESCRIPCIÓN
+          item_exec: "post.description.toLowerCase().includes('nebspwm') ? post : null"
 
           # TEMPLATE HTML
-          template: "<tr><td>$date</td><td><a href='$url'>$title</a></td></tr>"
+          template: "<tr><td>$date</td><td><a href='$url'>$description</a></td></tr>"
           date_format: "dd/mm/yyyy"
           
-          # Configuración de commit
-          commit_message: "Updated with filtered neBSPWM posts"
+          commit_message: "Bot: Filtrando noticias de neBSPWM"
           committer_username: "blog-post-bot"
           committer_email: "blog-post-bot@example.com"
