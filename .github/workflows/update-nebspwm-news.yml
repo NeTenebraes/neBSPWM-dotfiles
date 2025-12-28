@@ -19,15 +19,14 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # Filtro
-          # Buscamos 'bspwn' o 'nebspwm' en título y descripción.
-          item_exec: |
-            const content = (post.title + post.description).toLowerCase();
-            if (content.indexOf('bspwn') === -1 && content.indexOf('nebspwm') === -1) {
-              return null;
-            }
-            return post;
-
+          # USAMOS FILTRO POR TEXTO EN LUGAR DE ITEM_EXEC
+          filter_comments: "(?i)nebspwn"
+          
           # TEMPLATE HTML
           template: "<tr><td>$date</td><td><a href='$url'>$title</a></td></tr>"
           date_format: "dd/mm/yyyy"
+          
+          # OPCIONAL: Configuración de commit para evitar errores de permisos
+          commit_message: "Updated with the latest neBSPWM posts"
+          committer_username: "blog-post-bot"
+          committer_email: "blog-post-bot@example.com"
