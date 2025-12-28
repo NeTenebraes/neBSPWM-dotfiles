@@ -19,17 +19,16 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # Esta es la forma más segura de filtrar en esta acción:
-          # Convertimos todo a minúsculas y verificamos si incluye 'bspwm'
-          item_exec: |
-            post.title = post.title.toLowerCase().includes('bspwm') ? post.title : "";
-            if (post.title === "") { return null; }
+          # FILTRO DEFINITIVO SIN 'RETURN'
+          # Explicación: Si (titulo + descripcion) incluye 'bspwm', mantiene el post. 
+          # Si no, lo convierte en null (lo que hace que la acción lo ignore).
+          item_exec: "(post.title + post.description).toLowerCase().includes('nebspwm') ? post : null"
 
           # TEMPLATE HTML
           template: "<tr><td>$date</td><td><a href='$url'>$title</a></td></tr>"
           date_format: "dd/mm/yyyy"
           
-          # Forzamos los datos del commit
+          # Configuración de commit
           commit_message: "Updated with filtered neBSPWM posts"
           committer_username: "blog-post-bot"
           committer_email: "blog-post-bot@example.com"
