@@ -5,6 +5,10 @@ on:
     - cron: '0 * * * *'
   workflow_dispatch:
 
+# Permisos necesarios para escribir en el README
+permissions:
+  contents: write
+
 jobs:
   update-readme-with-blog:
     name: Update this repo's README with latest blog posts
@@ -19,7 +23,7 @@ jobs:
           comment_tag_name: NEBSPWM
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 3
-          # Corrección del error de SyntaxError:
+          # Código JS para filtrar por la palabra neBSPWM
           item_exec: |
             (function() {
               var desc = post.description || "";
@@ -31,25 +35,13 @@ jobs:
                 return null;
               }
             })()
-          template: "- $date | [$title]($url)"
+          # Template mejorado con saltos de línea y negritas
+          template: |
+            - **$date** | [$title]($url)
+            
           date_format: dd/mm/yyyy
           gh_token: ${{ secrets.GITHUB_TOKEN }}
           readme_path: "./README.md"
-          disable_sort: false
-          sort_order: desc
-          reverse_order: false
-          filter_comments: "stackoverflow/Comment by $author/,stackexchange/Comment by $author/"
-          user_agent: rss-parser
-          accept_header: "application/rss+xml"
           commit_message: "Updated with the latest blog posts"
           committer_username: "blog-post-bot"
           committer_email: "blog-post-bot@example.com"
-          output_only: false
-          enable_keepalive: true
-          retry_count: 0
-          retry_wait_time: 1
-          disable_html_encoding: false
-          categories_template: default
-          disable_item_validation: false
-          skip_commit: false
-          dummy_commit_message: "dummy commit to keep the repository active, see https://git.io/Jtm4V"
