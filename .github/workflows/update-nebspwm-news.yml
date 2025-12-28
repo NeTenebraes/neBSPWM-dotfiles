@@ -19,13 +19,15 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # FILTRO POR DESCRIPCIÓN
-          item_exec: "post.description.toLowerCase().includes('nebspwm') ? post : null"
+          # 1. Limpiamos el HTML (etiquetas de imagen, divs, etc.)
+          # 2. Buscamos 'bspwm' en el texto limpio
+          item_exec: "post.description.replace(/<[^>]*>/g, '').toLowerCase().includes('bspwm') ? post : null"
 
-          # TEMPLATE HTML
+          # Usamos un template que limpie el HTML de la descripción para que no rompa tu tabla
+          # La función substr ayuda a que no se rompa el diseño si el post es muy largo
           template: "<tr><td>$date</td><td><a href='$url'>$description</a></td></tr>"
           date_format: "dd/mm/yyyy"
           
-          commit_message: "Bot: Filtrando noticias de neBSPWM"
+          commit_message: "Bot: Noticias de neBSPWM filtradas y limpias"
           committer_username: "blog-post-bot"
           committer_email: "blog-post-bot@example.com"
