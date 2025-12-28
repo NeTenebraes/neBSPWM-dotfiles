@@ -157,7 +157,7 @@ En resumen: Un script que convierte tu instalación limpia de Arch en un **labor
 
 | ✨ Componente | 👤 Autor | 🔗 Enlace | 📄 Licencia | 🎯 Uso |
 |--------------|----------|-----------|-------------|--------|
-| **SDDM Astronaut Theme** (modificado) | [Keyitdev](https://github.com/Keyitdev) | [GitHub](https://github.com/Keyitdev/sddm-astronaut-theme) | **GPLv3+** | Pantalla de login |
+| **SDDM Astronaut Theme** | [Keyitdev](https://github.com/Keyitdev) | [GitHub](https://github.com/Keyitdev/sddm-astronaut-theme) | **GPLv3+** | Pantalla de login |
 | **Fondos de pantalla** | [Timeless](https://x.com/Timeless_aiart) | [X/Twitter](https://x.com/Timeless_aiart) | Uso personal | Wallpapers cyberpunk/anime |
 
 > **Nota:** Consulta [`CREDITS.md`](CREDITS.md) para detalles completos.
