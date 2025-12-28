@@ -24,12 +24,12 @@ PKGS_PACMAN_Essencials=(
     "git" "base-devel" "neovim" "wget" "curl" "unzip" "lsd" "sddm" "fastfetch"
     "feh" "xorg" "xorg-xinit" "nemo" "xclip" "zsh" "tmux" "htop" "bat"
     "zsh-syntax-highlighting" "zsh-autosuggestions" "python" "python-pip"
-    "nodejs" "npm" "ffmpeg" "maim" "qt5ct" "qt6ct" "starship" "blueberry"
+    "nodejs" "npm" "ffmpeg" "maim" "qt5ct" "qt6ct" "starship"
     "glib2" "libxml2" "bspwm" "sxhkd" "polybar" "picom" "rofi" "dunst" "kitty"
     "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"  
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "conky" "pavucontrol" "polkit-gnome"
     "kvantum" "kvantum-qt5" "xdg-desktop-portal" "xdg-desktop-portal-gtk" "qt5ct" "qt6ct"
-    "ttf-jetbrains-mono" "noto-fonts noto-fonts-extra" "noto-fonts-emoji" "noto-fonts-cjk" 
+    "ttf-jetbrains-mono" "noto-fonts" "noto-fonts-extra" "noto-fonts-emoji" "noto-fonts-cjk" 
     "ttf-dejavu" "ttf-liberation" "ttf-fira-code"
 )
 
@@ -38,7 +38,7 @@ PKGS_PACMAN_optionals=(
 )
 
 PKGS_AUR=(
-    "betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock"
+    "betterlockscreen" "blueberry" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock"
 )
 
 PKGS_AUR_Optionals=(
