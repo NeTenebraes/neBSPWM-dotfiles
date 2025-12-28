@@ -19,8 +19,6 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # Como ya filtraste en rss.app, aquí ya no necesitamos item_exec complejo.
-          # Solo activamos la limpieza de HTML por si Threads manda algún residuo.
           clean_html: true
           
           # Template limpio: Fecha y Título (o Descripción) con link
