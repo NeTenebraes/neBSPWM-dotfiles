@@ -1,8 +1,6 @@
 #!/bin/bash
 
 # Autor: NeTenebrae | @NeTenebraes
-# Updated: Black Hole SDDM Integration
-
 set -e
 
 DOTFILES_REPO="https://github.com/NeTenebraes/neBSPWN-dotfiles.git"
@@ -117,8 +115,29 @@ setup_dependecies() {
         echo_skip "Saltando opcionales AUR"
     fi
 
+    # 5.5. Config VSCodium (si está instalado)
+    if command -v codium >/dev/null 2>&1; then
+        echo_msg "⚙️ Configurando VSCodium Terminal (Starship glyphs)..."
+        mkdir -p ~/.config/vscodium/User
+        write_if_needed ~/.config/vscodium/User/settings.json \
+'{
+    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono, FiraCode Nerd Font, monospace"
+}'
+        echo_ok "VSCodium configurado ✅"
+    else
+        echo_skip "VSCodium no instalado"
+    fi
+
+
     # 6. Cache de fuentes
     fc-cache -fv
+    # Nemo thumbnails ILIMITADOS (claves reales de tu sistema)
+    echo_msg "🖼️ Nemo thumbnails ilimitados..."
+    gsettings set org.nemo.preferences show-image-thumbnails 'always'
+    gsettings set org.nemo.preferences thumbnail-limit "18446744073709551615"
+    gsettings set org.nemo.preferences inherit-show-thumbnails true
+    rm -rf ~/.cache/thumbnails/*
+    echo_ok "Nemo thumbnails ✅ ILIMITADOS"
 
     # 7. Clonado/Actualización del Repo (INTERACTIVO) ✅ INTEGRADO
     echo_msg "📥 GESTIONANDO REPO DOTFILES..."
