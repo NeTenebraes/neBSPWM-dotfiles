@@ -1,7 +1,7 @@
 name: Update neBSPWM News
 on:
   schedule:
-    - cron: '0 0 * * *' # Cada 24 horas (00:00 UTC)
+    - cron: '0 0 * * *' # Se ejecuta una vez al día
   workflow_dispatch:
 
 permissions:
@@ -19,16 +19,14 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # LIMPIEZA NATIVA: Esto elimina imágenes y etiquetas HTML automáticamente
+          # Como ya filtraste en rss.app, aquí ya no necesitamos item_exec complejo.
+          # Solo activamos la limpieza de HTML por si Threads manda algún residuo.
           clean_html: true
           
-          # FILTRO SEGURO: Solo pasa si contiene bspwm (insensible a mayúsculas)
-          item_exec: "post.description.toLowerCase().includes('bspwm') ? post : null"
-
-          # TEMPLATE: Usamos $description que ahora vendrá limpia por 'clean_html'
-          template: "<tr><td>$date</td><td><a href='$url'>$description</a></td></tr>"
+          # Template limpio: Fecha y Título (o Descripción) con link
+          template: "<tr><td>$date</td><td><a href='$url'>$title</a></td></tr>"
           date_format: "dd/mm/yyyy"
           
-          commit_message: "Bot: Update diario neBSPWM"
+          commit_message: "Bot: Update diario de neBSPWM"
           committer_username: "blog-post-bot"
           committer_email: "blog-post-bot@example.com"
