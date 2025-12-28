@@ -219,13 +219,7 @@ install_burp() {
     
     # ... resto del código de instalación (igual que antes)
     chmod +x "$BURP_SH"
-    
-    # FIX Java + Wayland
-    if command -v java >/dev/null; then
-        log_msg "🗑️ Removiendo Java del sistema"
-        sudo pacman -Rns jre-openjdk jdk-openjdk openjdk-* --noconfirm 2>/dev/null || true
-    fi
-    
+ 
     cd "$USERHOME"
     _JAVA_AWT_WM_NONREPARENTING=1 \
     _JAVA_OPTIONS='-Dawt.toolkit.name=MToolkit' \
