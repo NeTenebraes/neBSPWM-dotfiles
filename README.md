@@ -56,7 +56,6 @@ cd neBSPWM-dotfiles
     <tr>
 <td colspan="2" align="center" style="padding: 15px;">
   Aquí registro <strong>el día a día</strong>, los descubrimientos y el <em>detrás de cámaras</em> de este y otros repos.<br>
-  👉 <a href="https://www.threads.net/@netenebrae"><strong>No te pierdas ninguna actualización (@netenebrae)</strong></a>
 </td>
     </tr>
     <tr>
