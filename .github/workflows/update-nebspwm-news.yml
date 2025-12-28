@@ -19,18 +19,15 @@ jobs:
           feed_list: "https://rss.app/feeds/YrQvqeV8oDOWBw8C.xml"
           max_post_count: 5
           
-          # 👇 FILTRO CORREGIDO Y SIMPLIFICADO
-          # 1. Junta título + descripción.
-          # 2. Lo pasa a minúsculas.
-          # 3. Si NO encuentra 'nebspwm', lo mata (return null).
+          # Filtro
+          # Buscamos 'bspwn' o 'nebspwm' en título y descripción.
           item_exec: |
-            var text = (post.title + " " + post.description + " " + (post.content_snippet || "")).toLowerCase();
-            if (text.indexOf('nebspwm') === -1) {
+            const content = (post.title + post.description).toLowerCase();
+            if (content.indexOf('bspwn') === -1 && content.indexOf('nebspwm') === -1) {
               return null;
             }
             return post;
 
           # TEMPLATE HTML
           template: "<tr><td>$date</td><td><a href='$url'>$title</a></td></tr>"
-          
           date_format: "dd/mm/yyyy"
