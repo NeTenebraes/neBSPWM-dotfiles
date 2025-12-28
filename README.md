@@ -34,8 +34,6 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 
 > **Aviso importante:**  
 > Antes de ejecutar **cualquier script** en tu sistema, **siempre revisa su contenido**. Nunca ejecutes comandos remotos sin verificar su origen.  
-
-### Instalación del Entorno grafico
 ```
 git clone https://github.com/NeTenebraes/neBSPWM-dotfiles.git
 cd neBSPWM-dotfiles
