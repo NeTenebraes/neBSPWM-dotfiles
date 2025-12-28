@@ -36,7 +36,7 @@ PKGS_PACMAN_optionals=(
 )
 
 PKGS_AUR=(
-    "betterlockscreen" "blueberry" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock"
+    "betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock"
 )
 
 PKGS_AUR_Optionals=(
