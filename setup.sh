@@ -484,17 +484,6 @@ setup_qt() {
         chmod +x "$bspwm_config"
     fi
 
-    # Lógica de inyección inteligente (Idempotente)
-    if ! grep -q "QT_STYLE_OVERRIDE=kvantum" "$bspwm_config"; then
-        echo_msg "🔧 Inyectando variables Qt en bspwmrc..."
-        
-        local temp_bspwm=$(mktemp)
-        
-        # Mantener shebang
-        head -n 1 "$bspwm_config" > "$temp_bspwm"
-        
-        # Bloque de configuración Qt
-
 # 3. Configurar Kvantum (Extrae nombre base de THEMEDEFAULT)
 local kvantum_config_dir="$HOME/.config/Kvantum"
 local kvantum_config_file="$kvantum_config_dir/kvantum.kvconfig"
