@@ -55,8 +55,7 @@ cd neBSPWM-dotfiles
     </tr>
   </thead>
   <tbody>
-    <!-- NEBSPWM:START -->
-    <!-- NEBSPWM:END -->
+    <!-- NEBSPWM:START --><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSy0vdNjoMP'>Integré un pequeño módulo para el repo de neBSPWM.   La i...</a></td></tr><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSyuQy3Dnm9'>Día 53 | Bugs de post-producción neBSPWM 🐛  Hoy fue día ...</a></td></tr><tr><td>27/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSv1okuiePg'>💀 Día 47–52 | Proyecto NebSPWM   Seis días de puro ricin...</a></td></tr><tr><td>26/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DStxbT5joSH'>Felices fiestas! Mañana traigo un update especial, han sido días de mucho formatear. Xd Mañana update de que he estado haciendo!</a></td></tr><tr><td>20/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSePbdSjhj_'>Día 46 | Ricing en Arch 💀   Aunque no lo crean, customizable Arch puede ser 10% estética y 90% pelear con archivos de configura...</a></td></tr><!-- NEBSPWM:END -->
   </tbody>
 </table>
 
