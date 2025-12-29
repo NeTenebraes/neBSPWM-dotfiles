@@ -109,16 +109,51 @@ setup_dependecies() {
     esac
     echo_ok "Idioma seleccionado: $SYS_LANG"
 
-    # 1. PARU (Obligatorio - Si no existe se compila)
-if ! command -v paru >/dev/null; then
-        echo_msg "Instalando PARU..."
-        git clone https://aur.archlinux.org/paru.git /tmp/paru
-        cd /tmp/paru && makepkg -si --noconfirm && cd - && rm -rf /tmp/paru
-        echo_ok "PARU Instalado"
-    else
-        echo_skip "PARU ya estaba instalado"
+# --- NUEVA LÓGICA DE AUR HELPER ---
+    echo_msg "🔍 Verificando AUR Helpers..."
+    helpers=("paru" "paru-bin" "yay" "yay-bin")
+    installed_helper=""
+
+    # Detectar si ya existe alguno
+    for h in "${helpers[@]}"; do
+        if command -v "${h%-bin}" >/dev/null; then
+            installed_helper="${h%-bin}"
+            break
+        fi
+    done
+
+    if [[ -n "$installed_helper" ]]; then
+        echo_skip "Se detectó '$installed_helper' ya instalado."
+        read -r -p "¿Deseas instalar otro diferente? (y/N): " change_helper
+        if [[ ! "$change_helper" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+            export AUR_HELPER="$installed_helper"
+        fi
     fi
 
+    # Si no hay ninguno o el usuario quiso cambiarlo
+    if [[ -z "$AUR_HELPER" ]]; then
+        echo -e "\n--- Selección de AUR Helper ---"
+        PS3="Selecciona una opción (1-5): "
+        select opt in "${helpers[@]}" "Cancelar"; do
+            case $opt in
+                "paru"|"paru-bin"|"yay"|"yay-bin")
+                    echo_msg "Instalando $opt..."
+                    sudo pacman -S --needed --noconfirm base-devel git
+                    git clone "https://aur.archlinux.org/$opt.git" "/tmp/$opt"
+                    cd "/tmp/$opt" && makepkg -si --noconfirm && cd - && rm -rf "/tmp/$opt"
+                    export AUR_HELPER="${opt%-bin}"
+                    echo_ok "$opt instalado"
+                    break
+                    ;;
+                "Cancelar")
+                    echo_err "Se requiere un AUR Helper para continuar."
+                    exit 1
+                    ;;
+                *) echo "Opción no válida";;
+            esac
+        done
+    fi
+    # ----------------------------------
     # 2. Dependencias Esenciales Pacman (Obligatorio)
     echo_msg "📦 Instalando dependencias esenciales (Pacman)..."
     sudo pacman -S --needed --noconfirm "${PKGS_PACMAN_Essencials[@]}"
