@@ -198,8 +198,8 @@ setup_dependecies() {
         sudo tee /etc/fonts/conf.d/99-nebspwn.conf >/dev/null << 'EOF'
 <?xml version='1.0'?><!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
 <fontconfig>
-  <alias priority="100"><family>monospace</family><prefer><family>JetBrains Mono</family></prefer></alias>
-  <alias priority="100"><family>sans-serif</family><prefer><family>Noto Sans</family><family>Noto Color Emoji</family></prefer></alias>
+  <alias><family>monospace</family><prefer><family>JetBrains Mono</family></prefer></alias>
+  <alias><family>sans-serif</family><prefer><family>Noto Sans</family><family>Noto Color Emoji</family></prefer></alias>
 </fontconfig>
 EOF
 
@@ -676,7 +676,7 @@ setup_fonts_locale() {
 <?xml version='1.0'?>
 <!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
 <fontconfig>
-  <alias priority="100">
+  <alias>
     <family>monospace</family>
     <prefer>
       <family>JetBrains Mono</family>
@@ -685,7 +685,7 @@ setup_fonts_locale() {
       <family>DejaVu Sans Mono</family>
     </prefer>
   </alias>
-  <alias priority="100">
+  <alias>
     <family>sans-serif</family>
     <prefer>
       <family>Noto Sans</family>
@@ -693,7 +693,7 @@ setup_fonts_locale() {
       <family>DejaVu Sans</family>
     </prefer>
   </alias>
-  <alias priority="100">
+  <alias>
     <family>serif</family>
     <prefer>
       <family>Noto Serif</family>
