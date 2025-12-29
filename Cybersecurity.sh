@@ -383,38 +383,61 @@ EOF
 
 setup_bugbounty_browser() {
     local BUG_BROWSER="$1"
-    mkdir -p "$CFG_FIREJAIL" "$APP_DIR"
+    local BB_PATH="$HOME/.bugbounty_browser_profile"
+    local BB_DOWNLOADS="$HOME/Downloads/bugbounty_files"
+    
+    mkdir -p "$CFG_FIREJAIL" "$APP_DIR" "$BB_PATH" "$BB_DOWNLOADS"
 
-cat > "$CFG_FIREJAIL/${BUG_BROWSER}-bugbounty.profile" << EOF
-include ${BUG_BROWSER}.profile
-# BUG BOUNTY: aislamiento + PERSISTENCIA
-private-home          # Oculta ~/ pero persiste home
-whitelist ${HOME}/.mozilla/firefox/bugbounty  # ← Perfil dedicado
-whitelist ${HOME}/.cache/mozilla               # ← Extensions/cache
-private-dev
-no3d nodvd nosound
-dns 1.1.1.1 1.0.0.1
+    # 1. PREFS: Forzamos estabilidad en certificados y diálogos
+    if [ ! -f "$BB_PATH/prefs.js" ]; then
+        cat > "$BB_PATH/prefs.js" << EOF
+user_pref("browser.shell.checkDefaultBrowser", false);
+user_pref("browser.startup.page", 3);
+user_pref("widget.use-xdg-desktop-portal.file-picker", 1);
+user_pref("security.cert_pinning.enforcement_level", 1);
+EOF
+    fi
+
+    # 2. PERFIL FIREJAIL (Permisos de Certificados y Estabilidad)
+    cat > "$CFG_FIREJAIL/${BUG_BROWSER}-bugbounty.profile" << EOF
+include firefox.profile
+
+# AISLAMIENTO DE DATOS
+blacklist \${HOME}/.mozilla/firefox
+noblacklist ${BB_PATH}
+whitelist ${BB_PATH}
+noblacklist ${BB_DOWNLOADS}
+whitelist ${BB_DOWNLOADS}
+
+# --- FIX PARA IMPORTAR CERTIFICADOS ---
+# Permitir que Firefox gestione su base de datos de seguridad
+writable-run-user
+ignore memory-deny-write-execute
+ignore nodbus
+
+# Comunicación necesaria para el selector de archivos (Certificado .der/.pem)
+dbus-user.talk org.freedesktop.portal.Desktop
+dbus-user.talk org.freedesktop.portal.Documents
+dbus-user.talk org.freedesktop.FileChooser
+
+# Acceso a librerías de seguridad del sistema
+noblacklist /etc/ssl
+noblacklist /etc/pki
 EOF
 
-
-cat > "$APP_DIR/${BUG_BROWSER}-bugbounty-firejail.desktop" << EOF
+    # 3. LANZADOR (Con variable de entorno para evitar el crash)
+    cat > "$APP_DIR/${BUG_BROWSER}-bugbounty-firejail.desktop" << EOF
 [Desktop Entry]
 Name=${BUG_BROWSER^} (Bug Bounty)
-Comment=${BUG_BROWSER^} Firejail - Pentesting aislado
-Exec=firejail --profile=$CFG_FIREJAIL/${BUG_BROWSER}-bugbounty.profile $BUG_BROWSER -P bugbounty %u
+Exec=env GTK_USE_PORTAL=1 firejail --profile=$CFG_FIREJAIL/${BUG_BROWSER}-bugbounty.profile $BUG_BROWSER --no-remote --profile ${BB_PATH} %u
 Icon=${BUG_BROWSER}
 Terminal=false
 Type=Application
-Categories=Network;WebBrowser;Security;Hacking;
-StartupWMClass=${BUG_BROWSER}-bugbounty
+Categories=Network;WebBrowser;
+StartupWMClass=firefox-bugbounty
 EOF
 
-
     update-desktop-database "$APP_DIR" 2>/dev/null || true
-    "$BUG_BROWSER" -CreateProfile "bugbounty $HOME/.mozilla/firefox/bugbounty" || true
-    log_ok "Perfil 'bugbounty' creado ✓"
-
-    log_ok "${BUG_BROWSER^} (Bug Bounty) configurado ✓"
 }
 
 

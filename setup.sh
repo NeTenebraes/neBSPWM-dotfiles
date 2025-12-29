@@ -1,187 +1,202 @@
 #!/bin/bash
 
+# =============================================================================
 # Autor: NeTenebrae | @NeTenebraes
+# Descripción: neBSPWN Setup
+# =============================================================================
+
 set -e
 
+# --- 1. VARIABLES GLOBALES Y TEMAS ---
 DOTFILES_REPO="https://github.com/NeTenebraes/neBSPWN-dotfiles.git"
 DOTFILES_DIR="$HOME/.config/neBSPWN-dotfiles"
-# Nota: CONFIG_SRC y HOME_SRC se definen dinámicamente en deploy_dotfiles
 
-# Temas
 THEME_DEFAULT="catppuccin-mocha-mauve-standard+default"
 THEME_CURSOR="catppuccin-mocha-dark-cursors"
 THEME_ICONS="Papirus-Dark"
-CURSOR_SIZE="16"
 THEME_FONT="JetBrainsMono Nerd Font 11"
+CURSOR_SIZE="16"
 
-# Limpiar comillas
+# Limpieza de variables para evitar conflictos de comillas
 THEME_CURSOR_CLEAN="${THEME_CURSOR//\'/}"
 CURSOR_SIZE_CLEAN="${CURSOR_SIZE//\'/}"
 
+# --- 2. LISTAS DE PAQUETES ---
 PKGS_PACMAN_Essencials=(
     "git" "base-devel" "neovim" "wget" "curl" "unzip" "lsd" "sddm" "fastfetch"
     "feh" "xorg" "xorg-xinit" "nemo" "xclip" "zsh" "tmux" "htop" "bat"
     "zsh-syntax-highlighting" "zsh-autosuggestions" "python" "python-pip"
-    "nodejs" "npm" "ffmpeg" "maim" "qt5ct" "qt6ct" "starship"
-    "glib2" "libxml2" "bspwm" "sxhkd" "polybar" "picom" "rofi" "dunst" "kitty"
-    "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"  
-    "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "conky" "pavucontrol" "polkit-gnome"
-    "kvantum" "kvantum-qt5" "xdg-desktop-portal" "xdg-desktop-portal-gtk" "qt5ct" "qt6ct"
-    "ttf-jetbrains-mono" "noto-fonts" "noto-fonts-extra" "noto-fonts-emoji" "noto-fonts-cjk" 
-    "ttf-dejavu" "ttf-liberation" "ttf-fira-code"
+    "nodejs" "npm" "ffmpeg" "maim" "qt5ct" "qt6ct" "starship" "glib2" "libxml2" 
+    "bspwm" "sxhkd" "polybar" "picom" "rofi" "dunst" "kitty" "conky" "pavucontrol" 
+    "polkit-gnome" "kvantum" "kvantum-qt5" "xdg-desktop-portal" "xdg-desktop-portal-gtk"
+    "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"
+    "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
+    "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code"
 )
 
-PKGS_PACMAN_optionals=(
-    "firefox" "vlc" "obsidian"
-)
+PKGS_PACMAN_optionals=("firefox" "vlc" "obsidian")
+PKGS_AUR=("betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock")
+PKGS_AUR_Optionals=("vscodium-bin" "megasync")
 
-PKGS_AUR=(
-    "betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock"
-)
-
-PKGS_AUR_Optionals=(
-    "vscodium-bin" "megasync"
-)
-
+# --- 3. FUNCIONES HELPER (ESTÉTICA Y LÓGICA) ---
 echo_msg() { echo -e "\n\033[1;34m🛡️ $1\033[0m"; }
-echo_ok() { echo -e "\033[1;32m✅ $1\033[0m"; }
+echo_ok()  { echo -e "\033[1;32m✅ $1\033[0m"; }
 echo_skip(){ echo -e "\033[1;33m⏭️ $1\033[0m"; }
 echo_err() { echo -e "\033[0;31m❌ $1\033[0m" >&2; }
-echo_warn() { echo -e "\033[0;31m❌ $1\033[0m" >&2; }
 
-# Funciones Helper
+# --- HELPERS ---
+
+# Comprueba si el contenido de un archivo es EXACTAMENTE igual al string proveído
 check_file_content() {
-    local file="$1" content="$2"
-    [[ -f "$file" ]] && cmp -s <(echo "$content") "$file"
+    local file="$1"
+    local content="$2"
+    # Si el archivo no existe, obviamente no coincide
+    [[ -f "$file" ]] && cmp -s <(echo -e "$content") "$file"
 }
 
+# Escribe el contenido solo si es necesario, creando el directorio padre si falta
 write_if_needed() {
-    local file="$1" content="$2"
+    local file="$1"
+    local content="$2"
+    
     if ! check_file_content "$file" "$content"; then
-        echo "$content" > "$file"
+        mkdir -p "$(dirname "$file")"
+        echo -e "$content" > "$file"
         echo_ok "Actualizado: $file"
     else
-        echo_skip "Ya OK: $file"
+        echo_skip "Sin cambios: $file"
     fi
 }
 
+# Escribe en dconf solo si el valor actual es distinto (evita reinicios innecesarios de servicios)
 dconf_write_if_needed() {
-    local key="$1" value="$2"
-    if [[ "$(dconf read "$key" 2>/dev/null || echo 'NULL')" != "$value" ]]; then
+    local key="$1"
+    local value="$2"
+    
+    # Obtenemos el valor actual. Si falla, devolvemos un string vacío
+    local current_val
+    current_val=$(dconf read "$key" 2>/dev/null | sed "s/^'//;s/'$//" || echo "")
+    
+    # Limpiamos el valor de entrada para la comparativa (quitar comillas si vienen)
+    local clean_value=$(echo "$value" | sed "s/^'//;s/'$//")
+
+    if [[ "$current_val" != "$clean_value" ]]; then
+        # Aquí dconf write sí necesita las comillas si es un string
         dconf write "$key" "$value"
-        echo_ok "dconf: $key"
+        echo_ok "dconf: $key ➔ $value"
     else
         echo_skip "dconf OK: $key"
     fi
 }
 
 setup_dependecies() {
+    # 0. Verificación de Internet
+    echo_msg "🌐 Comprobando conexión a internet..."
+    if ! ping -c 1 8.8.8.8 &>/dev/null; then
+        echo_err "No hay conexión a internet. El script requiere acceso para instalar paquetes y temas."
+        exit 1
+    fi    
+    echo_ok "Conexión activa"
+
+    echo -e "\nSelecciona el idioma del sistema:"
+    echo "1) Inglés | 2) Español LATAM | 3) Español España"
+    read -r -p "Opción [1]: " choice
+    case ${choice:-1} in
+      1) export SYS_LANG="en_US.UTF-8" ;;
+      2) export SYS_LANG="es_MX.UTF-8" ;;
+      3) export SYS_LANG="es_ES.UTF-8" ;;
+      *) export SYS_LANG="en_US.UTF-8" ;;
+    esac
+    echo_ok "Idioma seleccionado: $SYS_LANG"
+
     # 1. PARU (Obligatorio - Si no existe se compila)
-    command -v paru >/dev/null || {
+if ! command -v paru >/dev/null; then
         echo_msg "Instalando PARU..."
         git clone https://aur.archlinux.org/paru.git /tmp/paru
         cd /tmp/paru && makepkg -si --noconfirm && cd - && rm -rf /tmp/paru
         echo_ok "PARU Instalado"
-    } || echo_skip "PARU ya estaba instalado"
+    else
+        echo_skip "PARU ya estaba instalado"
+    fi
 
     # 2. Dependencias Esenciales Pacman (Obligatorio)
     echo_msg "📦 Instalando dependencias esenciales (Pacman)..."
     sudo pacman -S --needed --noconfirm "${PKGS_PACMAN_Essencials[@]}"
 
-    # 3. Dependencias Opcionales Pacman (Interactivo)
-    echo -e "\n¿Deseas instalar las dependencias opcionales de Pacman? (y/N)"
-    echo -e "   (Incluye: ${PKGS_PACMAN_optionals[*]})"
-    read -r -p " > " response_pacman
-    if [[ "$response_pacman" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        echo_msg "📦 Instalando opcionales (Pacman)..."
-        sudo pacman -S --needed --noconfirm "${PKGS_PACMAN_optionals[@]}"
-        echo_ok "Opcionales Pacman instaladas"
-    else
-        echo_skip "Saltando opcionales Pacman"
-    fi
+    # 3. Dependencias Opcionales Pacman
+    read -r -p "¿Instalar opcionales de Pacman? (${PKGS_PACMAN_optionals[*]}) (y/N): " resp_p
+    [[ "$resp_p" =~ ^([yY][eE][sS]|[yY])$ ]] && sudo pacman -S --needed --noconfirm "${PKGS_PACMAN_optionals[@]}"
 
     # 4. Paquetes AUR Esenciales (Obligatorio)
-    echo_msg "📦 Instalando paquetes AUR esenciales..."
+    echo_msg "📦 Instalando paquetes AUR..."
     paru -S --needed --noconfirm "${PKGS_AUR[@]}"
 
     # 5. Paquetes AUR Opcionales (Interactivo)
-    echo -e "\n¿Deseas instalar las dependencias opcionales de AUR? (y/N)"
-    echo -e "   (Incluye: ${PKGS_AUR_Optionals[*]})"
-    read -r -p " > " response_aur
-    if [[ "$response_aur" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-        echo_msg "📦 Instalando opcionales (AUR)..."
-        paru -S --needed --noconfirm "${PKGS_AUR_Optionals[@]}"
-        echo_ok "Opcionales AUR instaladas"
-    else
-        echo_skip "Saltando opcionales AUR"
-    fi
+    read -r -p "¿Instalar opcionales de AUR? (${PKGS_AUR_Optionals[*]}) (y/N): " resp_a
+    [[ "$resp_a" =~ ^([yY][eE][sS]|[yY])$ ]] && paru -S --needed --noconfirm "${PKGS_AUR_Optionals[@]}"
 
-    # 5.5. Config VSCodium (si está instalado)
-    if command -v codium >/dev/null 2>&1; then
-        echo_msg "⚙️ Configurando VSCodium Terminal (Starship glyphs)..."
-        mkdir -p ~/.config/vscodium/User
-        write_if_needed ~/.config/vscodium/User/settings.json \
-'{
-    "terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono, FiraCode Nerd Font, monospace"
-}'
-        echo_ok "VSCodium configurado ✅"
-    else
-        echo_skip "VSCodium no instalado"
-    fi
+    # 5.5 VSCodium y 6. Nemo/Fonts (Mantenemos tu lógica original)
+        if command -v codium >/dev/null 2>&1; then
+            mkdir -p ~/.config/vscodium/User
+            write_if_needed ~/.config/vscodium/User/settings.json '{"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono"}'
+        fi
+        gsettings set org.nemo.preferences show-image-thumbnails 'always'
+        gsettings set org.nemo.preferences thumbnail-limit "18446744073709551615"
+        gsettings set org.nemo.preferences inherit-show-thumbnails true
+        rm -rf ~/.cache/thumbnails/*
+        fc-cache -fv
+        echo_ok "Nemo thumbnails ✅"
 
+    # 6. Configuración de Renderizado y Fontconfig (Inyectado aquí)
+        echo_msg "🌐 Configurando Fontconfig y X11 rendering..."
+        # Aplicar el XML de Fontconfig que tenías en setup_fonts_locale
+        sudo mkdir -p /etc/fonts/conf.d
+        sudo tee /etc/fonts/conf.d/99-nebspwn.conf >/dev/null << 'EOF'
+<?xml version='1.0'?><!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+<fontconfig>
+  <alias priority="100"><family>monospace</family><prefer><family>JetBrains Mono</family></prefer></alias>
+  <alias priority="100"><family>sans-serif</family><prefer><family>Noto Sans</family><family>Noto Color Emoji</family></prefer></alias>
+</fontconfig>
+EOF
 
-    # 6. Cache de fuentes
-    fc-cache -fv
-    # Nemo thumbnails ILIMITADOS (claves reales de tu sistema)
-    echo_msg "🖼️ Nemo thumbnails ilimitados..."
-    gsettings set org.nemo.preferences show-image-thumbnails 'always'
-    gsettings set org.nemo.preferences thumbnail-limit "18446744073709551615"
-    gsettings set org.nemo.preferences inherit-show-thumbnails true
-    rm -rf ~/.cache/thumbnails/*
-    echo_ok "Nemo thumbnails ✅ ILIMITADOS"
+    # Aplicar Xresources inmediatamente
+    write_if_needed "$HOME/.Xresources" "Xft.dpi: 96\nXft.autohint: 1\nXft.lcdfilter: lcddefault\nXft.hintstyle: hintfull\nXft.antialias: 1\nXft.rgba: rgb"
+    xrdb -merge "$HOME/.Xresources" 2>/dev/null || true
 
-    # 7. Clonado/Actualización del Repo (INTERACTIVO) ✅ INTEGRADO
+# 7. GESTIÓN INTELIGENTE DEL REPO (Evitar doble descarga)
     echo_msg "📥 GESTIONANDO REPO DOTFILES..."
     local tmp_repo="/tmp/neBSPWN-dotfiles"
-
-    if [[ -d "$tmp_repo" ]]; then
-        echo -e "\n📂 Repo temporal YA EXISTE: $tmp_repo"
-        echo "  1) Actualizar (git pull)"
-        echo "  2) Mantener como está"
-        echo "  3) Borrar y clonar nuevo"
-        read -r -p "Opción [1-3]: " repo_action
-        
-        case "$repo_action" in
-            1|update|pull)
-                echo_msg "🔄 Actualizando repo..."
-                cd "$tmp_repo" && git pull origin main && cd - >/dev/null
-                echo_ok "✅ Repo actualizado"
-                ;;
-            2|keep|mantener)
-                echo_skip "Manteniendo repo existente"
-                ;;
-            3|delete|borrar|clone)
-                echo_msg "🗑️  Borrando y clonando nuevo..."
-                rm -rf "$tmp_repo"
-                git clone "$DOTFILES_REPO" "$tmp_repo"
-                echo_ok "✅ Repo clonado nuevo"
-                ;;
-            *)
-                echo_err "Opción inválida. Clonando nuevo..."
-                rm -rf "$tmp_repo"
-                git clone "$DOTFILES_REPO" "$tmp_repo"
-                echo_ok "✅ Repo clonado nuevo"
-                ;;
-        esac
-    else
-        echo_msg "📥 Clonando repo por primera vez..."
-        git clone "$DOTFILES_REPO" "$tmp_repo"
-        echo_ok "✅ Repo clonado → $tmp_repo"
+    local current_dir=$(pwd)
+    
+    # ¿Estamos ya dentro del repo de dotfiles?
+    if git rev-parse --is-inside-work-tree &>/dev/null; then
+        local remote_url=$(git remote get-url origin 2>/dev/null || echo "")
+        if [[ "$remote_url" == *"$DOTFILES_REPO"* ]]; then
+            echo -e "\n✨ DETECTADO: Ya estás dentro del directorio del repositorio."
+            read -r -p "¿Usar los archivos de esta carpeta actual? (Y/n): " use_local
+            if [[ ! "$use_local" =~ ^([nN][oO]|[nN])$ ]]; then
+                export NE_TMP_REPO="$current_dir"
+                echo_ok "Usando archivos locales: $NE_TMP_REPO"
+                return 0 # Saltamos el resto de la lógica de clonado
+            fi
+        fi
     fi
 
-    # EXPORTA variable global
+    # Lógica de clonado/actualización en /tmp (si no se usa el local)
+    if [[ -d "$tmp_repo" ]]; then
+        echo -e "\n📂 Repo temporal ya existe en $tmp_repo"
+        echo "  1) Actualizar (git pull) | 2) Mantener | 3) Re-clonar"
+        read -r -p "Opción [1-3]: " repo_action
+        case "$repo_action" in
+            1) cd "$tmp_repo" && git pull && cd - >/dev/null ;;
+            3) rm -rf "$tmp_repo" && git clone "$DOTFILES_REPO" "$tmp_repo" ;;
+        esac
+    else
+        echo_msg "📥 Clonando repo en temporal..."
+        git clone "$DOTFILES_REPO" "$tmp_repo"
+    fi
+
     export NE_TMP_REPO="$tmp_repo"
-    
     echo_ok "Fuentes + Repo OK"
 }
 
