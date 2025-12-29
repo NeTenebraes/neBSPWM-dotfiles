@@ -255,18 +255,27 @@ EOF
 # ==================== CAIDO ====================
 install_caido() {
     local DIR="$USERHOME/.local/share/ciber"
-    local BINDIR="$USERHOME/bin"
-    mkdir -p "$BINDIR" "$DIR" "$USERHOME/.local/bin" "$USERHOME/.local/share/applications" "$USERHOME/.local/share/icons"
+    local BINDIR="$USERHOME/.local/bin" 
     
+    mkdir -p "$BINDIR" "$DIR" "$USERHOME/.local/share/applications" "$USERHOME/.local/share/icons"    
     log_msg "Configurando icono Caido..."
     wget -q "$CAIDO_ICON_URL" -O "$USERHOME/.local/share/icons/caido.png"
+
+    # --- FIX PARA KERNEL HARDENED ---
+    if [[ "$(uname -r)" == *"-hardened"* ]]; then
+        log_msg "Detectado kernel hardened: Asegurando compatibilidad con Sandbox..."
+        if [[ $(sysctl -n kernel.unprivileged_userns_clone) -eq 0 ]]; then
+            sudo sysctl -w kernel.unprivileged_userns_clone=1
+            echo 'kernel.unprivileged_userns_clone=1' | sudo tee /etc/sysctl.d/99-user-namespaces.conf > /dev/null
+        fi
+    fi
     
     cat > "$USERHOME/.local/share/applications/caido.desktop" << EOF
 [Desktop Entry]
 Version=1.0
 Name=CaiDO
 Comment=Web Security Testing Proxy
-Exec=$BINDIR/caido --no-sandbox
+Exec=/home/$REALUSER/.local/bin/caido
 Icon=caido
 Terminal=false
 Type=Application
@@ -275,27 +284,26 @@ StartupWMClass=Caido
 MimeType=application/x-caido;
 EOF
     update-desktop-database "$USERHOME/.local/share/applications"
-    
-    if command -v caido &>/dev/null || [[ -x "$BINDIR/caido" ]]; then
-        log_ok "Caido YA en PATH → Config OK"
-        return 0
-    fi
-    
+
+    # Obtener versión y definir ruta de AppImage
     local CAIDOVERSION=$(curl -s "$CAIDO_GITHUB_API" | grep tag_name | sed -E 's/.*"([^"]+)".*/\1/')
     local CAIDOAPPIMAGE="$BINDIR/caido-desktop-${CAIDOVERSION}-linux-x86_64.AppImage"
     
+    # Descargar si no existe
     if [[ ! -x "$CAIDOAPPIMAGE" ]]; then
         log_msg "DESCARGANDO Caido v$CAIDOVERSION..."
         rm -f "$BINDIR/caido-desktop-"*.AppImage
         wget --timeout=60 "${CAIDO_BASE_URL}/${CAIDOVERSION}/caido-desktop-${CAIDOVERSION}-linux-x86_64.AppImage" -O "$CAIDOAPPIMAGE"
         chmod +x "$CAIDOAPPIMAGE"
         echo "$CAIDOVERSION" > "$DIR/caidoversion.txt"
-    else
-        log_ok "Caido v$CAIDOVERSION ya descargado"
     fi
     
+    # --- GESTIÓN DE ENLACES (CORREGIDA) ---
+    # Borramos cualquier link previo para evitar el error de "too many levels"
+    rm -f "$BINDIR/caido"
+    
+    # Creamos un único link: del nombre simple 'caido' al archivo AppImage real
     ln -sf "$CAIDOAPPIMAGE" "$BINDIR/caido"
-    ln -sf "$BINDIR/caido" "$USERHOME/.local/bin/caido"
     
     if ! grep -q ".local/bin" "$USERHOME/.bashrc" 2>/dev/null; then
         echo 'export PATH="$HOME/.local/bin:$PATH"' >> "$USERHOME/.bashrc"

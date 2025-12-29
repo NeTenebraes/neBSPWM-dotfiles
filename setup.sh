@@ -153,8 +153,15 @@ setup_dependecies() {
             esac
         done
     fi
+
+    # Si llegamos aquí sin helper (por error raro), el script muere antes de fallar
+    if [[ -z "${AUR_HELPER:-}" ]]; then
+        echo_err "Error crítico: No se definió AUR_HELPER."
+        exit 1
+    fi
+
     # ----------------------------------
-    # 2. Dependencias Esenciales Pacman (Obligatorio)
+    # 2. Dependencias Esenciales Pacman
     echo_msg "📦 Instalando dependencias esenciales (Pacman)..."
     sudo pacman -S --needed --noconfirm "${PKGS_PACMAN_Essencials[@]}"
 
@@ -162,15 +169,17 @@ setup_dependecies() {
     read -r -p "¿Instalar opcionales de Pacman? (${PKGS_PACMAN_optionals[*]}) (y/N): " resp_p
     [[ "$resp_p" =~ ^([yY][eE][sS]|[yY])$ ]] && sudo pacman -S --needed --noconfirm "${PKGS_PACMAN_optionals[@]}"
 
-    # 4. Paquetes AUR Esenciales (Obligatorio)
-    echo_msg "📦 Instalando paquetes AUR..."
-    paru -S --needed --noconfirm "${PKGS_AUR[@]}"
+    # 4. PAQUETES AUR ESENCIALES
+    echo_msg "📦 Instalando paquetes AUR con $AUR_HELPER..."
+    "$AUR_HELPER" -S --needed --noconfirm "${PKGS_AUR[@]}"
 
-    # 5. Paquetes AUR Opcionales (Interactivo)
+    # 5. PAQUETES AUR OPCIONALES (CORREGIDO)
     read -r -p "¿Instalar opcionales de AUR? (${PKGS_AUR_Optionals[*]}) (y/N): " resp_a
-    [[ "$resp_a" =~ ^([yY][eE][sS]|[yY])$ ]] && paru -S --needed --noconfirm "${PKGS_AUR_Optionals[@]}"
+    if [[ "$resp_a" =~ ^([yY][eE][sS]|[yY])$ ]]; then
+        "$AUR_HELPER" -S --needed --noconfirm "${PKGS_AUR_Optionals[@]}"
+    fi
 
-    # 5.5 VSCodium y 6. Nemo/Fonts (Mantenemos tu lógica original)
+    # 5.5 VSCodium y 6. Nemo/Fonts
         if command -v codium >/dev/null 2>&1; then
             mkdir -p ~/.config/vscodium/User
             write_if_needed ~/.config/vscodium/User/settings.json '{"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono"}'
@@ -568,10 +577,10 @@ install_betterlockscreen_lock() {
         return 1
     fi
     
-    # Instalar si falta
+# Instalar si falta
     if ! command -v betterlockscreen >/dev/null 2>&1; then
-        echo_msg "📦 Instalando betterlockscreen..."
-        paru -S --needed --noconfirm betterlockscreen
+        echo_msg "📦 Instalando betterlockscreen usando $AUR_HELPER..."
+        "$AUR_HELPER" -S --needed --noconfirm betterlockscreen
     fi
     
     local DEST_DIR="$HOME/.config/betterlockscreen/rc"
