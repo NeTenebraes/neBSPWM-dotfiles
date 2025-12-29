@@ -89,32 +89,6 @@ dconf_write_if_needed() {
     fi
 }
 
-# Función para reparar el AUR Helper si se rompe libalpm
-repair_aur_helper() {
-    local helper="$1"
-    echo_msg "🔧 Verificando integridad de $helper..."
-    
-    # Intentamos ejecutar una versión simple. Si falla por librerías, reparamos.
-    if ! "$helper" --version &>/dev/null; then
-        echo_err "Se detectó que $helper está roto (posible error de libalpm)."
-        echo_msg "🚀 Intentando reparación automática instalando ${helper}-bin..."
-        
-        sudo pacman -S --needed --noconfirm base-devel git
-        local tmp_dir="/tmp/${helper}-bin-repair"
-        rm -rf "$tmp_dir"
-        
-        git clone "https://aur.archlinux.org/${helper}-bin.git" "$tmp_dir"
-        cd "$tmp_dir" && makepkg -si --noconfirm && cd -
-        
-        if "$helper" --version &>/dev/null; then
-            echo_ok "Reparación exitosa: $helper vuelve a estar operativo."
-        else
-            echo_err "No se pudo reparar $helper. Revisa tu conexión o logs de pacman."
-            exit 1
-        fi
-    fi
-}
-
 setup_dependecies() {
     # 0. Verificación de Internet
     echo_msg "🌐 Comprobando conexión a internet..."
@@ -137,7 +111,7 @@ setup_dependecies() {
 
 # --- NUEVA LÓGICA DE AUR HELPER ---
     echo_msg "🔍 Verificando AUR Helpers..."
-    helpers=("paru" "paru-bin" "yay" "yay-bin")
+    helpers=("paru" "yay" "yay-bin")
     installed_helper=""
 
     # Detectar si ya existe alguno
@@ -159,10 +133,10 @@ setup_dependecies() {
     # Si no hay ninguno o el usuario quiso cambiarlo
     if [[ -z "$AUR_HELPER" ]]; then
         echo -e "\n--- Selección de AUR Helper ---"
-        PS3="Selecciona una opción (1-5): "
+        PS3="Selecciona una opción (1-4): "
         select opt in "${helpers[@]}" "Cancelar"; do
             case $opt in
-                "paru"|"paru-bin"|"yay"|"yay-bin")
+                "paru"|"yay"|"yay-bin")
                     echo_msg "Instalando $opt..."
                     sudo pacman -S --needed --noconfirm base-devel git
                     git clone "https://aur.archlinux.org/$opt.git" "/tmp/$opt"
@@ -197,7 +171,6 @@ setup_dependecies() {
 
     # 4. PAQUETES AUR ESENCIALES
     echo_msg "📦 Instalando paquetes AUR con $AUR_HELPER..."
-    repair_aur_helper "$AUR_HELPER"
     "$AUR_HELPER" -S --needed --noconfirm "${PKGS_AUR[@]}"
 
     # 5. PAQUETES AUR OPCIONALES (CORREGIDO)
