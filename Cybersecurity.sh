@@ -385,32 +385,35 @@ setup_bugbounty_browser() {
     local BUG_BROWSER="$1"
     mkdir -p "$CFG_FIREJAIL" "$APP_DIR"
 
-    cat > "$CFG_FIREJAIL/${BUG_BROWSER}-bugbounty.profile" << EOF
+cat > "$CFG_FIREJAIL/${BUG_BROWSER}-bugbounty.profile" << EOF
 include ${BUG_BROWSER}.profile
-# BUG BOUNTY: aislamiento máximo
-private
-private-tmp
+# BUG BOUNTY: aislamiento + PERSISTENCIA
+private-home          # Oculta ~/ pero persiste home
+whitelist ${HOME}/.mozilla/firefox/bugbounty  # ← Perfil dedicado
+whitelist ${HOME}/.cache/mozilla               # ← Extensions/cache
 private-dev
-no3d
-nodvd
-nosound
-# DNS aislado
+no3d nodvd nosound
 dns 1.1.1.1 1.0.0.1
 EOF
 
-    cat > "$APP_DIR/${BUG_BROWSER}-bugbounty-firejail.desktop" << EOF
+
+cat > "$APP_DIR/${BUG_BROWSER}-bugbounty-firejail.desktop" << EOF
 [Desktop Entry]
 Name=${BUG_BROWSER^} (Bug Bounty)
 Comment=${BUG_BROWSER^} Firejail - Pentesting aislado
-Exec=firejail --profile=$CFG_FIREJAIL/${BUG_BROWSER}-bugbounty.profile $BUG_BROWSER %u
+Exec=firejail --profile=$CFG_FIREJAIL/${BUG_BROWSER}-bugbounty.profile $BUG_BROWSER -P bugbounty %u
 Icon=${BUG_BROWSER}
 Terminal=false
 Type=Application
 Categories=Network;WebBrowser;Security;Hacking;
-NoDisplay=false
+StartupWMClass=${BUG_BROWSER}-bugbounty
 EOF
 
+
     update-desktop-database "$APP_DIR" 2>/dev/null || true
+    "$BUG_BROWSER" -CreateProfile "bugbounty $HOME/.mozilla/firefox/bugbounty" || true
+    log_ok "Perfil 'bugbounty' creado ✓"
+
     log_ok "${BUG_BROWSER^} (Bug Bounty) configurado ✓"
 }
 
