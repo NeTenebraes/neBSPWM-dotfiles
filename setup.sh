@@ -207,26 +207,29 @@ EOF
     write_if_needed "$HOME/.Xresources" "Xft.dpi: 96\nXft.autohint: 1\nXft.lcdfilter: lcddefault\nXft.hintstyle: hintfull\nXft.antialias: 1\nXft.rgba: rgb"
     xrdb -merge "$HOME/.Xresources" 2>/dev/null || true
 
-# 7. GESTIÓN INTELIGENTE DEL REPO (Evitar doble descarga)
-    echo_msg "📥 GESTIONANDO REPO DOTFILES..."
-    local tmp_repo="/tmp/neBSPWN-dotfiles"
-    local current_dir=$(pwd)
-    
-    # ¿Estamos ya dentro del repo de dotfiles?
-    if git rev-parse --is-inside-work-tree &>/dev/null; then
-        local remote_url=$(git remote get-url origin 2>/dev/null || echo "")
-        if [[ "$remote_url" == *"$DOTFILES_REPO"* ]]; then
-            echo -e "\n✨ DETECTADO: Ya estás dentro del directorio del repositorio."
-            read -r -p "¿Usar los archivos de esta carpeta actual? (Y/n): " use_local
-            if [[ ! "$use_local" =~ ^([nN][oO]|[nN])$ ]]; then
-                export NE_TMP_REPO="$current_dir"
-                echo_ok "Usando archivos locales: $NE_TMP_REPO"
-                return 0 # Saltamos el resto de la lógica de clonado
-            fi
+# 7. GESTIÓN INTELIGENTE DEL REPO
+echo_msg "📥 GESTIONANDO REPO DOTFILES..."
+local tmp_repo="/tmp/neBSPWN-dotfiles"
+local current_dir=$(pwd)
+local skip_clone=false
+
+# ¿Estamos ya dentro del repo de dotfiles?
+if git rev-parse --is-inside-work-tree &>/dev/null; then
+    local remote_url=$(git remote get-url origin 2>/dev/null || echo "")
+    # Buscamos la coincidencia del nombre del repo, no la URL exacta
+    if [[ "$remote_url" == *"NeTenebraes/neBSPWN-dotfiles"* ]]; then
+        echo -e "\n✨ DETECTADO: Ya estás dentro del directorio del repositorio."
+        read -r -p "¿Usar los archivos de esta carpeta actual? (Y/n): " use_local
+        if [[ ! "$use_local" =~ ^([nN][oO]|[nN])$ ]]; then
+            export NE_TMP_REPO="$current_dir"
+            echo_ok "Usando archivos locales: $NE_TMP_REPO"
+            skip_clone=true # Marcamos para no clonar, pero seguimos la función
         fi
     fi
+fi
 
-    # Lógica de clonado/actualización en /tmp (si no se usa el local)
+# Solo entra aquí si NO estamos ya en el repo localmente
+if [ "$skip_clone" = false ]; then
     if [[ -d "$tmp_repo" ]]; then
         echo -e "\n📂 Repo temporal ya existe en $tmp_repo"
         echo "  1) Actualizar (git pull) | 2) Mantener | 3) Re-clonar"
@@ -239,6 +242,10 @@ EOF
         echo_msg "📥 Clonando repo en temporal..."
         git clone "$DOTFILES_REPO" "$tmp_repo"
     fi
+    export NE_TMP_REPO="$tmp_repo"
+fi
+
+echo_ok "Ruta de trabajo establecida en: $NE_TMP_REPO"
 
     export NE_TMP_REPO="$tmp_repo"
     echo_ok "Fuentes + Repo OK"
