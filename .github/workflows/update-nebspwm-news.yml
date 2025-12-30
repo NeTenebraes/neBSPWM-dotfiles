@@ -1,7 +1,7 @@
 name: Update neBSPWM News
 on:
   schedule:
-    - cron: '0 0 * * *' # Se ejecuta una vez al día
+      - cron: '0 0,6,12,18 * * *'  # 4 veces al día
   workflow_dispatch:
 
 permissions:
