@@ -23,19 +23,19 @@ CURSOR_SIZE_CLEAN="${CURSOR_SIZE//\'/}"
 
 # --- 2. LISTAS DE PAQUETES ---
 PKGS_PACMAN_Essencials=(
-    "git" "base-devel" "neovim" "wget" "curl" "unzip" "lsd" "sddm" "fastfetch"
-    "feh" "xorg" "xorg-xinit" "nemo" "xclip" "zsh" "tmux" "htop" "bat"
+    "git" "base-devel" "wget" "curl" "unzip" "lsd" "sddm" "fastfetch" "neovim"
+    "feh" "xorg" "xorg-xinit" "nemo" "xclip" "zsh" "tmux" "htop" "bat" "blueman" "unclutter"
     "zsh-syntax-highlighting" "zsh-autosuggestions" "python" "python-pip"
     "nodejs" "npm" "ffmpeg" "maim" "qt5ct" "qt6ct" "starship" "glib2" "libxml2" 
     "bspwm" "sxhkd" "polybar" "picom" "rofi" "dunst" "kitty" "conky" "pavucontrol" 
     "polkit-gnome" "kvantum" "kvantum-qt5" "xdg-desktop-portal" "xdg-desktop-portal-gtk"
     "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
-    "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code"
+    "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
 )
 
 PKGS_PACMAN_optionals=("firefox" "vlc" "obsidian")
-PKGS_AUR=("betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock")
+PKGS_AUR=("betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock" "kvantum-theme-catppuccin-git")
 PKGS_AUR_Optionals=("vscodium-bin" "megasync")
 
 # --- 3. FUNCIONES HELPER (ESTÉTICA Y LÓGICA) ---
@@ -109,56 +109,62 @@ setup_dependecies() {
     esac
     echo_ok "Idioma seleccionado: $SYS_LANG"
 
-# --- NUEVA LÓGICA DE AUR HELPER ---
-    echo_msg "🔍 Verificando AUR Helpers..."
-    helpers=("paru" "yay" "yay-bin")
-    installed_helper=""
+# --- LÓGICA AUR HELPER: DETECTAR O INSTALAR ---
+helpers=("yay-bin" "paru" "yay")
+AUR_HELPER=""
 
-    # Detectar si ya existe alguno
-    for h in "${helpers[@]}"; do
-        if command -v "${h%-bin}" >/dev/null; then
-            installed_helper="${h%-bin}"
-            break
-        fi
+# 1. Intentar detectar un helper ya instalado
+for h in "paru" "yay"; do
+    if command -v "$h" >/dev/null; then
+        AUR_HELPER="$h"
+        break
+    fi
+done
+
+if [[ -n "$AUR_HELPER" ]]; then
+    echo_ok "Se detectó '$AUR_HELPER' instalado."
+    read -r -p "¿Deseas seguir usando $AUR_HELPER? [S/n]: " keep_existing
+    [[ "$keep_existing" =~ ^([nN][oO]|[nN])$ ]] && AUR_HELPER=""
+fi
+
+# 2. Si no hay ninguno o el usuario decidió cambiarlo
+if [[ -z "$AUR_HELPER" ]]; then
+    echo -e "\n--- Instalación de AUR Helper ---"
+    PS3="Selecciona cuál deseas instalar: "
+    select opt in "${helpers[@]}" "Cancelar"; do
+        case $opt in
+            "yay-bin"|"paru"|"yay")
+                # Si había uno anterior, lo quitamos para no tener conflictos
+                # Buscamos si existe algun binario para borrarlo antes
+                for old in "paru" "yay"; do
+                    if command -v "$old" >/dev/null; then
+                        echo_msg "Eliminando $old antiguo..."
+                        sudo pacman -Rs --noconfirm "$old"
+                    fi
+                done
+
+                echo_msg "Instalando $opt..."
+                sudo pacman -S --needed --noconfirm base-devel git
+                
+                build_dir=$(mktemp -d)
+                git clone "https://aur.archlinux.org/$opt.git" "$build_dir"
+                (cd "$build_dir" && makepkg -si --noconfirm)
+                rm -rf "$build_dir"
+
+                AUR_HELPER="${opt%-bin}"
+                break
+                ;;
+            "Cancelar")
+                echo_err "No se seleccionó ningún AUR Helper. Saliendo..."
+                exit 1
+                ;;
+            *) echo "Opción no válida";;
+        esac
     done
+fi
 
-    if [[ -n "$installed_helper" ]]; then
-        echo_skip "Se detectó '$installed_helper' ya instalado."
-        read -r -p "¿Deseas instalar otro diferente? (y/N): " change_helper
-        if [[ ! "$change_helper" =~ ^([yY][eE][sS]|[yY])$ ]]; then
-            export AUR_HELPER="$installed_helper"
-        fi
-    fi
-
-    # Si no hay ninguno o el usuario quiso cambiarlo
-    if [[ -z "$AUR_HELPER" ]]; then
-        echo -e "\n--- Selección de AUR Helper ---"
-        PS3="Selecciona una opción (1-4): "
-        select opt in "${helpers[@]}" "Cancelar"; do
-            case $opt in
-                "paru"|"yay"|"yay-bin")
-                    echo_msg "Instalando $opt..."
-                    sudo pacman -S --needed --noconfirm base-devel git
-                    git clone "https://aur.archlinux.org/$opt.git" "/tmp/$opt"
-                    cd "/tmp/$opt" && makepkg -si --noconfirm && cd - && rm -rf "/tmp/$opt"
-                    export AUR_HELPER="${opt%-bin}"
-                    echo_ok "$opt instalado"
-                    break
-                    ;;
-                "Cancelar")
-                    echo_err "Se requiere un AUR Helper para continuar."
-                    exit 1
-                    ;;
-                *) echo "Opción no válida";;
-            esac
-        done
-    fi
-
-    # Si llegamos aquí sin helper (por error raro), el script muere antes de fallar
-    if [[ -z "${AUR_HELPER:-}" ]]; then
-        echo_err "Error crítico: No se definió AUR_HELPER."
-        exit 1
-    fi
+export AUR_HELPER
+echo_ok "Usando $AUR_HELPER para el resto de la instalación."
 
     # ----------------------------------
     # 2. Dependencias Esenciales Pacman
@@ -766,8 +772,6 @@ backup_config() {
         echo_skip "Backup saltado (.config se sobrescribirá)"
     fi
 }
-
-
 
 # 🚀 EJECUCIÓN
 [ "$EUID" -eq 0 ] && { echo "❌ No root"; exit 1; }
