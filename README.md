@@ -62,7 +62,7 @@ cd neBSPWM-dotfiles
       <th>Fecha 📅</th>
       <th>Post de Threads 📰</th>
     </tr>
-    <!-- NEBSPWM:START --><tr><td>30/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DS6AQuCCXrt'>El verdadero motivo detrás de mi proyecto neBSPWM... cómo un &quot;script sencillo&quot; se convirtió en un monstruo. 💀</a></td></tr><tr><td>29/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DS1B3l9CXxF'>Se han identificado bugs en el proceso de instalación de neBSPWM, acá un desglose de los mismos:</a></td></tr><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DS0ZXhDCdl1'>Hace 2 días publiqué mi proyecto neBSPWM el cual tenía un módulo Bluetooth que depende totalmente del blueberry para funcionar. ...</a></td></tr><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSy0vdNjoMP'>Integré un pequeño módulo para el repo de neBSPWM.   La idea sería poder mostrar los updades del proyecto directamente en el rea...</a></td></tr><tr><td>28/12/2025</td><td><a href='https://threads.net/@netenebrae/post/DSyuQy3Dnm9'>Día 53 | Bugs de post-producción neBSPWM 🐛  Hoy fue día de testing intensivo. Aunque surgieron errores, lo que más valoro es cu...</a></td></tr><!-- NEBSPWM:END -->
+    <!-- NEBSPWM:START --><tr><td>09/01/2026</td><td><a href='https://www.threads.com/t/DTSXcb0jj1G'>@netenebrae: neBSPWM PoC</a></td></tr><!-- NEBSPWM:END -->
     <tr>
       <td colspan="2" align="center">
         <a href="https://www.threads.net/@netenebrae">
