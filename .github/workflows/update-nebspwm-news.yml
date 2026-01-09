@@ -16,7 +16,7 @@ jobs:
       - uses: gautamkrishnar/blog-post-workflow@master
         with:
           comment_tag_name: "NEBSPWM"
-          feed_list: "https://rsshub.app/threads/netenebrae?filter=neBSPWM&filter_case_sensitive=false&limit=100"
+          feed_list: "https://rsshub.rssforever.com/threads/netenebrae?filter=neBSPWM&filter_case_sensitive=false&limit=100"
           max_post_count: 5
           
           clean_html: true
