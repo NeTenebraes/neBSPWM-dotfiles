@@ -62,7 +62,7 @@ cd neBSPWM-dotfiles
       <th>Fecha 📅</th>
       <th>Post de Threads 📰</th>
     </tr>
-    <!-- NEBSPWM:START --><tr><td>12/01/2026</td><td><a href='https://www.threads.com/t/DTZ2FZbjiIf'>@netenebrae: Update neBSPWM: A día de hoy el script hace justo lo que necesito, por lo que no creo hacer grandes cambios por un tiempo. Tengo el scr...</a></td></tr><!-- NEBSPWM:END -->
+    <!-- NEBSPWM:START --><tr><td>20/01/2026</td><td><a href='https://www.threads.com/t/DTvqISgCb80'>@netenebrae: Update neBSPWM: El script entró ya en una nueva rama para su modularizacion. He esto usando mucho el sistema operativo y hay solo un pa...</a></td></tr><!-- NEBSPWM:END -->
     <tr>
       <td colspan="2" align="center">
         <a href="https://www.threads.net/@netenebrae">
