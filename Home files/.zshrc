@@ -3,10 +3,11 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE
-source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242' 
-# ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=52'
+# source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+#ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
 
+source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+# Esto detecta los códigos de escape de Kitty/Xterm para las flechas
 
 # Completado PRO
 autoload -U compinit
@@ -25,8 +26,9 @@ export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 TRAPWINCH() { zle && zle reset-prompt }
 
 # FIX SUPR + BACKSPACE
-bindkey '^[[3~' delete-char          # Supr
-bindkey '^H'   backward-delete-char  # Backspace
+bindkey '^[[3~' delete-char
+bindkey '^[[1;5D' backward-word
+bindkey '^[[1;5C' forward-word
 
 # NAVEGACIÓN WORD
 bindkey '^[[1;5D' backward-word      # Ctrl+←
@@ -46,8 +48,10 @@ bindkey '\ed' kill-word              # Alt+D
 # HISTORIAL
 bindkey '^R' history-incremental-search-backward  # Ctrl+R
 bindkey '^S' history-incremental-search-forward   # Ctrl+S
-bindkey '^[[A' up-line-or-history                  # ↑
-bindkey '^[[B' down-line-or-history                # ↓
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+bindkey '^[OA' history-substring-search-up
+bindkey '^[OB' history-substring-search-down
 
 # SELECCIÓN + MARK
 bindkey '^X^X' exchange-point-and-mark             # Ctrl+X Ctrl+X
@@ -63,3 +67,5 @@ bindkey '^[e' fzf-cd-widget                        # Alt+E directorios
 
 # STARSHIP
 eval "$(starship init zsh)"
+
+alias modo-video="mkdir -p /tmp/video_home && export HOME=/tmp/video_home && cd ~ && source /home/netenebrae/.zshrc && PROMPT='%B%F{red}%n%f%b%F{white}@%f%B%F{red}hacking-lab%f%b:%F{white}%1~%f ➜ ' && clear && echo 'MODO VIDEO: Usuario netenebrae activo en entorno seguro. 💀'"
