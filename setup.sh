@@ -24,15 +24,15 @@ CURSOR_SIZE_CLEAN="${CURSOR_SIZE//\'/}"
 # --- 2. LISTAS DE PAQUETES ---
 PKGS_PACMAN_Essencials=(
     "git" "base-devel" "wget" "curl" "unzip" "lsd" "sddm" "fastfetch" "neovim"
-    "feh" "xorg" "xorg-xinit" "nemo" "xclip" "zsh" "tmux" "htop" "bat" "blueman" "unclutter"
+    "feh" "xorg" "xorg-xinit" "nemo" "flameshot" "zsh" "tmux" "htop" "bat" "blueman" "unclutter"
     "zsh-syntax-highlighting" "zsh-autosuggestions" "python" "python-pip"
-    "nodejs" "npm" "ffmpeg" "maim" "qt5ct" "qt6ct" "starship" "glib2" "libxml2" 
+    "nodejs" "npm" "ffmpeg" "qt5ct" "qt6ct" "starship" "glib2" "libxml2" 
     "bspwm" "sxhkd" "polybar" "picom" "rofi" "dunst" "kitty" "conky" "pavucontrol" 
     "polkit-gnome" "kvantum" "kvantum-qt5" "xdg-desktop-portal" "xdg-desktop-portal-gtk"
     "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
-    "vlc" "obsidian" "firefox" 
+    "vlc" "obsidian" "firefox" "keepassxc"
 )
 
 PKGS_PACMAN_optionals=("signal-desktop")
@@ -334,7 +334,7 @@ gtk-font-name=$THEME_FONT"
     dconf_write_if_needed "/org/gnome/desktop/wm/preferences/theme" "'$THEME_DEFAULT'"
 
     # Extras
-    dconf_write_if_needed "/org/blueberry/use-symbolic-icons" "false"
+    #dconf_write_if_needed "/org/blueberry/use-symbolic-icons" "false"
     dconf_write_if_needed "/org/gnome/desktop/interface/color-scheme" "'prefer-dark'"
 
     # LightDM (slick-greeter) (CORREGIDO)

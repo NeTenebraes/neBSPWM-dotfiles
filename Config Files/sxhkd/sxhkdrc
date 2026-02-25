@@ -2,22 +2,9 @@
 # wm independent hotkeys
 #
 
-# Screenshot completo → archivo (con PREVIEW de la imagen)
-ctrl + Print
-    bash -c 'mkdir -p ~/Pictures/screenshots && FILE=~/Pictures/screenshots/screenshot_$(date +"%Y-%m-%d_%H-%M-%S").png && maim "$FILE" && notify-send "Screenshot" "Pantalla completa guardada" -i "$FILE" -t 3000'
-
-# Pantalla completa → portapapeles + notificación (icono screenshot)
+# Interfaz de Flameshot
 Print
-    maim | xclip -selection clipboard -t image/png && \
-    notify-send "Screenshot" "Pantalla completa copiada al portapapeles" \
-        -i /usr/share/icons/Papirus-Dark/48x48/apps/accessories-screenshot.svg -t 1500
-
-# Selección de área → portapapeles + notificación (icono screenshot)
-shift + Print
-    maim -s | xclip -selection clipboard -t image/png && \
-    notify-send "Screenshot" "Área seleccionada copiada al portapapeles" \
-        -i /usr/share/icons/Papirus-Dark/48x48/apps/accessories-screenshot.svg -t 1500
-
+    flameshot gui
 
 # terminal emulator
 super + Return
