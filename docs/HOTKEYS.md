@@ -40,12 +40,10 @@ Puedes lanzar cualquier aplicación desde ahí: *navegadores, herramientas de se
 
 | Acción | Tecla |
 |--------|-------|
-| **Captura completa → Archivo (~/Pictures/screenshots)** | `Print` |
-| **Captura completa → Portapapeles (listo para pegar)** | `Ctrl + Print` |
-| **Captura por selección → Portapapeles** | `Shift + Print` |
+| **Iniciar flameshot en modo captura** | `Print` |
 
-🖼️ Las capturas se guardan automáticamente con nombre y fecha.  
-Perfectas para documentar vulnerabilidades o sesiones de trabajo.
+🖼️ Las capturas las administra directamente flameshot.  
+
 
 ---
 
