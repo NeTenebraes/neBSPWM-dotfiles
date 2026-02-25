@@ -32,11 +32,15 @@ PKGS_PACMAN_Essencials=(
     "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
+    "vlc" "obsidian" "firefox" 
 )
 
-PKGS_PACMAN_optionals=("firefox" "vlc" "obsidian")
-PKGS_AUR=("betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock" "kvantum-theme-catppuccin-git")
-PKGS_AUR_Optionals=("vscodium-bin" "megasync")
+PKGS_PACMAN_optionals=("signal-desktop")
+PKGS_AUR=(
+    "betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "xautolock" "kvantum-theme-catppuccin-git"
+    "vscodium-bin"  
+)
+PKGS_AUR_Optionals=("megasync")
 
 # --- 3. FUNCIONES HELPER (ESTÉTICA Y LÓGICA) ---
 echo_msg() { echo -e "\n\033[1;34m🛡️ $1\033[0m"; }
