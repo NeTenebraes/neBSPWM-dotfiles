@@ -166,7 +166,7 @@ En resumen: Un script que convierte tu instalación limpia de Arch en un **labor
 ## ⚠️ **Disclaimer**  
 Este entorno es probado únicamente en mis **dos equipos** con la **misma resolución** *(1920x1080)* y hardware similar *(Intel i3 2da + 8 GB RAM)*. Es totalmente funcional en esas condiciones, pero en otros entornos pueden aparecer **errores visuales o pequeños bugs**.
 
-Además mi pana, te lo digo de one: **Eres responsable por TODO lo que hagas en tu computador**. Cualquier comentario con lloros/quejas destructivas será fuertemente ignorado xd
+Además mi pana, te lo digo de one: **Eres responsable por TODO lo que hagas en tu computador**. Cualquier comentario con lloros/quejas destructivas será fuertemente ignorado. 
 
 Te recomiendo que si no sabes/entiendes lo que haces, simplemente te abstengas de hacerlo.
 
