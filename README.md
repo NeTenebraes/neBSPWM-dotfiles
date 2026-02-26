@@ -170,6 +170,4 @@ Además mi pana, te lo digo de one: **Eres responsable por TODO lo que hagas en 
 
 Te recomiendo que si no sabes/entiendes lo que haces, simplemente te abstengas de hacerlo.
 
- 🔧 **Compatibilidad:** Este script está diseñado para una **instalación limpia de Arch Linux** o derivados como **Manjaro** y **EndeavourOS**.  
-
-> Si algo se rompe: Saca un pantallazo y **abre un issue en GitHub** de forma amable. Cada bug ayuda a mejorar este proyecto, versión tras versión.
+> Si algo se rompe puedes sacar un pantallazo y **abrir un issue en GitHub** de forma amable. Cada bug ayuda a mejorar este proyecto.
