@@ -92,7 +92,7 @@ cd neBSPWM-dotfiles
 - **Terminal:** Kitty + ZSH + Starship  
 - **Lock Screen:** betterlockscreen  
 - **Themes:** Catppuccin Mocha + Papirus Dark + Nerd Fonts  
-- **Screenshots:** maim + xclip + notificaciones  
+- **Screenshots:** Flameshot 
 - **Guía Atajos:** [![HOTKEYS](https://img.shields.io/badge/HOTKEYS-Guide-4F46E5?style=flat&logo=keyboard&logoColor=white)](docs/HOTKEYS.md)
 
 ## 📦 Requisitos
@@ -164,8 +164,10 @@ En resumen: Un script que convierte tu instalación limpia de Arch en un **labor
 ---
 
 ## ⚠️ **Disclaimer**  
-Este entorno fue probado únicamente en mis **dos equipos** con la **misma resolución** *(1920x1080)* y hardware similar *(Intel i3 2da + 8 GB RAM)*. Es totalmente funcional en esas condiciones, pero en otros entornos pueden aparecer **errores visuales o pequeños bugs**.  
+Este entorno es probado únicamente en mis **dos equipos** con la **misma resolución** *(1920x1080)* y hardware similar *(Intel i3 2da + 8 GB RAM)*. Es totalmente funcional en esas condiciones, pero en otros entornos pueden aparecer **errores visuales o pequeños bugs**.
 
- 🔧 **Compatibilidad:** Este script está diseñado para una **instalación limpia de Arch Linux** o derivados como **Manjaro** y **EndeavourOS**.  
+Además mi pana, te lo digo de one: **Eres responsable por TODO lo que hagas en tu computador**. Cualquier comentario con lloros/quejas destructivas será fuertemente ignorado. 
 
-> Si algo se rompe: Saca un pantallazo y **abre un issue en GitHub**. Cada bug ayuda a mejorar este proyecto, versión tras versión.
+Te recomiendo que si no sabes/entiendes lo que haces, simplemente te abstengas de hacerlo.
+
+> Si algo se rompe puedes sacar un pantallazo y **abrir un issue en GitHub** de forma amable. Cada bug ayuda a mejorar este proyecto.
