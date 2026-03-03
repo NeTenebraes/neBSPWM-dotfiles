@@ -201,6 +201,37 @@ echo_ok "Usando $AUR_HELPER para el resto de la instalación."
         fc-cache -fv
         echo_ok "Nemo thumbnails ✅"
 
+    #5.6 Añadir engrampa al menú contextual de Nemo
+
+    # Crear el directorio si no existe (SOLO INGLES)
+    mkdir -p ~/.local/share/nemo/actions
+
+    # 1. Extract Here
+    cat <<EOF > ~/.local/share/nemo/actions/engrampa-extract.nemo_action
+[Nemo Action]
+Active=true
+Name=Extract with Engrampa
+Comment=Extract the contents here using Engrampa
+Exec=engrampa --extract-here %F
+Icon-Name=archiver
+Selection=s
+Extensions=zip;7z;tar;tar.gz;tar.bz2;rar;gz;bz2;
+Quote=double
+EOF
+
+    # 2. Compress
+    cat <<EOF > ~/.local/share/nemo/actions/engrampa-compress.nemo_action
+[Nemo Action]
+Active=true
+Name=Compress with Engrampa...
+Comment=Create a compressed archive with Engrampa
+Exec=engrampa --default-dir=%P --add %F
+Icon-Name=archiver
+Selection=any
+Extensions=any
+Quote=double
+EOF
+
     # 6. Configuración de Renderizado y Fontconfig (Inyectado aquí)
         echo_msg "🌐 Configurando Fontconfig y X11 rendering..."
         # Aplicar el XML de Fontconfig que tenías en setup_fonts_locale
