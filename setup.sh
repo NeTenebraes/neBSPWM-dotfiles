@@ -32,7 +32,7 @@ PKGS_PACMAN_Essencials=(
     "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
-    "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa"
+    "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "vlc-plugins-all"
 )
 
 PKGS_PACMAN_optionals=("signal-desktop")
