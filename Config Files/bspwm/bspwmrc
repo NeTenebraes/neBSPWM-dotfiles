@@ -1,12 +1,12 @@
 #! /bin/sh
+xrdb -merge ~/.Xresources
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
 
 # --- QT/THEME FIX ---
 # Fuerza XCB para evitar bordes rotos en BSPWM y Kvantum para unificar temas
 export QT_QPA_PLATFORM=xcb
 export QT_STYLE_OVERRIDE=kvantum
-xrdb -merge ~/.Xresources
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
 export QT_QPA_PLATFORMTHEME=qt5ct
 # Iniciar Portals necesarios para Qt6
 (sleep 1; /usr/lib/xdg-desktop-portal &)
@@ -82,10 +82,6 @@ pgrep blueman-applet || blueman-applet &
 # Desactiva el curso si no lo estás usando.
 pgrep unclutter || unclutter -idle 5 -root &
 
-# Inicia conky
-killall -q conky
-(sleep 3 && conky -c /home/netenebrae/.config/conky/conky.conf) &
-
 # Lock screen 
 pgrep xautolock || xautolock -time 5 -locker "betterlockscreen -l" &
 blueman-applet &
@@ -94,3 +90,14 @@ blueman-applet &
 xset s off               # Desactiva el protector de pantalla clásico
 xset -dpms               # Resetea DPMS
 xset dpms 0 0 3600 &     # 0 standby, 0 suspend, 3600 (1 hora)
+
+# --- Gestor de Monitores de Sistema (Conky) ---
+# Matamos cualquier instancia previa para evitar sombras o duplicados
+killall -q conky
+
+# Lanzamos ambos widgets con un ligero retraso para asegurar que el escritorio esté listo
+(
+  sleep 2;
+  conky -c "$HOME/.config/conky/system_top.conf" &
+  conky -c "$HOME/.config/conky/network_bottom.conf" &
+) &
