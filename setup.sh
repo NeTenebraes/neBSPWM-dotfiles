@@ -388,6 +388,8 @@ gtk-application-prefer-dark-theme=1
 EOF
     fi
 
+    xdg-user-dirs-update
+
     echo_ok "🎨 Temas 100% OK"
 }
 
