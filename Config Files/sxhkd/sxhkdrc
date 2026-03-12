@@ -92,3 +92,7 @@ super + ctrl + alt + {Left,Down,Up,Right}
 
 super + shift + l
     betterlockscreen -l dimblur
+
+
+XF86Audio{RaiseVolume,LowerVolume,Mute}
+    ~/.config/polybar/scripts/Audio.sh --{inc,dec,toggle-mute} && polybar-msg action "#audio.hook.0"
