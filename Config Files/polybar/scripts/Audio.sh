@@ -1,94 +1,86 @@
 #!/usr/bin/env bash
 
+# --- CONFIGURACIÓN ---
 SINK="@DEFAULT_SINK@"
+ICON_MUTED="" 
+ICON_LOW=""
+ICON_HIGH=""
 
-get_volume() {
-    pactl get-sink-volume "$SINK" \
-      | awk -F'/' 'NR==1{gsub(/ /,"",$2); gsub(/%/,"",$2); print $2}'
+# Definimos las barras como constantes para recortarlas (Ultra rápido)
+FULL_BAR="██████████"
+EMPTY_BAR="░░░░░░░░░░"
+
+# --- OBTENCIÓN DE DATOS ---
+# Usamos una sola llamada a pactl y procesamos con herramientas integradas
+get_audio_data() {
+    local status_raw
+    status_raw=$(pactl get-sink-mute "$SINK"; pactl get-sink-volume "$SINK")
+    
+    # Extraemos mute y volumen usando grep con Perl-regexp (rápido y preciso)
+    mute=$(echo "$status_raw" | grep -oP 'Mute: \K\w+')
+    vol=$(echo "$status_raw" | grep -oP '\d+(?=%)' | head -n1)
+    
+    # Valor por defecto si falla la detección
+    : "${vol:=0}"
 }
 
-get_mute() {
-    pactl get-sink-mute "$SINK" | awk '{print $2}'
+# --- LÓGICA DE LA BARRA ---
+build_bar() {
+    # Calculamos cuántos bloques de 10 corresponden
+    local filled=$(( vol / 10 ))
+    
+    # Aseguramos límites entre 0 y 10
+    (( filled > 10 )) && filled=10
+    (( filled < 0 )) && filled=0
+    
+    local empty=$(( 10 - filled ))
+
+    # Cortamos los strings pre-definidos (Operación de memoria, no de CPU)
+    bar="${FULL_BAR:0:$filled}${EMPTY_BAR:0:$empty}"
 }
 
+# --- SALIDA PARA POLYBAR ---
 print_status() {
-    vol=$(get_volume)
-    mute=$(get_mute)
+    get_audio_data
 
-    # Iconos estilo JetBrains/Material
-    ICON_MUTED="" 
-    ICON_LOW=""
-    ICON_HIGH=""
-
-    # Si no hay volumen (error)
-    if [ -z "$vol" ]; then
+    # Estado: Silenciado
+    if [ "$mute" = "yes" ] || [ "$vol" -le 0 ]; then
         echo "%{F#C62828}$ICON_MUTED  [  MUTED   ]  0%%{F-}"
-        exit 0
+        return
     fi
 
-    # Limitar el volumen real a 150
-    [ "$vol" -gt 150 ] && vol=150
-    [ "$vol" -lt 0 ] && vol=0
+    # Estado: Activo
+    build_bar
 
-    # Estado Mute: Icono JetBrains y barra con texto "MUTED"
-    if [ "$mute" = "yes" ] || [ "$vol" -eq 0 ]; then
-        echo "%{F#C62828}$ICON_MUTED  [  MUTED   ]  0%%{F-}"
-
-        exit 0
+    # Selección de color basada en el volumen
+    local color="#F5F5F5"
+    if (( vol > 130 )); then
+        color="#C62828"
+    elif (( vol > 100 )); then
+        color="#FF8A65"
     fi
 
-    # Icono según volumen
-    if [ "$vol" -lt 34 ]; then
-        icon=$ICON_LOW
-    else
-        icon=$ICON_HIGH
-    fi
+    # Selección de icono
+    local icon=$ICON_HIGH
+    (( vol < 34 )) && icon=$ICON_LOW
 
-    # LÓGICA DE LA BARRA (10 bloques exactos)
-    # Solo será 10 si vol >= 100. Si es 99, será 9.
-    filled=$((vol / 10))
-    
-    # Asegurar que no exceda 10 bloques aunque el vol sea 150
-    [ "$filled" -gt 10 ] && filled=10
-    [ "$filled" -lt 0 ] && filled=0
-    
-    empty=$((10 - filled))
-
-    # Construcción de la barra
-    bar=""
-    for i in $(seq 1 $filled); do bar="${bar}█"; done
-    for i in $(seq 1 $empty); do bar="${bar}░"; done
-
-    # Color según volumen REAL (Cambia DESPUÉS de 100)
-if [ "$vol" -le 100 ]; then
-    color="#F5F5F5" # blanco suave (hasta el 100%)
-elif [ "$vol" -le 130 ]; then
-    color="#FF8A65" # naranja acorde al tema
-else
-    color="#C62828" # rojo máximo
-fi
-
-
-    # Formato final con un solo % visual
     echo "%{F$color}$icon  [$bar] ${vol}%%{F-}"
 }
 
+# --- CONTROL DE ACCIONES ---
 case "$1" in
-    --inc)
+    --inc) 
         pactl set-sink-mute "$SINK" 0
-        pactl set-sink-volume "$SINK" +5%
-        print_status
+        pactl set-sink-volume "$SINK" +5% 
         ;;
-    --dec)
+    --dec) 
         pactl set-sink-mute "$SINK" 0
-        pactl set-sink-volume "$SINK" -5%
-        print_status
+        pactl set-sink-volume "$SINK" -5% 
         ;;
-    --toggle-mute)
-        pactl set-sink-mute "$SINK" toggle
-        print_status
-        ;;
-    *)
-        print_status
+    --toggle-mute) 
+        pactl set-sink-mute "$SINK" toggle 
         ;;
 esac
+
+# Siempre imprimimos el resultado al final
+print_status
