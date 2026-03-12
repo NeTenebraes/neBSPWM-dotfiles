@@ -516,15 +516,15 @@ setup_firejail_browsers() {
 
 # ==================== FIREWALL + DNS ====================
 setup_dns() {
-    echo "🌐 CONFIGURACIÓN DNS"
-    echo -e "\nSelecciona tu proveedor DNS preferido:"
-    echo "  1) Cloudflare (1.1.1.1) - [Recomendado: Velocidad/Privacidad]"
-    echo "  2) Quad9      (9.9.9.9) - [Bloqueo de Malware]"
-    echo "  3) Google     (8.8.8.8) - [Estándar]"
-    echo "  4) Automático (ISP)     - [Por defecto de tu proveedor]"
-    echo "  5) Saltar configuración"
-    
-    read -r -p " > " dns_choice
+    echo "------------------------------------------------"
+    echo "🌐 CONFIGURACIÓN DNS PERSISTENTE (NM DISPATCHER)"
+    echo "------------------------------------------------"
+    echo "1) Cloudflare (1.1.1.1, 1.0.0.1)"
+    echo "2) Quad9      (9.9.9.9, 149.112.112.112)"
+    echo "3) Google     (8.8.8.8, 8.8.4.4)"
+    echo "4) Automático (ISP - DHCP)"
+    echo "5) Salir"
+    read -p " Selecciona una opción: " dns_choice
 
     local target_ips=""
     local provider_name=""
@@ -534,42 +534,72 @@ setup_dns() {
         2) target_ips="9.9.9.9 149.112.112.112"; provider_name="Quad9" ;;
         3) target_ips="8.8.8.8 8.8.4.4"; provider_name="Google" ;;
         4) target_ips="auto"; provider_name="ISP (Auto)" ;;
-        *) echo "Saltando configuración DNS"; return 0 ;;
+        *) return 0 ;;
     esac
 
-    if ! command -v nmcli >/dev/null; then
-        echo "NetworkManager no encontrado."
-        return 1
+    # 1. Asegurar compatibilidad de resolv.conf en Arch Linux
+    # Esto vincula el archivo que maneja NM con el sistema
+    if [[ ! -L "/etc/resolv.conf" ]]; then
+        sudo rm -f /etc/resolv.conf
+        sudo ln -sf /run/NetworkManager/resolv.conf /etc/resolv.conf
+        echo "[+] Enlace simbólico resolv.conf creado."
     fi
 
+    # 2. Guardar preferencia para el Dispatcher
+    echo "$target_ips" | sudo tee /etc/NetworkManager/dns-preference > /dev/null
+
+    # 3. Crear el Dispatcher Script para automatizar redes nuevas/Hotspots
+    sudo tee /etc/NetworkManager/dispatcher.d/99-dns-exclusive > /dev/null << 'EOF'
+#!/bin/bash
+# Script de persistencia DNS para evitar multiplexing
+interface=$1
+status=$2
+DNS_PREF="/etc/NetworkManager/dns-preference"
+
+if [ "$status" = "up" ] && [ -f "$DNS_PREF" ]; then
+    # Pequeña espera para asegurar que el DHCP ya entregó sus datos
+    sleep 2
+    TARGET=$(cat "$DNS_PREF")
+    
+    if [ "$TARGET" != "auto" ]; then
+        # Obtener el UUID de la conexión activa en la interfaz actual
+        UUID=$(nmcli -t -f uuid,device connection show --active | grep "$interface" | cut -d: -f1)
+        
+        if [ -n "$UUID" ]; then
+            # Configurar prioridad máxima y omitir DNS del ISP
+            nmcli connection modify "$UUID" \
+                ipv4.ignore-auto-dns yes \
+                ipv4.dns "$TARGET" \
+                ipv4.dns-priority -1
+            
+            # Re-aplicar cambios sin reiniciar la conexión (evita bucles infinitos)
+            nmcli device reapply "$interface" > /dev/null 2>&1
+        fi
+    fi
+fi
+EOF
+
+    # 4. Asignar permisos de ejecución al script
+    sudo chmod +x /etc/NetworkManager/dispatcher.d/99-dns-exclusive
+
+    # 5. Aplicar inmediatamente a la conexión actual
     local active_conn
     active_conn=$(nmcli -t -f NAME connection show --active | head -n1)
 
-    if [[ -z "$active_conn" ]]; then
-        echo "No hay conexión activa. Conéctate a internet primero."
-        return 0
+    if [[ -n "$active_conn" ]]; then
+        echo "[*] Aplicando $provider_name a la conexión activa: $active_conn"
+        if [[ "$target_ips" == "auto" ]]; then
+            sudo nmcli connection modify "$active_conn" ipv4.ignore-auto-dns no ipv4.dns "" ipv4.dns-priority 0
+        else
+            sudo nmcli connection modify "$active_conn" ipv4.ignore-auto-dns yes ipv4.dns "$target_ips" ipv4.dns-priority -1
+        fi
+        
+        # Activar cambios inmediatamente
+        sudo nmcli connection up "$active_conn" > /dev/null 2>&1
     fi
 
-    echo "Aplicando $provider_name en conexión: '$active_conn'..."
-
-    if [[ "$target_ips" == "auto" ]]; then
-        nmcli con mod "$active_conn" ipv4.ignore-auto-dns no
-        nmcli con mod "$active_conn" ipv4.dns ""
-    else
-        nmcli con mod "$active_conn" ipv4.ignore-auto-dns yes
-        nmcli con mod "$active_conn" ipv4.dns "$target_ips"
-    fi
-
-    if [[ -L "/etc/resolv.conf" ]]; then
-        sudo rm -f /etc/resolv.conf
-        sudo systemctl restart NetworkManager
-        sleep 2
-        echo "Enlace resolv.conf corregido."
-    else
-        nmcli con up "$active_conn" >/dev/null 2>&1
-    fi
-    
-    echo "DNS configurado exitosamente: $provider_name"
+    echo "✅ Éxito: DNS configurado como $provider_name."
+    echo "ℹ️ El Dispatcher Script se encargará de mantener esta configuración en cualquier red nueva."
 }
 
 setup_firewall() {
