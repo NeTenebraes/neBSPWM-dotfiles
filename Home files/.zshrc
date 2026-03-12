@@ -3,12 +3,37 @@ HISTFILE=~/.zsh_history
 HISTSIZE=10000
 SAVEHIST=10000
 setopt SHARE_HISTORY HIST_IGNORE_DUPS HIST_IGNORE_SPACE
-# source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
-#ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=242'
 
+# Plugins
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh 2>/dev/null
 source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
-# Esto detecta los códigos de escape de Kitty/Xterm para las flechas
 
+# --- SINTONIZACIÓN FINA DE COLORES (Tenebrae Minimal) ---
+typeset -A ZSH_HIGHLIGHT_STYLES
+ZSH_HIGHLIGHT_STYLES[root]='none'
+ZSH_HIGHLIGHT_STYLES[comment]='fg=#6E6E6E,italic'
+
+# Colores Principales (El "blanco que no es blanco")
+ZSH_HIGHLIGHT_STYLES[command]='fg=#e0e0e0,bold'          
+ZSH_HIGHLIGHT_STYLES[alias]='fg=#e0e0e0,bold'            
+ZSH_HIGHLIGHT_STYLES[builtin]='fg=#e0e0e0'               
+ZSH_HIGHLIGHT_STYLES[function]='fg=#e0e0e0'              
+
+# Errores y Alertas (Rojo Neón de Starship)
+ZSH_HIGHLIGHT_STYLES[unknown-token]='fg=#ff4d4d,bold'    
+
+# Elementos secundarios (Gris Platino para minimalismo)
+ZSH_HIGHLIGHT_STYLES[path]='fg=#a9b1d6'                  
+ZSH_HIGHLIGHT_STYLES[path_prefix]='fg=#a9b1d6'
+ZSH_HIGHLIGHT_STYLES[globbing]='fg=#a9b1d6'              
+ZSH_HIGHLIGHT_STYLES[operator]='fg=#a9b1d6'              
+ZSH_HIGHLIGHT_STYLES[separator]='fg=#a9b1d6'             
+ZSH_HIGHLIGHT_STYLES[bracket]='fg=#a9b1d6'               
+
+# Cadenas de texto y argumentos
+ZSH_HIGHLIGHT_STYLES[string]='fg=#f0f0f0'                
+ZSH_HIGHLIGHT_STYLES[single-hyphen-option]='fg=#a9b1d6'  
+ZSH_HIGHLIGHT_STYLES[double-hyphen-option]='fg=#a9b1d6'
 # Completado PRO
 autoload -U compinit
 compinit
@@ -68,4 +93,30 @@ bindkey '^[e' fzf-cd-widget                        # Alt+E directorios
 # STARSHIP
 eval "$(starship init zsh)"
 
-alias modo-video="mkdir -p /tmp/video_home && export HOME=/tmp/video_home && cd ~ && source /home/netenebrae/.zshrc && PROMPT='%B%F{red}%n%f%b%F{white}@%f%B%F{red}hacking-lab%f%b:%F{white}%1~%f ➜ ' && clear && echo 'MODO VIDEO: Usuario netenebrae activo en entorno seguro. 💀'"
+alias modo-video='
+    export VIDEO_HOME=$(mktemp -d /tmp/video-LABS-XXXXXX)
+    export HOME=$VIDEO_HOME
+    cd $HOME
+
+    PROMPT="%F{#6E6E6E}┌─%f %F{#89dceb}%n%f%F{white}@LABS%f in %F{#a9b1d6}󰉋 %f%F{white}%1~%f
+%F{#6E6E6E}└─%f%F{#a9b1d6}>>%f "
+
+    unset RPROMPT
+    precmd_functions=() 
+
+    clear
+    echo "── LABS VIRTUAL ENVIRONMENT ACTIVE ──"
+    echo "HOME: $HOME"
+'
+
+# Presiona ESC dos veces para añadir sudo al principio de la línea
+sudo-command-line() {
+    [[ -z $BUFFER ]] && zle up-history
+    if [[ $BUFFER == sudo\ * ]]; then
+        LBUFFER="${LBUFFER#sudo }"
+    else
+        LBUFFER="sudo $LBUFFER"
+    fi
+}
+zle -N sudo-command-line
+bindkey "\e\e" sudo-command-line

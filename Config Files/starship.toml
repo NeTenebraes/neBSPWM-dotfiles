@@ -1,71 +1,78 @@
-# TEMA HACKER / RED TEAM para STARSHIP
-# Modified for: NeTenebrae
+# CONFIGURACIÓN STARSHIP: NETENEBRAE
 
 format = """
-$username\
-$hostname\
-$directory\
-$git_branch\
-$git_status\
-$cmd_duration\
-$line_break\
-$character"""
+[┌─](bold gray3)$os$username$directory$git_branch$git_status
+[└─](bold gray3)$character"""
 
-# Usamos tu paleta personalizada
+right_format = """$cmd_duration$time"""
+
 palette = "NeTenebrae"
 
 [palettes.NeTenebrae]
-red1 = "#f42841"
-red2 = "#ff6b7a" 
-red3 = "#b91c2c"
-blood_red = "#8b0000"
-gray1 = "#f0f0f0"
-gray2 = "#d1d5db"
-gray3 = "#6E6E6E" # Gris medio para directorios
-white = "#ffffff"
-black = "#050505"
+red_root = "#ff4d4d"    # Rojo neón claro (mantenemos para root)
+frost_user = "#89dceb"   # Gris metal gélido (desaturado y frío)
+gray_icons = "#a9b1d6"  # Gris Platino
+gray3 = "#6E6E6E" 
 
-[character]
-# Si falla el comando, cambia a una X roja brillante.
-success_symbol = "[➜](bold red1)[_](bold gray3)"
-error_symbol = "[✗](bold red2)[_](bold gray3)"
+[os]
+disabled = false
+style = "bold gray_icons"
+format = "[$symbol]($style) "
+
+[os.symbols]
+Arch = "󰣇"
+Kali = ""
+Ubuntu = "󰕈"
+Debian = "󰣚"
+Windows = "󰍲"
+Linux = "󰌽"
 
 [username]
 show_always = true
-style_user = "bold red1"
-style_root = "bold blood_red"
-format = "[$user]($style)[@](bold gray3)"
-
-[hostname]
-ssh_only = false
-format = "[$hostname](bold gray2):"
-disabled = false
+# Usuario ahora en tono gélido y desaturado
+style_user = "bold frost_user"
+style_root = "bold red_root"
+format = "[$user]($style) "
 
 [directory]
-style = "bold gray1"
-read_only = " 🔒"
-truncation_length = 4
-truncation_symbol = "../"
-format = "[$path]($style)[$read_only]($style) "
+style = "bold white"
+read_only = " 󰌾"
+truncation_length = 1
+truncation_symbol = "󰇘/"
+format = "in [󰉋 ](bold gray_icons)[$path]($style)[$read_only]($style) "
 
 [git_branch]
-symbol = " "
-# Ramas de git en rojo suave
-style = "bold red2"
+symbol = "󰊢 "
+style = "bold gray3"
 format = "on [$symbol$branch]($style) "
 
 [git_status]
-style = "bold red1"
-format = "([$all_status$ahead_behind]($style) )"
+style = "bold gray_icons"
+format = '([\[$all_status$ahead_behind\]]($style)) '
+stashed = "≡"
+ahead = "⇡"
+behind = "⇣"
+diverged = "⇕"
+conflicted = "="
+deleted = "×"
+modified = "!"
+untracked = "?"
+
+[character]
+# Mantenemos el puntero en gris para minimalismo
+success_symbol = "[>>](bold gray_icons) "
+error_symbol = "[!!](bold red_root) "
+
+[cmd_duration]
+min_time = 2000
+style = "italic gray3"
+format = "[󱎫 ](gray_icons)[$duration]($style) "
 
 [time]
 disabled = false
 time_format = "%H:%M"
-# La hora en gris oscuro
 style = "bold gray3"
-format = "[$time]($style) "
+format = "at [󱑎 ](gray_icons)[$time]($style)"
 
-[cmd_duration]
-min_time = 2000
-style = "bold red2"
-format = "took [$duration]($style) "
+[line_break]
+disabled = false
