@@ -235,7 +235,7 @@ EOF
 
     # 6. Configuración de Renderizado y Fontconfig (Inyectado aquí)
         echo_msg "🌐 Configurando Fontconfig y X11 rendering..."
-        # Aplicar el XML de Fontconfig que tenías en setup_fonts_locale
+        # Aplicar el XML de Fontconfig
         sudo mkdir -p /etc/fonts/conf.d
         sudo tee /etc/fonts/conf.d/99-nebspwn.conf >/dev/null << 'EOF'
 <?xml version='1.0'?><!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
@@ -692,9 +692,9 @@ EOF
 # Agregar DESPUÉS de la función install_betterlockscreen_lock() { ... }
 
 setup_fonts_locale() {
-    echo_msg "🅰️  Configurando FUENTES + LOCALE (JetBrains + Unicode completo)..."
+    echo_msg "🅰️  Configurando FUENTES + LOCALE (JetBrains + Unicode Global)..."
     
-    # Preguntar idioma
+    # 1. Selección de Idioma (Locale)
     echo "Selecciona el idioma del sistema:"
     echo "1) Inglés (en_US.UTF-8)"
     echo "2) Español LATAM (es_MX.UTF-8)"
@@ -703,81 +703,80 @@ setup_fonts_locale() {
     choice=${choice:-1}
     
     case $choice in
-      1) LANG="en_US.UTF-8"; echo_ok "Idioma: INGLÉS (en_US.UTF-8)" ;;
-      2) LANG="es_MX.UTF-8"; echo_ok "Idioma: ESPAÑOL LATAM (es_MX.UTF-8)" ;;
-      3) LANG="es_ES.UTF-8"; echo_ok "Idioma: ESPAÑOL ESPAÑA (es_ES.UTF-8)" ;;
-      *) LANG="en_US.UTF-8"; echo_ok "Idioma: INGLÉS (por defecto)" ;;
+      1) LANG="en_US.UTF-8"; echo_ok "Idioma: INGLÉS" ;;
+      2) LANG="es_MX.UTF-8"; echo_ok "Idioma: ESPAÑOL LATAM" ;;
+      3) LANG="es_ES.UTF-8"; echo_ok "Idioma: ESPAÑOL ESPAÑA" ;;
+      *) LANG="en_US.UTF-8"; echo_ok "Idioma: INGLÉS" ;;
     esac
     
-    # Instalar fuentes (JetBrains prioritario + Noto Unicode)
-    echo_msg "📦 Instalando fuentes JetBrains + Noto..."      
-    fc-cache -fv
-    
-    # Fontconfig GLOBAL (sistema entero)
-    echo_msg "🌐 Configurando fontconfig global..."
-    sudo mkdir -p /etc/fonts/conf.d
-    sudo tee /etc/fonts/conf.d/99-nebspwn.conf >/dev/null << 'EOF'
-<?xml version='1.0'?>
-<!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
+    # 2. Configuración GLOBAL de Fontconfig (/etc/fonts/local.conf)
+    # Proporciona soporte de iconos a todos los usuarios, incluido Root.
+    echo_msg "🌐 Configurando Fontconfig Global (/etc/fonts/local.conf)..."
+    sudo tee /etc/fonts/local.conf >/dev/null << 'EOF'
+<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "fonts.dtd">
 <fontconfig>
   <alias>
     <family>monospace</family>
     <prefer>
-      <family>JetBrains Mono</family>
-      <family>Fira Code</family>
+      <family>JetBrainsMono Nerd Font</family>
       <family>Noto Sans Mono</family>
-      <family>DejaVu Sans Mono</family>
     </prefer>
   </alias>
+
+  <match target="pattern">
+    <test qual="any" name="family"><string>JetBrains Mono</string></test>
+    <edit name="family" mode="assign" binding="same"><string>JetBrainsMono Nerd Font</string></edit>
+  </match>
+
   <alias>
     <family>sans-serif</family>
     <prefer>
       <family>Noto Sans</family>
+      <family>JetBrainsMono Nerd Font</family>
       <family>Noto Color Emoji</family>
-      <family>DejaVu Sans</family>
-    </prefer>
-  </alias>
-  <alias>
-    <family>serif</family>
-    <prefer>
-      <family>Noto Serif</family>
-      <family>DejaVu Serif</family>
     </prefer>
   </alias>
 </fontconfig>
 EOF
-    sudo fc-cache -fv
-    
-    # Xresources para renderizado perfecto
-    echo_msg "🖥️  Configurando X11 rendering..."
+
+    # 3. Xresources para renderizado (User Level)
+    echo_msg "🖥️  Configurando X11 rendering (.Xresources)..."
     cat > "$HOME/.Xresources" << 'EOF'
 Xft.dpi: 96
-Xft.autohint: 1
+Xft.autohint: 0
 Xft.lcdfilter: lcddefault
-Xft.hintstyle: hintfull
+Xft.hintstyle: hintslight
 Xft.antialias: 1
 Xft.rgba: rgb
 EOF
     
-    # Inyectar en bspwmrc (después de QT vars)
+    # 4. Inyección de variables en bspwmrc
     local bspwm_config="$HOME/.config/bspwm/bspwmrc"
     if [[ -f "$bspwm_config" ]]; then
-        if ! grep -q "xrdb -merge.*Xresources" "$bspwm_config"; then
-            sed -i '/QT_STYLE_OVERRIDE=kvantum/a\
-xrdb -merge ~/.Xresources\
-export LANG='"${LANG}"'\
-export LC_ALL='"${LANG}"'' "$bspwm_config"
-            echo_ok "Inyectado en bspwmrc"
-        fi
+        # Limpiar inyecciones previas (evita redundancia)
+        sed -i '/xrdb -merge.*Xresources/d; /export LANG=/d; /export LC_ALL=/d' "$bspwm_config"
+        
+        # Inyectar tras el shebang (línea 2) para asegurar carga temprana
+        sed -i "2i xrdb -merge ~/.Xresources\nexport LANG=${LANG}\nexport LC_ALL=${LANG}" "$bspwm_config"
+        echo_ok "Persistencia añadida a bspwmrc"
     fi
     
-    # Locale sistema
-    echo_msg "🌍 Configurando locale: ${LANG}"
-    sudo sed -i "/^#${LANG} UTF-8/${LANG} UTF-8/" /etc/locale.gen
-    sudo locale-gen
+    # 5. Aplicar Locale al sistema (Root)
+    echo_msg "🌍 Aplicando cambios de Locale en /etc/locale.gen..."
+    sudo sed -i "s/^#${LANG} UTF-8/${LANG} UTF-8/" /etc/locale.gen
+    sudo locale-gen > /dev/null
     echo "LANG=${LANG}" | sudo tee /etc/locale.conf >/dev/null
     
-    echo_ok "🅰️  Fuentes + Locale COMPLETO (JetBrains + Unicode)"
+    # 6. Limpieza de basura y Refresco de caché
+    # Borramos config local de usuario para que mande la global de /etc/
+    [[ -f "$HOME/.config/fontconfig/fonts.conf" ]] && rm "$HOME/.config/fontconfig/fonts.conf"
+    
+    xrdb -merge "$HOME/.Xresources" 2>/dev/null
+    sudo fc-cache -fv > /dev/null
+    fc-cache -fv > /dev/null
+    
+    echo_ok "🅰️  Fuentes + Locale COMPLETO (Global Mode)"
 }
 
 backup_config() {
