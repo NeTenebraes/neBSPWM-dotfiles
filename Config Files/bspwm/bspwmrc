@@ -54,6 +54,10 @@ bspc rule -a Pluma state=floating center=on
 bspc rule -a mpv state=floating   
 bspc rule -a VLC state=floating
 
+bspc rule -a Nemo:nemo:"File conflict" state=floating rectangle=1000x500+183+134 center=on focus=on
+bspc rule -a firefox rectangle=800x600+0+0 center=on focus=on
+
+
 bspc rule -a Rofi state=floating center=on
 
 # Essential Startup
