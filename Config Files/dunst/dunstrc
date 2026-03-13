@@ -1,6 +1,8 @@
 [global]
     font = JetBrainsMono Nerd Font 10
 
+    show_indicators = no
+
     # POSICIÓN (Sintaxis moderna)
     origin = bottom-right
     offset = (30, 30)
