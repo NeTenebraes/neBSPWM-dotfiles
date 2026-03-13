@@ -1,13 +1,13 @@
 [global]
     font = JetBrainsMono Nerd Font 10
 
-    # POSICIÓN
+    # POSICIÓN (Sintaxis moderna)
     origin = bottom-right
-    offset = 30x30
+    offset = (30, 30)
 
-    # TAMAÑO (sintaxis legacy, puedes cambiar luego)
+    # TAMAÑO (Sintaxis moderna)
     width = 450
-    height = 300
+    height = (0, 300)
 
     notification_limit = 5
 
@@ -17,13 +17,13 @@
     frame_width = 2
     highlight = "#ff2a2a"
 
-    # ICONOS
+    # ICONOS (Limpiado y forzado)
     icon_theme = Papirus-Dark
-    icon_position = left
-    max_icon_size = 50
-    min_icon_size = 32
     enable_recursive_icon_lookup = true
-    default_icon = /usr/share/icons/Papirus-Dark/48x48/status/notification-network-wired.svg
+    icon_position = left
+    max_icon_size = 64
+    # icon_path define rutas extras si el tema falla
+    icon_path = /usr/share/icons/Papirus-Dark/48x48/status:/usr/share/icons/Papirus-Dark/48x48/devices:/usr/share/icons/Papirus-Dark/48x48/apps
 
     # ESPACIADO
     padding = 12
@@ -53,25 +53,31 @@
     frame_color = "#ff0000"
     timeout = 0
 
-# ===============================
-#  OVERRIDES NETWORKMANAGER
-#  (usa solo iconos que EXISTEN)
-# ===============================
-
-# Cualquier conexión establecida (cable o similar)
-[nm-wired-connected]
-    summary = *Connection Established*
+# --- ETHERNET ESPECÍFICO ---
+[nm-eth-connected]
+    summary = "*onnection*stablished*"
+    body = "*thernet*"
     new_icon = /usr/share/icons/Papirus-Dark/48x48/status/notification-network-ethernet-connected.svg
 
-# Cualquier desconexión
-[nm-disconnected]
-    summary = *Disconnected*
+[nm-eth-disconnected]
+    summary = "*isconnected*"
+    body = "*thernet*"
     new_icon = /usr/share/icons/Papirus-Dark/48x48/status/notification-network-ethernet-disconnected.svg
 
-    [nm-clean-title-connected]
-    summary = *(A) Connection Established*
-    new_summary = Connection Established
+# --- WI-FI ESPECÍFICO ---
+[nm-wifi-connected]
+    summary = "*onnected to*"
+    new_icon = /usr/share/icons/Papirus-Dark/48x48/status/notification-network-wireless.svg
 
-[nm-clean-title-disconnected]
-    summary = *(A) Disconnected*
-    new_summary = Disconnected
+[nm-wifi-disconnected]
+    summary = "*isconnected*"
+    body = "*i-Fi*"
+    new_icon = /usr/share/icons/Papirus-Dark/48x48/status/notification-network-wireless-disconnected.svg
+
+[airplane-mode-rule]
+    summary = "*Avi*"
+    new_icon = /usr/share/icons/Papirus-Dark/48x48/status/airplane-mode.svg
+
+[airplane-mode-en]
+    summary = "Airplane Mode"
+    new_icon = /usr/share/icons/Papirus-Dark/48x48/status/airplane-mode.svg
