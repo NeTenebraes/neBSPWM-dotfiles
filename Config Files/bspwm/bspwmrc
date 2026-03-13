@@ -86,12 +86,22 @@ pgrep blueman-applet || blueman-applet &
 # Desactiva el curso si no lo estás usando.
 pgrep unclutter || unclutter -idle 5 -root &
 
-# Lock screen 
-# --- Auto-lock con xidlehook ---
-pgrep xidlehook || xidlehook --not-when-fullscreen --not-when-audio --timer 300 'betterlockscreen -l blur' '' --timer 600 'xset dpms force off' '' &
+# --- Lock screen & Power Management ---
+# Bloqueo reactivo (Tapa/Suspensión manual)
+# El flag --transfer-sleep-lock evita que se vea el escritorio al despertar
+pgrep xss-lock || xss-lock --transfer-sleep-lock -- betterlockscreen -l blur &
+
+# Bloqueo proactivo e Inactividad (Tu regla mejorada)
+# 300s: Bloqueo | 600s: Pantalla off | 900s: Suspensión total
+pgrep xidlehook || xidlehook \
+  --not-when-fullscreen \
+  --not-when-audio \
+  --timer 300 'betterlockscreen -l blur' '' \
+  --timer 600 'xset dpms force off' 'xset dpms force on' \
+  --timer 900 'systemctl suspend' '' &
 
 # --- Gestor de Monitores de Sistema (Conky) ---
-# Matamos cualquier instancia previa para evitar sombras o duplicados
+# Evitar sombras o duplicados
 killall -q conky
 
 # Lanzamos ambos widgets con un ligero retraso para asegurar que el escritorio esté listo
