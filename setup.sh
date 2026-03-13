@@ -388,6 +388,10 @@ gtk-application-prefer-dark-theme=1
 EOF
     fi
 
+    # Minimalist nvim
+    curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+       https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+
     xdg-user-dirs-update
 
     echo_ok "🎨 Temas 100% OK"
