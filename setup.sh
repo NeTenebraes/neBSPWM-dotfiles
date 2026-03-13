@@ -33,10 +33,10 @@ PKGS_PACMAN_Essencials=(
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
     "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "vlc-plugins-all" "xdg-user-dirs"
-    "zsh-history-substring-search"
+    "zsh-history-substring-search" "proton-vpn-cli"
 )
 
-PKGS_PACMAN_optionals=("signal-desktop")
+PKGS_PACMAN_optionals=("signal-desktop" "gimp" "obs-studio")
 PKGS_AUR=(
     "betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "kvantum-theme-catppuccin-git"
     "vscodium-bin" "nomacs"
