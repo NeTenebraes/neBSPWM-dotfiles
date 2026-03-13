@@ -83,13 +83,8 @@ pgrep blueman-applet || blueman-applet &
 pgrep unclutter || unclutter -idle 5 -root &
 
 # Lock screen 
-pgrep xautolock || xautolock -time 5 -locker "betterlockscreen -l" &
-blueman-applet &
-
-# Configuración de pantalla (Evita suspensión, apaga a la hora)
-xset s off               # Desactiva el protector de pantalla clásico
-xset -dpms               # Resetea DPMS
-xset dpms 0 0 3600 &     # 0 standby, 0 suspend, 3600 (1 hora)
+# --- Auto-lock con xidlehook ---
+pgrep xidlehook || xidlehook --not-when-fullscreen --not-when-audio --timer 300 'betterlockscreen -l blur' '' --timer 600 'xset dpms force off' '' &
 
 # --- Gestor de Monitores de Sistema (Conky) ---
 # Matamos cualquier instancia previa para evitar sombras o duplicados

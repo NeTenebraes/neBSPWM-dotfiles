@@ -39,7 +39,7 @@ PKGS_PACMAN_Essencials=(
 PKGS_PACMAN_optionals=("signal-desktop" "gimp" "obs-studio")
 PKGS_AUR=(
     "betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "kvantum-theme-catppuccin-git"
-    "vscodium-bin" "nomacs"
+    "vscodium-bin" "nomacs" "xidlehook"
 )
 PKGS_AUR_Optionals=("megasync")
 
