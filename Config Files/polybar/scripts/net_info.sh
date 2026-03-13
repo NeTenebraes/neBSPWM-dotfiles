@@ -1,63 +1,55 @@
 #!/bin/bash
 
-active_index_file="$HOME/.config/polybar/scripts/active_net_index"
-mkdir -p "$(dirname "$active_index_file")"
+index_file="/tmp/net_idx"
+time_file="/tmp/net_last_change"
+[ ! -f "$index_file" ] && echo 0 > "$index_file"
 
-# 1. Interfaces reales
-mapfile -t real_interfaces < <(
-    ip -4 addr show | awk '/inet / && $NF != "lo" {print $NF}'
-)
+mapfile -t ifaces < <(echo "CENSORED"; ip -4 addr show | awk '/inet / && $NF != "lo" {print $NF}')
+idx=$(cat "$index_file")
 
-# 2. Creamos la lista: CENSORED siempre es la primera (índice 0)
-interfaces=("CENSORED" "${real_interfaces[@]}")
-
-# 3. Índice actual (Si no existe, el default es 0 = CENSORED)
-if [ ! -f "$active_index_file" ]; then
-    echo 0 > "$active_index_file"
+# Navegación
+if [[ "$1" == "prev" || "$1" == "next" ]]; then
+    [ "$1" == "prev" ] && idx=$(( (idx - 1 + ${#ifaces[@]}) % ${#ifaces[@]} )) || idx=$(( (idx + 1) % ${#ifaces[@]} ))
+    echo "$idx" > "$index_file"
+    # Guardamos el segundo exacto del clic
+    date +%s > "$time_file"
+    exit 0
 fi
 
-active_index=$(cat "$active_index_file")
+iface=${ifaces[$idx]}
 
-# Validar que el índice sea válido tras cambios de hardware
-if [ "$active_index" -ge "${#interfaces[@]}" ]; then
-    active_index=0
-    echo "$active_index" > "$active_index_file"
-fi
-
-# 4. Clicks (Navegación)
-case "$1" in
-    prev)
-        active_index=$(( (active_index - 1 + ${#interfaces[@]}) % ${#interfaces[@]} ))
-        echo "$active_index" > "$active_index_file"
-        exit 0
-        ;;
-    next)
-        active_index=$(( (active_index + 1) % ${#interfaces[@]} ))
-        echo "$active_index" > "$active_index_file"
-        exit 0
-        ;;
+# Lógica de Iconos
+case "$iface" in
+    vmnet*)    icon="󰝨" ;;
+    enp*u*)    icon="" ;; 
+    eth*|enp*) icon="󰈀" ;; 
+    wlan*|wlp*) icon="󰖩" ;; 
+    tun*|ppp*) icon="󰞉" ;; 
+    CENSORED)  icon="󰦝" ;;
+    *)         icon="󰤨" ;;
 esac
 
-# 5. Lógica de visualización
-active_iface=${interfaces[$active_index]}
-
-if [ "$active_iface" = "CENSORED" ]; then
-    icon="%{T1}󰦝%{T-}"
-    display_name="LOCAL IP"
-    ip_addr="CENSORED"
+if [ "$iface" = "CENSORED" ]; then
+    echo "%{A1:$0 prev:}%{A3:$0 next:}${icon} %{F#777777}HIDDEN%{F-}%{A}%{A}"
 else
-    ip_addr=$(ip -4 addr show "$active_iface" | awk '/inet / {print $2}' | cut -d'/' -f1 | head -1)
-    display_name="$active_iface"
+    ip_addr=$(ip -4 addr show "$iface" | awk '/inet / {print $2}' | cut -d'/' -f1 | head -1)
+    
+    # Comprobar si han pasado menos de 5 segundos desde el último clic
+    show_full=false
+    if [ -f "$time_file" ]; then
+        last_change=$(cat "$time_file")
+        current_time=$(date +%s)
+        # Diferencia de tiempo
+        if (( current_time - last_change < 5 )); then
+            show_full=true
+        fi
+    fi
 
-    case "$active_iface" in
-        vmnet*|vmware*|vboxnet*) icon="%{T1}󰝨%{T-}" ;;
-        enp*u*|enp*us*|enx*|usb*) icon="%{T1}%{T-}" ;; # Tethering
-        eth*|enp*)               icon="%{T1}󰈀%{T-}" ;; # Ethernet
-        wlan*|wlp*)              icon="%{T1}󰖩%{T-}" ;; # WiFi
-        tun*|ppp*)               icon="%{T1}󰞉%{T-}" ;; # VPN
-        *)                       icon="%{T1}󰤨%{T-}" ;;
-    esac
+    if [ "$show_full" = true ]; then
+        display="${iface}: ${ip_addr}"
+    else
+        display="${ip_addr}"
+    fi
+
+    echo "%{A1:$0 prev:}%{A3:$0 next:}${icon} ${display}%{A}%{A}"
 fi
-
-# 6. Salida para polybar
-echo "%{A1:~/.config/polybar/scripts/net_info.sh prev:}${icon} %{T0}${display_name}: ${ip_addr}%{T-}%{A}%{A3:~/.config/polybar/scripts/net_info.sh next:}%{A}"
