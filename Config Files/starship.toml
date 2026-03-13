@@ -1,5 +1,7 @@
 # CONFIGURACIÓN STARSHIP: NETENEBRAE
 
+add_newline = false
+
 format = """
 [┌─](bold gray3)$os$username$directory$git_branch$git_status
 [└─](bold gray3)$character"""
