@@ -1,32 +1,53 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 export DISPLAY=:0
 export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
 
-# --- ICONOS ---
 ICON_FW="security-high"
 ICON_VPN="network-vpn-symbolic"
-ICON_OFF="network-error-symbolic" 
+ICON_OFF="network-error-symbolic"
 ICON_ALERT="dialog-warning-symbolic"
 
-# Idiomas
 case "$LANG" in
-    es*) T_FW="CORTAFUEGOS"; T_VPN="VPN"; L_TYPE="Motor:"; L_STATUS="Estado:"; L_IP="IP Pública:"; L_OFF="DESACTIVADO"; L_ON="ACTIVO"; L_ISP="IP Proveedor:"; L_HIDDEN="OCULTA" ;;
-    *)   T_FW="FIREWALL"; T_VPN="VPN"; L_TYPE="Engine:"; L_STATUS="Status:"; L_IP="Public IP:"; L_OFF="DISABLED"; L_ON="ACTIVE"; L_ISP="ISP IP:"; L_HIDDEN="HIDDEN" ;;
+    es*)
+        T_FW="CORTAFUEGOS"
+        T_VPN="VPN"
+        L_ENGINE="Motor"
+        L_STATUS="Estado"
+        L_IFACE="Interfaz"
+        L_PUBLIC_IP="IP pública"
+        L_ON="ACTIVO"
+        L_OFF="DESACTIVADO"
+        L_HIDDEN="OCULTA"
+        L_NONE="NINGUNA"
+        ;;
+    *)
+        T_FW="FIREWALL"
+        T_VPN="VPN"
+        L_ENGINE="Engine"
+        L_STATUS="Status"
+        L_IFACE="Interface"
+        L_PUBLIC_IP="Public IP"
+        L_ON="ACTIVE"
+        L_OFF="DISABLED"
+        L_HIDDEN="HIDDEN"
+        L_NONE="NONE"
+        ;;
 esac
 
 get_vpn_iface() {
-    ip addr | grep -E 'tun[0-9]|ppp[0-9]|wg[0-9]|proton|ipvpn' | awk -F: '{print $2}' | tr -d ' ' | head -1
+    ip -o link show up | awk -F': ' '/(tun|ppp|wg|proton|ipvpn)/ {print $2; exit}'
+}
+
+get_public_ip() {
+    curl -s --max-time 1.5 ifconfig.me || echo "---"
 }
 
 get_firewall_info() {
-    # 1. Verificación de UFW (La más precisa sin root)
     if [ -f /etc/ufw/ufw.conf ] && grep -q "ENABLED=yes" /etc/ufw/ufw.conf; then
         echo "UFW|$L_ON|$ICON_FW"
-    # 2. Verificación de Firewalld
     elif systemctl is-active --quiet firewalld; then
         echo "Firewalld|$L_ON|$ICON_FW"
-    # 3. Verificación de nftables
     elif systemctl is-active --quiet nftables; then
         echo "nftables|$L_ON|$ICON_FW"
     else
@@ -34,33 +55,55 @@ get_firewall_info() {
     fi
 }
 
-if [ "$1" == "--notify" ]; then
-    rem=$(( $(date +%s) % 10 ))
-    if [ $rem -lt 5 ]; then
-        IFS='|' read -r engine status icon <<< "$(get_firewall_info)"
-        notify-send -t 4000 -u normal -i "$icon" "$T_FW" "$L_TYPE $engine\n$L_STATUS $status"
-    else
-        iface=$(get_vpn_iface)
-        if [ -n "$iface" ]; then
-            PUB_IP=$(curl -s --max-time 1.5 ifconfig.me || echo "---")
-            notify-send -t 4000 -u normal -i "$ICON_VPN" "$T_VPN" "$iface\n$L_IP $PUB_IP"
-        else
-            notify-send -t 4000 -u critical -i "$ICON_OFF" "$T_VPN" "$L_OFF\n$L_ISP $L_HIDDEN"
-        fi
-    fi
-    exit 0
-fi
-
-# --- VISUALIZACIÓN POLYBAR ---
-rem=$(( $(date +%s) % 10 ))
-if [ $rem -lt 5 ]; then
+notify_fw() {
     IFS='|' read -r engine status icon <<< "$(get_firewall_info)"
-    if [ "$status" == "$L_ON" ]; then
-        echo "%{F#44FF44}󰒘%{F-}" # Verde si está activo
+    notify-send -u normal -t 5000 -i "$icon" \
+        "$T_FW" \
+        "$L_ENGINE: $engine
+$L_STATUS: $status"
+}
+
+notify_vpn() {
+    local iface pub_ip urgency icon status
+    iface="$(get_vpn_iface)"
+
+    if [ -n "$iface" ]; then
+        status="$L_ON"
+        pub_ip="$(get_public_ip)"
+        urgency="normal"
+        icon="$ICON_VPN"
     else
-        echo "%{F#777777}󰦝%{F-}" # Gris si está desactivado
+        status="$L_OFF"
+        pub_ip="$L_HIDDEN"
+        urgency="critical"
+        icon="$ICON_OFF"
     fi
+
+    notify-send -u "$urgency" -t 5000 -i "$icon" \
+        "$T_VPN" \
+        "$L_STATUS: $status
+$L_IFACE: ${iface:-$L_NONE}
+$L_PUBLIC_IP: $pub_ip"
+}
+
+notify_all() {
+    notify_fw
+    notify_vpn
+}
+
+phase=$(( ($(date +%s) / 5) % 2 ))
+
+case "${1:-}" in
+    --notify-all)
+        notify_all
+        exit 0
+        ;;
+esac
+
+if [ "$phase" -eq 0 ]; then
+    IFS='|' read -r engine status icon <<< "$(get_firewall_info)"
+    [ "$status" = "$L_ON" ] && echo "%{F#44FF44}󰒘%{F-}" || echo "%{F#777777}󰦝%{F-}"
 else
-    iface=$(get_vpn_iface)
-    [[ -n "$iface" ]] && echo "%{F#00FFFF}󰞉%{F-}" || echo "%{F#777777}󰞉%{F-}"
+    iface="$(get_vpn_iface)"
+    [ -n "$iface" ] && echo "%{F#00FFFF}󰞉%{F-}" || echo "%{F#777777}󰞉%{F-}"
 fi

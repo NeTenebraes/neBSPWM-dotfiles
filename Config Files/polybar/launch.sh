@@ -1,12 +1,17 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 
-## Add this to your wm startup file.
-
-# Terminate already running bar instances
 killall -q polybar
+while pgrep -u "$UID" -x polybar >/dev/null; do
+    sleep 0.2
+done
 
-## Wait until the processes have been shut down
-while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+PRIMARY="$(xrandr --query | awk '$2 == "connected" && $3 ~ /primary/ {print $1; exit}')"
+[ -z "$PRIMARY" ] && PRIMARY="$(bspc query -M --names | head -n1)"
 
-## Launch
-polybar necyber -c ~/.config/polybar/current.ini &
+for m in $(bspc query -M --names); do
+    if [ "$m" = "$PRIMARY" ]; then
+        MONITOR="$m" polybar --reload necyber-primary -c "$HOME/.config/polybar/current.ini" &
+    else
+        MONITOR="$m" polybar --reload necyber-secondary -c "$HOME/.config/polybar/current.ini" &
+    fi
+done
