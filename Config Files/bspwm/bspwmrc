@@ -1,4 +1,5 @@
 #! /bin/sh
+
 xrdb -merge ~/.Xresources
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -20,9 +21,6 @@ pgrep -u "$USER" ssh-agent > /dev/null || ssh-agent -s > /tmp/ssh-agent.sh
 
 # Carga las variables de entorno.
 [ -f /tmp/ssh-agent.sh ] && . /tmp/ssh-agent.sh
-
-# --- Definición de Workspaces ---
-bspc monitor -d I II III IV V
 
 # --- Configuración de las ventanas  ---
 xsetroot -cursor_name left_ptr
@@ -63,8 +61,7 @@ bspc rule -a Rofi state=floating center=on
 # Essential Startup
 pgrep picom >/dev/null || picom &
 pgrep sxhkd >/dev/null || sxhkd &
-pgrep feh >/dev/null || feh --bg-fill ~/.config/bspwm/wallpaper.png &
-~/.config/polybar/launch.sh &
+#pgrep feh >/dev/null || feh --bg-fill ~/.config/bspwm/wallpaper.png &
 
 #Support for custom startup
 ~/.config/bspwm/start.sh &
@@ -100,13 +97,7 @@ pgrep xidlehook || xidlehook \
   --timer 600 'xset dpms force off' 'xset dpms force on' \
   --timer 900 'systemctl suspend' '' &
 
-# --- Gestor de Monitores de Sistema (Conky) ---
-# Evitar sombras o duplicados
-killall -q conky
-
-# Lanzamos ambos widgets con un ligero retraso para asegurar que el escritorio esté listo
-(
-  sleep 2;
-  conky -c "$HOME/.config/conky/system_top.conf" &
-  conky -c "$HOME/.config/conky/network_bottom.conf" &
-) &
+# --- Monitor watcher ---
+pkill -f monitor_setup.sh
+rm -f /tmp/monitor_current_state
+(sleep 1; "$HOME/.config/bspwm/monitor_setup.sh") &

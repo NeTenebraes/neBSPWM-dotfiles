@@ -396,7 +396,7 @@ EOF
     REAL_USER=$(logname 2>/dev/null || echo $USER)
     REAL_HOME=$(eval echo ~$REAL_USER)
 
-    # Crear disparador de autorandr (por si acaso se usa manualmente)
+    # Crear disparador de autorandr
     echo_msg "🔗 Configurando disparadores de monitor..."
     mkdir -p "$REAL_HOME/.config/autorandr"
     cat > "$REAL_HOME/.config/autorandr/post-switch" << EOF
@@ -406,20 +406,6 @@ $REAL_HOME/.config/bspwm/monitor_setup.sh
 EOF
     chmod +x "$REAL_HOME/.config/autorandr/post-switch"
     chown -R $REAL_USER:$REAL_USER "$REAL_HOME/.config/autorandr"
-
-    # 4. Regla de udev (El motor principal)
-    echo_msg "⚙️ Configurando reglas de hardware (udev)..."
-    
-    # Escribimos la regla usando las variables capturadas
-    # Usamos sudo tee para evitar problemas de redirección con sudo
-    sudo bash -c "cat > /etc/udev/rules.d/95-monitor-hotplug.rules << EOF
-ACTION==\"change\", SUBSYSTEM==\"drm\", ENV{DISPLAY}=\":0\", ENV{XAUTHORITY}=\"$REAL_HOME/.Xauthority\", RUN+=\"/usr/bin/sudo -u $REAL_USER $REAL_HOME/.config/bspwm/monitor_setup.sh\"
-EOF"
-
-    # 5. Aplicar cambios y permisos
-    sudo udevadm control --reload-rules
-    chmod +x "$REAL_HOME/.config/bspwm/monitor_setup.sh"
-    chmod +x "$REAL_HOME/.config/bspwm/polybar_fixer.sh" 2>/dev/null
 
     # 6. Finalización
     xdg-user-dirs-update
