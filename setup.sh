@@ -33,7 +33,7 @@ PKGS_PACMAN_Essencials=(
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
     "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "vlc-plugins-all" "xdg-user-dirs"
-    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip"
+    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip" "autorandr"
 )
 
 PKGS_PACMAN_optionals=("signal-desktop" "gimp" "obs-studio")
@@ -392,9 +392,38 @@ EOF
     curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
-    xdg-user-dirs-update
+# Esto asegura que incluso si corres el script con sudo, las rutas apunten a TU home
+    REAL_USER=$(logname 2>/dev/null || echo $USER)
+    REAL_HOME=$(eval echo ~$REAL_USER)
 
-    echo_ok "🎨 Temas 100% OK"
+    # Crear disparador de autorandr (por si acaso se usa manualmente)
+    echo_msg "🔗 Configurando disparadores de monitor..."
+    mkdir -p "$REAL_HOME/.config/autorandr"
+    cat > "$REAL_HOME/.config/autorandr/post-switch" << EOF
+#!/usr/bin/env bash
+# Disparador automático de configuración de monitores
+$REAL_HOME/.config/bspwm/monitor_setup.sh
+EOF
+    chmod +x "$REAL_HOME/.config/autorandr/post-switch"
+    chown -R $REAL_USER:$REAL_USER "$REAL_HOME/.config/autorandr"
+
+    # 4. Regla de udev (El motor principal)
+    echo_msg "⚙️ Configurando reglas de hardware (udev)..."
+    
+    # Escribimos la regla usando las variables capturadas
+    # Usamos sudo tee para evitar problemas de redirección con sudo
+    sudo bash -c "cat > /etc/udev/rules.d/95-monitor-hotplug.rules << EOF
+ACTION==\"change\", SUBSYSTEM==\"drm\", ENV{DISPLAY}=\":0\", ENV{XAUTHORITY}=\"$REAL_HOME/.Xauthority\", RUN+=\"/usr/bin/sudo -u $REAL_USER $REAL_HOME/.config/bspwm/monitor_setup.sh\"
+EOF"
+
+    # 5. Aplicar cambios y permisos
+    sudo udevadm control --reload-rules
+    chmod +x "$REAL_HOME/.config/bspwm/monitor_setup.sh"
+    chmod +x "$REAL_HOME/.config/bspwm/polybar_fixer.sh" 2>/dev/null
+
+    # 6. Finalización
+    xdg-user-dirs-update
+    echo_ok "🎨 Configuración de Monitores y Temas OK"
 }
 
 # 🌀 Función SDDM Modularizada (Integrada)
