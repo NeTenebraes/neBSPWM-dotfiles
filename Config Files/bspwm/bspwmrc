@@ -1,103 +1,136 @@
 #! /bin/sh
 
-xrdb -merge ~/.Xresources
+# =========================
+# Entorno
+# =========================
+xrdb -merge "$HOME/.Xresources"
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-# --- QT/THEME FIX ---
-# Fuerza XCB para evitar bordes rotos en BSPWM y Kvantum para unificar temas
+# Qt / tema
 export QT_QPA_PLATFORM=xcb
 export QT_STYLE_OVERRIDE=kvantum
 export QT_QPA_PLATFORMTHEME=qt5ct
-# Iniciar Portals necesarios para Qt6
-(sleep 1; /usr/lib/xdg-desktop-portal &)
-(sleep 1; /usr/lib/xdg-desktop-portal-gtk &)
-# ------------------------------------------------
 
-# --- Configuración del SSH-Agent ---
+# Helpers
+# Nota sobre start_once / restart_then_start:
+# Se repite el nombre del proceso porque pgrep/pkill buscan un patrón exacto
+# con -x, mientras que "$@" es el comando real a ejecutar con sus argumentos.
+# A veces ambos coinciden (ej. nm-applet nm-applet) y parece redundante,
+# pero esto permite casos donde el nombre del proceso y el ejecutable/ruta
+# no son idénticos, por ejemplo:
+#   restart_then_start polkit-gnome-authentication-agent-1 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
+# pgrep/pkill devuelven 0 si encuentran coincidencias y 1 si no, lo cual
+# encaja bien para controlar arranque único o reinicio limpio.
+start_once() {
+    proc="$1"
+    shift
+    pgrep -x "$proc" >/dev/null 2>&1 || "$@" &
+}
 
-# Inicia el agente solo si no está corriendo.
-pgrep -u "$USER" ssh-agent > /dev/null || ssh-agent -s > /tmp/ssh-agent.sh
+restart_then_start() {
+    proc="$1"
+    shift
+    pgrep -x "$proc" >/dev/null 2>&1 && pkill -x "$proc"
+    "$@" &
+}
 
-# Carga las variables de entorno.
+# =========================
+# Portals
+# =========================
+(sleep 1; pgrep -x xdg-desktop-portal >/dev/null 2>&1 || /usr/lib/xdg-desktop-portal) &
+(sleep 1; pgrep -x xdg-desktop-portal-gtk >/dev/null 2>&1 || /usr/lib/xdg-desktop-portal-gtk) &
+
+# =========================
+# Monitores primero
+# =========================
+pkill -f "$HOME/.config/bspwm/monitor_setup.sh" >/dev/null 2>&1
+rm -f \
+    /tmp/monitor_current_state \
+    /tmp/monitor_override_mode \
+    /tmp/monitor_override_topology \
+    /tmp/monitor_manual_cycle
+
+"$HOME/.config/bspwm/monitor_setup.sh" >/dev/null 2>&1 &
+
+# Esperar a que el layout inicial quede aplicado
+for _ in $(seq 1 30); do
+    [ -s /tmp/monitor_current_state ] && break
+    sleep 0.5
+done
+
+# =========================
+# SSH agent
+# =========================
+pgrep -u "$USER" -x ssh-agent >/dev/null 2>&1 || ssh-agent -s > /tmp/ssh-agent.sh
 [ -f /tmp/ssh-agent.sh ] && . /tmp/ssh-agent.sh
 
-# --- Configuración de las ventanas  ---
+# =========================
+# Configuración de bspwm
+# =========================
 xsetroot -cursor_name left_ptr
-bspc config border_width        2
-bspc config window_gap          3
-bspc config top_padding 		20
 
-bspc config split_ratio          0.50
-bspc config borderless_monocle   false
-bspc config gapless_monocle      true
+bspc config border_width 2
+bspc config window_gap 3
+bspc config top_padding 20
 
-bspc config focus_follows_pointer true 
+bspc config split_ratio 0.50
+bspc config borderless_monocle false
+bspc config gapless_monocle true
+bspc config focus_follows_pointer true
 
-# --- Configuración de la tecla de acción ---
+# Mouse / mover-redimensionar
 bspc config pointer_modifier mod4
 bspc config pointer_action1 move
 bspc config pointer_action2 resize_side
 
-# ---  Reglas para ciertas ventanas ---
-
+# =========================
+# Reglas de ventanas
+# =========================
 bspc rule -a MEGAsync state=floating rectangle=800x600+0+0 center=on sticky=on follow=on
 bspc rule -a KeePassXC state=floating rectangle=1024x720+0+0 center=on sticky=on follow=on
 bspc rule -a Nm-applet state=floating center=on
 bspc rule -a Nm-connection-editor state=floating center=on
-
 bspc rule -a Pavucontrol state=floating center=on
 bspc rule -a Blueman-manager rectangle=800x600+0+0 state=floating center=on
 bspc rule -a Pluma state=floating center=on
-bspc rule -a mpv state=floating   
+bspc rule -a mpv state=floating
 bspc rule -a VLC state=floating
-
 bspc rule -a Nemo:nemo:"File conflict" state=floating rectangle=1000x500+183+134 center=on focus=on
 bspc rule -a firefox rectangle=800x600+0+0 center=on focus=on
-
-
 bspc rule -a Rofi state=floating center=on
 
-# Essential Startup
-pgrep picom >/dev/null || picom &
-pgrep sxhkd >/dev/null || sxhkd &
-#pgrep feh >/dev/null || feh --bg-fill ~/.config/bspwm/wallpaper.png &
+# =========================
+# Servicios base
+# =========================
+start_once picom picom
+start_once sxhkd sxhkd
 
-#Support for custom startup
-~/.config/bspwm/start.sh &
+# Custom Start
+[ -x "$HOME/.config/bspwm/start.sh" ] && "$HOME/.config/bspwm/start.sh" &
 
-# Terminar np-applet y megasync si están corriendo
-pgrep np-applet && pkill np-applet
-pgrep megasync && pkill megasync
+# =========================
+# Applets y utilidades
+# =========================
+restart_then_start polkit-gnome-authentication-agent-1 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
-pgrep polkit-gnome-authentication-agent-1 && pkill polkit-gnome-authentication-agent-1
+start_once nm-applet nm-applet
+start_once keepassxc keepassxc
+start_once flameshot flameshot
+start_once blueman-applet blueman-applet
+start_once unclutter unclutter -idle 5 -root
 
-# Iniciar aplicaciones necesarias
-pgrep nm-applet || nm-applet &
-pgrep megasync || megasync &
-pgrep keepassxc || keepassxc &
-pgrep flameshot || flameshot &
-pgrep polkit-gnome-authentication-agent-1 || /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &
-pgrep blueman-applet || blueman-applet &
+# Mega a veces se pone nervioso si arranca demasiado temprano
+(sleep 5; pgrep -x megasync >/dev/null 2>&1 || megasync) &
 
-# Desactiva el curso si no lo estás usando.
-pgrep unclutter || unclutter -idle 5 -root &
+# =========================
+# Bloqueo y energía
+# =========================
+start_once xss-lock xss-lock --transfer-sleep-lock -- betterlockscreen -l blur
 
-# --- Lock screen & Power Management ---
-# Bloqueo reactivo (Tapa/Suspensión manual)
-# El flag --transfer-sleep-lock evita que se vea el escritorio al despertar
-pgrep xss-lock || xss-lock --transfer-sleep-lock -- betterlockscreen -l blur &
-
-# Bloqueo proactivo e Inactividad (Tu regla mejorada)
-# 300s: Bloqueo | 600s: Pantalla off | 900s: Suspensión total
-pgrep xidlehook || xidlehook \
+start_once xidlehook xidlehook \
   --not-when-fullscreen \
   --not-when-audio \
   --timer 300 'betterlockscreen -l blur' '' \
   --timer 600 'xset dpms force off' 'xset dpms force on' \
   --timer 900 'systemctl suspend' '' &
-
-# --- Monitor watcher ---
-pkill -f monitor_setup.sh
-rm -f /tmp/monitor_current_state
-(sleep 1; "$HOME/.config/bspwm/monitor_setup.sh") &

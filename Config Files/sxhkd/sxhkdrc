@@ -103,3 +103,30 @@ XF86MonBrightnessUp
 # Bajar brillo (5%)
 XF86MonBrightnessDown
     brightnessctl set 5%- && lightctl down
+
+# --- Control Multimedia ---
+# Play/Pausa
+XF86AudioPlay
+    playerctl play-pause
+
+# Siguiente
+XF86AudioNext
+    playerctl next
+
+# Anterior
+XF86AudioPrev
+    playerctl previous
+
+# --- Modo Avión (Multi-idioma) ---
+XF86RFKill
+    W_STATE=$(nmcli radio all | grep -q "disabled" && echo "on" || echo "off"); \
+    nmcli radio all "$W_STATE"; \
+    if [[ "$LANG" == es_* ]]; then \
+        TITLE="Modo Avión"; MSG="Estado: $W_STATE"; \
+    else \
+        TITLE="Airplane Mode"; MSG="Status: $W_STATE"; \
+    fi; \
+    notify-send -u low -t 2000 -r 999 -i "airplane-mode" "$TITLE" "$MSG"
+
+super + p
+    ~/.config/bspwm/monitor_cycle.sh

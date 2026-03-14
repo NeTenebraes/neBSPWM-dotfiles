@@ -6,6 +6,8 @@ WALLPAPER="$HOME/.config/bspwm/wallpaper.png"
 STATE_FILE="/tmp/monitor_current_state"
 LOCK_FILE="/tmp/monitor_setup.lock"
 LOG_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/monitor_setup.log"
+OVERRIDE_FILE="/tmp/monitor_override_mode"
+OVERRIDE_TOPOLOGY_FILE="/tmp/monitor_override_topology"
 
 LEFT_DESKTOPS=(I II III IV V)
 RIGHT_DESKTOPS=(VI VII VIII IX X)
@@ -18,6 +20,23 @@ flock -n 9 || exit 0
 log() {
     printf '[%s] %s\n' "$(date '+%F %T')" "$*" >>"$LOG_FILE"
 }
+
+get_topology_key() {
+    printf '%s|%s|%s\n' "$INTERNAL" "${EXTERNAL:-none}" "$LID_STATE"
+}
+
+get_override_mode() {
+    cat "$OVERRIDE_FILE" 2>/dev/null || echo "AUTO"
+}
+
+get_override_topology() {
+    cat "$OVERRIDE_TOPOLOGY_FILE" 2>/dev/null || true
+}
+
+clear_override() {
+    rm -f "$OVERRIDE_FILE" "$OVERRIDE_TOPOLOGY_FILE"
+}
+
 
 restart_conky() {
     killall -q conky
@@ -247,7 +266,7 @@ needs_dual_repair() {
     fi
     expected_fb="${fb_w}x${fb_h}"
 
-    log "needs_dual_repair int=${int_w}x${int_h} ext=${ext_w}x${ext_h} ext_x=${ext_x} expected_x=${int_w} current='${current}' expected_fb='${expected_fb}' xrmons=${xrmons} bspmons=${bspmons}"
+#    log "needs_dual_repair int=${int_w}x${int_h} ext=${ext_w}x${ext_h} ext_x=${ext_x} expected_x=${int_w} current='${current}' expected_fb='${expected_fb}' xrmons=${xrmons} bspmons=${bspmons}"
 
     [ "$ext_x" != "$int_w" ] && return 0
     [ "$current" != "$expected_fb" ] && return 0
@@ -488,7 +507,7 @@ needs_single_repair() {
     xrmons="$(xrandr_monitor_count 2>/dev/null || echo 0)"
     bspmons="$(bspwm_monitor_count 2>/dev/null || echo 0)"
 
-    log "needs_single_repair target=$target expected='${expected:-}' current='${current:-}' xrmons='${xrmons:-0}' bspmons='${bspmons:-0}'"
+#    log "needs_single_repair target=$target expected='${expected:-}' current='${current:-}' xrmons='${xrmons:-0}' bspmons='${bspmons:-0}'"
 
     [ -z "${expected:-}" ] && return 1
 
@@ -665,24 +684,76 @@ while true; do
     LID_STATE="$(get_lid_state)"
     BSP_MONS="$(bspwm_monitor_count)"
     XR_MONS="$(xrandr_monitor_count 2>/dev/null || echo 0)"
+    TOPOLOGY_KEY="$(get_topology_key)"
+    OVERRIDE_MODE="$(get_override_mode)"
+    OVERRIDE_TOPOLOGY="$(get_override_topology)"
 
-    if [ -n "${EXTERNAL:-}" ] && [ "$LID_STATE" = "closed" ]; then
-        MODE="CLAMSHELL"
-        TARGET="$EXTERNAL"
-        CURRENT_STATE="$MODE:$TARGET"
-    elif [ -n "${EXTERNAL:-}" ]; then
-        MODE="DUAL"
-        TARGET=""
-        CURRENT_STATE="$MODE:$INTERNAL:$EXTERNAL"
-    else
-        MODE="LAPTOP"
-        TARGET="$INTERNAL"
-        CURRENT_STATE="$MODE:$TARGET"
+    if [ "$OVERRIDE_MODE" != "AUTO" ]; then
+        if [ "$TOPOLOGY_KEY" != "$OVERRIDE_TOPOLOGY" ]; then
+            log "La topología cambió; limpiando override manual"
+            clear_override
+            OVERRIDE_MODE="AUTO"
+        fi
+    fi
+
+    if [ "$OVERRIDE_MODE" != "AUTO" ]; then
+        case "$OVERRIDE_MODE" in
+            DUAL)
+                if [ -n "${EXTERNAL:-}" ]; then
+                    MODE="MANUAL_DUAL"
+                    TARGET=""
+                    CURRENT_STATE="MANUAL:DUAL:$TOPOLOGY_KEY"
+                else
+                    log "Override DUAL inválido sin monitor externo; limpiando"
+                    clear_override
+                    OVERRIDE_MODE="AUTO"
+                fi
+                ;;
+            EXTERNAL_ONLY)
+                if [ -n "${EXTERNAL:-}" ]; then
+                    MODE="MANUAL_EXTERNAL"
+                    TARGET="$EXTERNAL"
+                    CURRENT_STATE="MANUAL:EXTERNAL_ONLY:$TOPOLOGY_KEY"
+                else
+                    log "Override EXTERNAL_ONLY inválido sin monitor externo; limpiando"
+                    clear_override
+                    OVERRIDE_MODE="AUTO"
+                fi
+                ;;
+            LAPTOP_ONLY)
+                MODE="MANUAL_LAPTOP"
+                TARGET="$INTERNAL"
+                CURRENT_STATE="MANUAL:LAPTOP_ONLY:$TOPOLOGY_KEY"
+                ;;
+            AUTO)
+                ;;
+            *)
+                log "Override desconocido '$OVERRIDE_MODE'; limpiando"
+                clear_override
+                OVERRIDE_MODE="AUTO"
+                ;;
+        esac
+    fi
+
+    if [ "$OVERRIDE_MODE" = "AUTO" ]; then
+        if [ -n "${EXTERNAL:-}" ] && [ "$LID_STATE" = "closed" ]; then
+            MODE="CLAMSHELL"
+            TARGET="$EXTERNAL"
+            CURRENT_STATE="$MODE:$TARGET"
+        elif [ -n "${EXTERNAL:-}" ]; then
+            MODE="DUAL"
+            TARGET=""
+            CURRENT_STATE="$MODE:$INTERNAL:$EXTERNAL"
+        else
+            MODE="LAPTOP"
+            TARGET="$INTERNAL"
+            CURRENT_STATE="$MODE:$TARGET"
+        fi
     fi
 
     LAST_STATE="$(cat "$STATE_FILE" 2>/dev/null || true)"
 
-    log "loop INTERNAL=$INTERNAL EXTERNAL='${EXTERNAL:-}' LID=$LID_STATE BSP_MONS=$BSP_MONS XR_MONS=$XR_MONS MODE=$MODE CURRENT='$CURRENT_STATE' LAST='$LAST_STATE'"
+    #log "loop INTERNAL=$INTERNAL EXTERNAL='${EXTERNAL:-}' LID=$LID_STATE BSP_MONS=$BSP_MONS XR_MONS=$XR_MONS OVERRIDE=$OVERRIDE_MODE MODE=$MODE CURRENT='$CURRENT_STATE' LAST='$LAST_STATE'"
 
     need_apply=0
 
@@ -698,7 +769,19 @@ while true; do
         need_apply=1
     fi
 
+    if [ "$MODE" = "MANUAL_LAPTOP" ] && needs_single_repair "$TARGET"; then
+        need_apply=1
+    fi
+
+    if [ "$MODE" = "MANUAL_EXTERNAL" ] && needs_single_repair "$TARGET"; then
+        need_apply=1
+    fi
+
     if [ "$MODE" = "DUAL" ] && needs_dual_repair; then
+        need_apply=1
+    fi
+
+    if [ "$MODE" = "MANUAL_DUAL" ] && needs_dual_repair; then
         need_apply=1
     fi
 
@@ -707,19 +790,29 @@ while true; do
 
         ok=0
         case "$MODE" in
-            DUAL) apply_dual || ok=1 ;;
-            CLAMSHELL) apply_single_target "$TARGET" || ok=1 ;;
-            LAPTOP) apply_single_target "$TARGET" || ok=1 ;;
+            DUAL|MANUAL_DUAL)
+                apply_dual || ok=1
+                ;;
+            CLAMSHELL|LAPTOP|MANUAL_EXTERNAL|MANUAL_LAPTOP)
+                apply_single_target "$TARGET" || ok=1
+                ;;
+            *)
+                log "Modo desconocido '$MODE'"
+                ok=1
+                ;;
         esac
 
         if [ "$ok" -eq 0 ]; then
             printf '%s\n' "$CURRENT_STATE" > "$STATE_FILE"
+            flock -u 9
             refresh_ui
             log "Transición terminada"
+            exec 9>"$LOCK_FILE"
+            flock -n 9 || exit 0
         else
             log "Transición falló; NO actualizo STATE_FILE"
         fi
     fi
 
-    sleep 2
+    sleep 5
 done
