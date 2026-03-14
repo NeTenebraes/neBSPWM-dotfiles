@@ -1,61 +1,52 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 get_title() {
-    # Redirigimos errores (2>/dev/null) para que no ensucie la salida
-    ID=$(xprop -root _NET_ACTIVE_WINDOW 2>/dev/null | awk '{print $NF}')
+    local id title class clean icon final trimmed
 
-    # Si el ID no es válido o es 0x0
-    if [[ -z "$ID" || "$ID" == "0x0" ]]; then
-        echo "󰇄 Desktop"
+    id=$(xprop -root _NET_ACTIVE_WINDOW 2>/dev/null | awk '{print $NF}')
+
+    if [[ -z "$id" || "$id" == "0x0" ]]; then
+        printf '%s\n' "󰇄 Desktop"
         return
     fi
 
-    # 1. Obtener Título y Clase
-    TITLE=$(xprop -id "$ID" _NET_WM_NAME 2>/dev/null | cut -d '"' -f 2)
-    CLASS=$(xprop -id "$ID" WM_CLASS 2>/dev/null | awk -F '"' '{print $4}' | tr '[:upper:]' '[:lower:]')
+    title=$(xprop -id "$id" _NET_WM_NAME 2>/dev/null | sed -n 's/^_NET_WM_NAME(UTF8_STRING) = "\(.*\)"$/\1/p')
+    class=$(xprop -id "$id" WM_CLASS 2>/dev/null | awk -F'"' '{print tolower($4)}')
 
-    # Si después de intentar obtenerlos están vacíos, es que la ventana falló
-    if [ -z "$TITLE" ]; then
-        echo "󰇄 Desktop"
+    if [[ -z "$title" ]]; then
+        printf '%s\n' "󰇄 Desktop"
         return
     fi
 
-    # 2. LIMPIEZA DE EMOJIS Y CARACTERES
-    TITLE=$(echo "$TITLE" | sed 's/^[[:punct:][:space:]]*//; s/[^[:print:]]//g')
+    title=$(printf '%s' "$title" | sed 's/^[[:punct:][:space:]]*//; s/[^[:print:]]//g')
 
-    # 3. LIMPIEZA ESPECÍFICA POR APP
-    case "$CLASS" in
+    case "$class" in
         *codium*|*code*)
-            ICON="󰨞"
-            CLEAN=$(echo "$TITLE" | sed -E 's/\([^\)]*\)//g; s/( — )?(VSCodium|Visual Studio Code|Untitled|Workspace|Code - OSS)//gI' | sed -E 's/[[:space:]]*[-—][[:space:]]*$//')
-            [ -z "$(echo "$CLEAN" | xargs)" ] && CLEAN="Editor"
+            icon="󰨞"
+            clean=$(printf '%s' "$title" | sed -E 's/\([^\)]*\)//g; s/( — )?(VSCodium|Visual Studio Code|Untitled|Workspace|Code - OSS)//Ig; s/[[:space:]]*[-—][[:space:]]*$//')
             ;;
         *firefox*|*chromium*)
-            ICON="󰈹"
-            CLEAN=$(echo "$TITLE" | sed -E 's/( — )?(Mozilla Firefox|Chromium)//gI' | sed -E 's/[[:space:]]*[-—][[:space:]]*$//')
-            [ -z "$(echo "$CLEAN" | xargs)" ] && CLEAN="Web"
+            icon="󰈹"
+            clean=$(printf '%s' "$title" | sed -E 's/( — )?(Mozilla Firefox|Chromium)//Ig; s/[[:space:]]*[-—][[:space:]]*$//')
             ;;
         *alacritty*|*kitty*|*terminal*)
-            ICON="󰆍"
-            CLEAN=$(echo "$TITLE" | sed -E 's/(Alacritty|Kitty|Terminal)//gI')
-            [ -z "$(echo "$CLEAN" | xargs)" ] && CLEAN="Term"
+            icon="󰆍"
+            clean=$(printf '%s' "$title" | sed -E 's/(Alacritty|Kitty|Terminal)//Ig; s/[[:space:]]*[-—][[:space:]]*$//')
             ;;
         *)
-            ICON="󱂬"
-            CLEAN=$(echo "$TITLE" | sed -E 's/[[:space:]]*[-—][[:space:]]*$//')
+            icon="󱂬"
+            clean=$(printf '%s' "$title" | sed -E 's/[[:space:]]*[-—][[:space:]]*$//')
             ;;
     esac
 
-    # 4. Formateo Final y Capitalización
-    CLEAN=$(echo "$CLEAN" | xargs | sed 's/ -$//; s/ —$//' | cut -c 1-25)
-    
-    if [ -n "$CLEAN" ]; then
-        FINAL_NAME="${CLEAN,,}"
-        FINAL_NAME="${FINAL_NAME^}"
-        echo "${ICON} ${FINAL_NAME}"
-    else
-        echo "${ICON} Desktop"
-    fi
+    trimmed=$(printf '%s' "$clean" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
+    [[ -z "$trimmed" ]] && trimmed="Desktop"
+
+    final=$(printf '%s' "$trimmed" | cut -c 1-25)
+    final=${final,,}
+    final=${final^}
+
+    printf '%s %s\n' "$icon" "$final"
 }
 
 get_title
