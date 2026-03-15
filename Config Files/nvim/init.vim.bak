@@ -1,0 +1,263 @@
+" =============================================================================
+" NEVIM PURE EDITION - 2026 (RED / DARK SAMURAI)
+" =============================================================================
+
+" --- 0. IMPORTANTE: desactivar netrw al inicio ---
+let g:loaded_netrw = 1
+let g:loaded_netrwPlugin = 1
+
+" --- 1. GESTIÓN DE PLUGINS ---
+let data_dir = has('nvim') ? stdpath('data') . '/site' : '~/.vim'
+if empty(glob(data_dir . '/autoload/plug.vim'))
+  silent execute '!curl -fLo '.data_dir.'/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+endif
+
+call plug#begin()
+    " Estética
+    Plug 'dikiaap/minimalist'
+    Plug 'nvim-tree/nvim-web-devicons'
+    Plug 'nvim-tree/nvim-tree.lua'
+    Plug 'nvim-lualine/lualine.nvim'
+
+    " Utilidades
+    Plug 'nvim-lua/plenary.nvim'
+    Plug 'nvim-telescope/telescope.nvim'
+    Plug 'windwp/nvim-autopairs'
+    Plug 'lewis6991/gitsigns.nvim'
+call plug#end()
+
+" --- 2. INTERFAZ GENERAL ---
+set termguicolors
+syntax on
+colorscheme minimalist
+
+set number
+set relativenumber
+set mouse=a
+set laststatus=3
+set cursorline
+set signcolumn=yes
+set splitright
+set splitbelow
+set scrolloff=8
+set sidescrolloff=8
+set clipboard=unnamedplus
+set updatetime=250
+set pumblend=8
+set winblend=8
+set noshowmode
+
+" --- 3. FORMATO / INDENTACIÓN ---
+set expandtab
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set smartindent
+
+" --- 4. LÍDER Y ATAJOS ---
+let mapleader = " "
+
+" Árbol
+nnoremap <C-n> :NvimTreeToggle<CR>
+nnoremap <leader>e :NvimTreeFocus<CR>
+
+" Telescope
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+
+" Navegación rápida
+nnoremap <leader>w :w<CR>
+nnoremap <leader>q :q<CR>
+
+" --- 5. HIGHLIGHTS MANUALES (ROJO/NEGRO) ---
+hi Normal guifg=#d1a29c guibg=#1c0e11
+hi EndOfBuffer guifg=#1c0e11 guibg=#1c0e11
+hi LineNr guifg=#704645 guibg=#1c0e11
+hi CursorLineNr guifg=#f5d7d0 guibg=#1c0e11 gui=bold
+hi CursorLine guibg=#241316
+hi SignColumn guibg=#1c0e11
+hi VertSplit guifg=#412326 guibg=#1c0e11
+hi WinSeparator guifg=#412326 guibg=#1c0e11
+hi NormalFloat guifg=#d1a29c guibg=#241316
+hi FloatBorder guifg=#c51018 guibg=#241316
+hi Visual guibg=#412326
+hi Search guifg=#1c0e11 guibg=#d1a29c gui=bold
+hi IncSearch guifg=#1c0e11 guibg=#c51018 gui=bold
+hi Pmenu guifg=#d1a29c guibg=#241316
+hi PmenuSel guifg=#1c0e11 guibg=#c51018 gui=bold
+hi WinBar guifg=#f5d7d0 guibg=#241316 gui=bold
+hi WinBarNC guifg=#8a5d5a guibg=#1c0e11
+
+" --- 6. LUA CORE ---
+lua << EOF
+require('lualine').setup({
+  options = {
+    theme = {
+      normal = {
+        a = { fg = '#1c0e11', bg = '#c51018', gui = 'bold' },
+        b = { fg = '#d1a29c', bg = '#412326' },
+        c = { fg = '#f5d7d0', bg = '#241316' },
+      },
+      insert = {
+        a = { fg = '#1c0e11', bg = '#d1a29c', gui = 'bold' },
+        b = { fg = '#d1a29c', bg = '#412326' },
+        c = { fg = '#f5d7d0', bg = '#241316' },
+      },
+      visual = {
+        a = { fg = '#1c0e11', bg = '#a47470', gui = 'bold' },
+        b = { fg = '#d1a29c', bg = '#412326' },
+        c = { fg = '#f5d7d0', bg = '#241316' },
+      },
+      replace = {
+        a = { fg = '#1c0e11', bg = '#ff6b6b', gui = 'bold' },
+        b = { fg = '#d1a29c', bg = '#412326' },
+        c = { fg = '#f5d7d0', bg = '#241316' },
+      },
+      command = {
+        a = { fg = '#1c0e11', bg = '#a47470', gui = 'bold' },
+        b = { fg = '#d1a29c', bg = '#412326' },
+        c = { fg = '#f5d7d0', bg = '#241316' },
+      },
+      inactive = {
+        a = { fg = '#704645', bg = '#1c0e11' },
+        b = { fg = '#704645', bg = '#1c0e11' },
+        c = { fg = '#704645', bg = '#1c0e11' },
+      },
+    },
+    globalstatus = true,
+    icons_enabled = true,
+    component_separators = { left = '│', right = '│' },
+    section_separators = { left = '', right = '' },
+    disabled_filetypes = {
+      statusline = {},
+      winbar = {},
+    },
+    always_divide_middle = true,
+  },
+  sections = {
+    lualine_a = { 'mode' },
+    lualine_b = { 'branch', 'diff' },
+    lualine_c = {
+      {
+        'filename',
+        path = 1,
+        symbols = {
+          modified = ' ●',
+          readonly = ' ',
+          unnamed = '[No Name]',
+          newfile = '[New]',
+        },
+      },
+    },
+    lualine_x = { 'filetype' },
+    lualine_y = { 'progress' },
+    lualine_z = { 'location' },
+  },
+  inactive_sections = {
+    lualine_a = {},
+    lualine_b = {},
+    lualine_c = {
+      { 'filename', path = 1 }
+    },
+    lualine_x = { 'location' },
+    lualine_y = {},
+    lualine_z = {},
+  },
+  tabline = {
+    lualine_a = {
+      {
+        'buffers',
+        show_filename_only = true,
+        max_length = vim.o.columns * 2 / 3,
+        symbols = {
+          modified = ' ●',
+          alternate_file = '',
+          directory = '',
+        },
+      },
+    },
+    lualine_z = { 'tabs' },
+  },
+  winbar = {
+    lualine_c = {
+      {
+        'filename',
+        path = 1,
+        color = { fg = '#f5d7d0', bg = '#241316', gui = 'bold' }
+      }
+    },
+  },
+  inactive_winbar = {
+    lualine_c = {
+      {
+        'filename',
+        path = 0,
+        color = { fg = '#8a5d5a', bg = '#1c0e11' }
+      }
+    },
+  },
+  extensions = { 'nvim-tree' },
+})
+
+require("nvim-tree").setup({
+  sort = {
+    sorter = "case_sensitive",
+  },
+  view = {
+    width = 34,
+    side = "left",
+  },
+  renderer = {
+    group_empty = true,
+    indent_markers = {
+      enable = true,
+    },
+    icons = {
+      git_placement = "before",
+      show = {
+        file = true,
+        folder = true,
+        folder_arrow = true,
+        git = true,
+      },
+    },
+  },
+  filters = {
+    dotfiles = false,
+  },
+  git = {
+    enable = true,
+  },
+  actions = {
+    open_file = {
+      quit_on_open = false,
+      resize_window = true,
+    },
+  },
+  update_focused_file = {
+    enable = true,
+    update_root = false,
+  },
+})
+
+require('telescope').setup({
+  defaults = {
+    layout_strategy = 'vertical',
+    sorting_strategy = 'ascending',
+    layout_config = {
+      width = 0.90,
+      height = 0.92,
+      prompt_position = 'top',
+    },
+    prompt_prefix = '   ',
+    selection_caret = ' ❯ ',
+    path_display = { 'truncate' },
+  },
+})
+
+require("nvim-autopairs").setup()
+require('gitsigns').setup()
+EOF
