@@ -8,7 +8,7 @@
 window {
     fullscreen: true;
     background-color: @bg;
-    padding: 215px 535px;
+    padding: 59px 258px;
 }
 
 mainbox {
