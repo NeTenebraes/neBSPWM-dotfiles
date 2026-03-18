@@ -1,6 +1,18 @@
 #! /bin/sh
 
 # =========================
+# Configuración Personalizada (Global)
+# =========================
+# Variables Globales para Scripts
+export MONITOR_DIR="$HOME/.config/bspwm/scripts/monitor"
+export WALLPAPER="$HOME/.config/bspwm/wallpaper.png"
+export CONKY_DIR="$HOME/.config/conky"
+export POLYBAR_CONFIG="$HOME/.config/polybar/current.ini"
+
+# Lanzar el orquestador
+[ -x "$MONITOR_DIR/monitor_manager.sh" ] && "$MONITOR_DIR/monitor_manager.sh" &
+
+# =========================
 # Entorno
 # =========================
 xrdb -merge "$HOME/.Xresources"
@@ -42,24 +54,6 @@ restart_then_start() {
 (sleep 1; pgrep -x xdg-desktop-portal-gtk >/dev/null 2>&1 || /usr/lib/xdg-desktop-portal-gtk) &
 
 # =========================
-# Monitores primero
-# =========================
-pkill -f "$HOME/.config/bspwm/monitor_setup.sh" >/dev/null 2>&1
-rm -f \
-    /tmp/monitor_current_state \
-    /tmp/monitor_override_mode \
-    /tmp/monitor_override_topology \
-    /tmp/monitor_manual_cycle
-
-"$HOME/.config/bspwm/monitor_setup.sh" >/dev/null 2>&1 &
-
-# Esperar a que el layout inicial quede aplicado
-for _ in $(seq 1 30); do
-    [ -s /tmp/monitor_current_state ] && break
-    sleep 0.5
-done
-
-# =========================
 # SSH agent
 # =========================
 pgrep -u "$USER" -x ssh-agent >/dev/null 2>&1 || ssh-agent -s > /tmp/ssh-agent.sh
@@ -72,7 +66,7 @@ xsetroot -cursor_name left_ptr
 
 bspc config border_width 1
 bspc config window_gap 3
-bspc config top_padding 20
+bspc config top_padding 18
 
 bspc config split_ratio 0.50
 bspc config borderless_monocle false
@@ -112,7 +106,7 @@ bspc config presel_feedback_color "#c08a8f"
 # Fix windows
 # =========================
 [ -x "$HOME/.config/bspwm/fix_windows.sh" ] && {
-    pkill -f "$HOME/.config/bspwm/fix_windows.sh" >/dev/null 2>&1
+    pkill -f "$HOME/.config/bspwm/scripts/fix_windows.sh" >/dev/null 2>&1
     "$HOME/.config/bspwm/fix_windows.sh" >/dev/null 2>&1 &
 }
 

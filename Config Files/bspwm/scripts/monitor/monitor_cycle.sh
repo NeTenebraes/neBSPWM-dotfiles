@@ -20,40 +20,43 @@ get_external_monitor() {
     xrandr --query | awk -v internal="$internal" '/ connected/ && $1 != internal {print $1; exit}'
 }
 
-get_lid_state() {
-    if grep -q "closed" /proc/acpi/button/lid/*/state 2>/dev/null; then
-        printf 'closed\n'
-    else
-        printf 'open\n'
-    fi
-}
-
 INTERNAL="$(get_internal_monitor)"
 EXTERNAL="$(get_external_monitor "$INTERNAL" || true)"
-LID_STATE="$(get_lid_state)"
-TOPOLOGY_KEY="${INTERNAL}|${EXTERNAL:-none}|${LID_STATE}"
 
 current="$(cat "$STATE_FILE" 2>/dev/null || echo DUAL)"
 
+# --- 1. Caso sin monitor externo ---
 if [ -z "${EXTERNAL:-}" ]; then
-    echo "LAPTOP_ONLY" > "$OVERRIDE_FILE"
-    echo "$TOPOLOGY_KEY" > "$OVERRIDE_TOPOLOGY_FILE"
-    echo "LAPTOP_ONLY" > "$STATE_FILE"
+    next="LAPTOP_ONLY"
+    echo "$next" > "$OVERRIDE_FILE"
+    echo "$next" > "$STATE_FILE"
+    notify-send "Monitor" "Laptop Screen Only (No HDMI)" -i display -t 2000
     exit 0
 fi
 
+# --- 2. Lógica de Ciclo ---
 case "$current" in
     DUAL)
-        next="EXTERNAL_ONLY"
+        # El manager detectará "EXTERNAL" y activará el HDMI
+        next="MANUAL_EXTERNAL"
+        msg="Mode: External Monitor Only"
         ;;
-    EXTERNAL_ONLY)
+    MANUAL_EXTERNAL)
+        # El manager detectará "LAPTOP" y activará la pantalla integrada
         next="LAPTOP_ONLY"
+        msg="Mode: Laptop Screen Only"
         ;;
     *)
         next="DUAL"
+        msg="Mode: Extended Display (Dual)"
         ;;
 esac
 
+# --- 3. Guardar y Notificar ---
 echo "$next" > "$OVERRIDE_FILE"
-echo "$TOPOLOGY_KEY" > "$OVERRIDE_TOPOLOGY_FILE"
 echo "$next" > "$STATE_FILE"
+
+# Forzamos una marca de tiempo en la topología para que get_state genere un nuevo MD5
+date +%s > "$OVERRIDE_TOPOLOGY_FILE"
+
+notify-send "Monitor Manager" "$msg" -i display -t 2000
