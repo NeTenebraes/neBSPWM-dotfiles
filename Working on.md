@@ -1,29 +1,12 @@
-# Notas para el proyecto.
-
-Estas notas son publicas para tener total transparencia con los avances del proyecto y las trabas del proyecto. 
-
----
-
-## Problemas encontrados
-
-### 01 Nemo no integra la terminal.
-
-Hacer una función que esté dedicada planamente a la terminal.
-
-Comando para establecer kitty como default dentro de nemo:
-gsettings set org.cinnamon.desktop.default-applications.terminal exec 'kitty'
-
-### 02 Problemas de rendimiendo con el script "Monitor_setup.sh" (Causas de Lag en equipos modestos)
+## 01. Problemas de rendimiento con el script "Monitor_setup.sh".
 
 - **Polling Agresivo de Xorg:** El uso constante de `xrandr --query` bloquea el renderizado de la GPU mientras el kernel escanea los puertos físicos.
-    
 - **I/O Overhead:** Escritura constante de logs y snapshots en disco (`$LOG_FILE`) cada 5 segundos.
-    
 - **Fork-Bombing Ligero:** El script crea decenas de sub-procesos (`$(...)`) por segundo. "Forking" es costoso
 
-> PD: En este momento estoy buscando alternativas a usar "udev". El pulling parece no ser tanto problema en un equipo post 2020, pero para equipos más limitados pueden haber problemas de flickering a simple vista.
+> PD: En este momento estoy buscando alternativas a "udev". El pulling parece no ser tanto problema en un equipo post 2020, pero para equipos más limitados pueden haber problemas de flickering a simple vista.
 
-##### Estrategia de Optimización: Monitor Manager (Low-Res & Hardened Kernel)
+#### Estrategia de Optimización: Monitor Manager
 
 1. Cambio de Paradigma: Detección Pasiva
 El error principal es usar `xrandr` como sensor.
@@ -67,3 +50,58 @@ Llamar a `bspc` 20 veces para mover 10 desktops es ineficiente.
 4. **Heavy Lift:** Si SÍ, hacer UNA sola llamada a `xrandr --query` y guardarla en una variable.
 5. **Logic:** Procesar esa variable en memoria para decidir el modo (Dual/Single).
 6. **Apply:** Ejecutar cambios y actualizar el hash en `/dev/shm`.
+
+---
+## 02. Nemo no integra la terminal.
+
+Hacer una función que esté dedicada plenamente a la terminal.
+
+Comando para establecer kitty como default dentro de nemo:
+```bash
+gsettings set org.cinnamon.desktop.default-applications.terminal exec 'kitty'
+```
+
+---
+## 03. Problemas especificos de mi hardware
+
+Tengo un portátil que presenta fallas con el controlador del touchpad. Estaba pensando en modificar el script para que automatice la correción del touchpad. Sin embargo, esto puede afectar el funcionamiento de los otros computadores así que por el momento lo dejo acá para tenerlo en cuenta. La solución es modificar una variable dentro del arranque GRUB (En caso de usar GRUB). Además, con estos valores también se solucionó el Kernel Panic a la hora de cerrar la tapa.
+
+```
+sudo nano /etc/default/grub                                             
+```
+
+```
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet i8042.nopnp=1 pci=nocsr acpi_osi=Windows\ 2015"
+```
+
+### Cambiar el Driver del mouse
+Debido al problema del drive, el PC se queda con el driver generico. Nada que cambiando el driver a libinput no soluciones. De esta forma puede activar algunos gestos adicionales para el touchpad
+
+```bash
+cat /etc/X11/xorg.conf.d/30-touchpad.conf
+```
+
+```
+Section "InputClass"
+    Identifier "ETPS/2 Elantech Touchpad"
+    MatchIsTouchpad "on"
+    Driver "libinput"
+    Option "Tapping" "on"
+    Option "NaturalScrolling" "false"
+    Option "AccelProfile" "adaptive"
+    Option "AccelSpeed" "0.1"
+    Option "DisableWhileTyping" "true"
+    Option "ClickMethod" "clickfinger"
+    
+    # --- PARÁMETROS PARA RUIDO ELÉCTRICO ---
+    # Aumenta el umbral de presión para reconocer un toque.
+    # Nota: Libinput no siempre expone FingerLow/High directamente, 
+    # pero estas opciones ayudan a la estabilidad:
+    Option "HorizontalScrolling" "on"
+    Option "ScrollMethod" "twofinger"
+    
+    # Si el cursor salta mucho, bajar la aceleración aun más puede ayudar 
+    # a que el "ruido" no mueva el puntero media pantalla.
+    Option "TransformationMatrix" "1 0 0 0 1 0 0 0 1.2"
+EndSection
+```

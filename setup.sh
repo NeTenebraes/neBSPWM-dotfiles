@@ -33,7 +33,7 @@ PKGS_PACMAN_Essencials=(
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
     "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "vlc-plugins-all" "xdg-user-dirs"
-    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip" "autorandr"
+    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip"
 )
 
 PKGS_PACMAN_optionals=("signal-desktop" "gimp" "obs-studio")
