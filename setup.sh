@@ -392,21 +392,6 @@ EOF
     curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 
-# Esto asegura que incluso si corres el script con sudo, las rutas apunten a TU home
-    REAL_USER=$(logname 2>/dev/null || echo $USER)
-    REAL_HOME=$(eval echo ~$REAL_USER)
-
-    # Crear disparador de autorandr
-    echo_msg "🔗 Configurando disparadores de monitor..."
-    mkdir -p "$REAL_HOME/.config/autorandr"
-    cat > "$REAL_HOME/.config/autorandr/post-switch" << EOF
-#!/usr/bin/env bash
-# Disparador automático de configuración de monitores
-$REAL_HOME/.config/bspwm/monitor_setup.sh
-EOF
-    chmod +x "$REAL_HOME/.config/autorandr/post-switch"
-    chown -R $REAL_USER:$REAL_USER "$REAL_HOME/.config/autorandr"
-
     # 6. Finalización
     xdg-user-dirs-update
     echo_ok "🎨 Configuración de Monitores y Temas OK"
