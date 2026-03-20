@@ -1,18 +1,6 @@
 #! /bin/sh
 
 # =========================
-# Configuración Personalizada (Global)
-# =========================
-# Variables Globales para Scripts
-export MONITOR_DIR="$HOME/.config/bspwm/scripts/monitor"
-export WALLPAPER="$HOME/.config/bspwm/wallpaper.png"
-export CONKY_DIR="$HOME/.config/conky"
-export POLYBAR_CONFIG="$HOME/.config/polybar/current.ini"
-
-# Lanzar el orquestador
-[ -x "$MONITOR_DIR/monitor_manager.sh" ] && "$MONITOR_DIR/monitor_manager.sh" &
-
-# =========================
 # Entorno
 # =========================
 xrdb -merge "$HOME/.Xresources"
@@ -23,6 +11,18 @@ export LC_ALL=en_US.UTF-8
 export QT_QPA_PLATFORM=xcb
 export QT_STYLE_OVERRIDE=kvantum
 export QT_QPA_PLATFORMTHEME=qt5ct
+
+# =========================
+# Configuración Personalizada (Global)
+# =========================
+# Variables Globales para Scripts
+export MONITOR_DIR="$HOME/.config/bspwm/scripts/monitor"
+export WALLPAPER="$HOME/.config/bspwm/wallpaper.png"
+export CONKY_DIR="$HOME/.config/conky"
+export POLYBAR_CONFIG="$HOME/.config/polybar/current.ini"
+
+# Lanzar el orquestador del monitor
+[ -x "$MONITOR_DIR/monitor_manager.sh" ] && "$MONITOR_DIR/monitor_manager.sh" &
 
 # Helpers
 # Nota sobre start_once / restart_then_start:
@@ -85,10 +85,8 @@ bspc rule -a MEGAsync state=floating center=on
 bspc rule -a KeePassXC state=floating rectangle=1024x720+0+0 center=on sticky=on follow=on
 bspc rule -a Nm-applet state=floating center=on
 bspc rule -a Nm-connection-editor state=floating center=on
-bspc rule -a Pavucontrol state=floating center=on
+bspc rule -a pavucontrol rectangle=800x600+0+0 state=floating center=on sticky=on follow=on
 bspc rule -a Blueman-manager rectangle=800x600+0+0 state=floating center=on
-bspc rule -a Pluma state=floating center=on
-bspc rule -a mpv state=floating
 bspc rule -a VLC state=floating
 bspc rule -a Nemo:nemo:"File conflict" state=floating rectangle=1000x500+183+134 center=on focus=on
 bspc rule -a firefox rectangle=800x600+0+0 center=on focus=on
@@ -105,9 +103,9 @@ bspc config presel_feedback_color "#c08a8f"
 # =========================
 # Fix windows
 # =========================
-[ -x "$HOME/.config/bspwm/fix_windows.sh" ] && {
+[ -x "$HOME/.config/bspwm/scripts/fix_windows.sh" ] && {
     pkill -f "$HOME/.config/bspwm/scripts/fix_windows.sh" >/dev/null 2>&1
-    "$HOME/.config/bspwm/fix_windows.sh" >/dev/null 2>&1 &
+    "$HOME/.config/bspwm/scripts/fix_windows.sh" >/dev/null 2>&1 &
 }
 
 # =========================
@@ -125,13 +123,14 @@ start_once sxhkd sxhkd
 restart_then_start polkit-gnome-authentication-agent-1 /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 
 start_once nm-applet nm-applet
-start_once keepassxc keepassxc
+#start_once keepassxc keepassxc
 start_once flameshot flameshot
 start_once blueman-applet blueman-applet
 start_once unclutter unclutter -idle 5 -root
 
 # Mega a veces se pone nervioso si arranca demasiado temprano
 (sleep 5; pgrep -x megasync >/dev/null 2>&1 || megasync) &
+(sleep 5; pgrep -x keepassxc >/dev/null 2>&1 || keepassxc) &
 
 # =========================
 # Bloqueo y energía
@@ -141,6 +140,6 @@ start_once xss-lock xss-lock --transfer-sleep-lock -- betterlockscreen -l blur
 start_once xidlehook xidlehook \
   --not-when-fullscreen \
   --not-when-audio \
-  --timer 300 'betterlockscreen -l blur' '' \
-  --timer 600 'xset dpms force off' 'xset dpms force on' \
+  --timer 300 'betterlockscreen -l' '' \
+  --timer 600 'xset dpms force off' 'xset dpms forces on' \
   --timer 900 'systemctl suspend' '' &

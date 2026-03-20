@@ -202,6 +202,8 @@ apply_single_target() {
 
     # 3. Sincronizar nombres y cantidad
     sync_desktops_single "$target"
+
+    fix_floating_nodes
     
     [ -x "$MONITOR_DIR/ui_refresh.sh" ] && "$MONITOR_DIR/ui_refresh.sh"
 }
@@ -219,4 +221,20 @@ debug_snapshot() {
         done
         echo "--------------------------"
     } >> "$LOG_FILE"
+}
+
+# Nueva función para reparar ventanas flotantes o huérfanas
+fix_floating_nodes() {
+    log "Reparando nodos flotantes/huérfanos..."
+    local node
+    # Buscamos todos los nodos en el sistema
+    for node in $(bspc query -N); do
+        # Forzamos a que bspwm re-calcule su estado
+        # 1. Si está flotando, lo centramos para que sea visible y enfocable
+        if bspc query -N -n "$node.floating" >/dev/null; then
+            bspc node "$node" -g sticky=off # Evita que se queden pegadas entre cambios
+            bspc node "$node" -t tiled      # Las devolvemos a tiled temporalmente
+            bspc node "$node" -t floating   # Y luego a floating (esto resetea su geometría)
+        fi
+    done
 }

@@ -65,11 +65,11 @@ super + {_,shift + }{1-9,0}
 
 # Expandir
 super + ctrl + {Left,Down,Up,Right}  
-      ~/.config/bspwm/bspwm_resize expand {west,south,north,east} 50
+      ~/.config/bspwm/scripts/bspwm_resize.sh expand {west,south,north,east} 50
 
 # Contraer  
 super + alt + {Left,Down,Up,Right}
-      ~/.config/bspwm/bspwm_resize contract {west,south,north,east} 50
+      ~/.config/bspwm/scripts/bspwm_resize.sh contract {west,south,north,east} 50
 
 
 # move a floating window
@@ -90,8 +90,8 @@ super + ctrl + alt + {Left,Down,Up,Right}
 # set the node flags
 #super + ctrl + {m,x,y,z}
 
-super + shift + l
-    betterlockscreen -l dimblur
+super + l
+    betterlockscreen -l
 
 
 XF86Audio{RaiseVolume,LowerVolume,Mute}
@@ -128,5 +128,13 @@ XF86RFKill
     fi; \
     notify-send -u low -t 2000 -r 999 -i "airplane-mode" "$TITLE" "$MSG"
 
+
+# Cambiar estado del monitor.
 super + p
-    ~/.config/bspwm/monitor_cycle.sh
+    ~/.config/bspwm/scripts/monitor/monitor_cycle.sh
+
+
+# Power Menu (Rofi)
+# Power Menu
+super + Escape
+     ~/.config/rofi/powermenu/powermenu.sh
