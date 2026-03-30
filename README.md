@@ -28,56 +28,6 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 ![Desktop](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/Animated.webp)
 > En resumen: **Una configuración que puedes reinstalar rápido, que se siente ágil en hardware antiguo, y que mantiene el mismo “flow” para programar, investigar y crear contenido.**
 
----
-
-## Instalación
-
-> **Aviso importante:**  
-> Antes de ejecutar **cualquier script** en tu sistema, **siempre revisa su contenido**. Nunca ejecutes comandos remotos sin verificar su origen.  
-```
-git clone https://github.com/NeTenebraes/neBSPWM-dotfiles.git
-cd neBSPWM-dotfiles
-./setup.sh
-./Cybersecurity.sh
-```
-**Reiniciar:** `systemctl reboot`
-
-> Este entorno es open source: Puedes auditar y modificar los scripts en cualquier momento. 
-
----
-### 📢 Últimas actualizaciones & Desarrollo en Vivo
-<table>
-  <thead>
-    <tr>
-      <th colspan="2">🔥 Bitácora del Proyecto | Live Feed</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-<td colspan="2" align="center" style="padding: 15px;">
-  Aquí registro <strong>el día a día</strong>, los descubrimientos y el <em>detrás de cámaras</em> de este y otros repos.<br>
-</td>
-    </tr>
-    <tr>
-      <th>Fecha 📅</th>
-      <th>Post de Threads 📰</th>
-    </tr>
-    <!-- NEBSPWM:START --><tr><td>20/01/2026</td><td><a href='https://www.threads.com/t/DTvqISgCb80'>@netenebrae: Update neBSPWM: El script entró ya en una nueva rama para su modularizacion. He esto usando mucho el sistema operativo y hay solo un pa...</a></td></tr><!-- NEBSPWM:END -->
-    <tr>
-      <td colspan="2" align="center">
-        <a href="https://www.threads.net/@netenebrae">
-          <img width="100%" src="https://github.com/user-attachments/assets/12763708-ebcd-4513-8cf6-11cb242208ed" alt="Ver en Threads" />
-        </a>
-      </td>
-    </tr>
-  </tbody>
-</table>
-
-
-
-
----
-
 ## ✨ Características
 
 - **Window Manager:** bspwm + sxhkd
@@ -93,7 +43,17 @@ cd neBSPWM-dotfiles
 - **Lock Screen:** betterlockscreen  
 - **Themes:** Catppuccin Mocha + Papirus Dark + Nerd Fonts  
 - **Screenshots:** Flameshot 
-- **Guía Atajos:** [![HOTKEYS](https://img.shields.io/badge/HOTKEYS-Guide-4F46E5?style=flat&logo=keyboard&logoColor=white)](docs/HOTKEYS.md)
+
+## 🖼️ Screenshots
+
+| Componente | Vista |
+|------------|-------|
+| Escritorio | ![Main1](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/Main1.png) |
+| Escritorio | ![Main2](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/Main2.png) |
+| Rofi | ![Rofi](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/Rofi.png) |
+| Login Screen | ![SDDM](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/SDDM.png) |
+
+---
 
 ## 📦 Requisitos
 
@@ -106,16 +66,39 @@ cd neBSPWM-dotfiles
 - sddm, zsh, starship, neovim, maim, betterlockscreen  
 - Temas GTK/Qt **Catppuccin Mocha**, íconos **Papirus Dark**, y **Nerd Fonts**
 
+## Instalación
+
+> **Aviso importante:**  
+> Antes de ejecutar **cualquier script** en tu sistema, **siempre revisa su contenido**. Nunca ejecutes comandos sin verificar su origen.  
+```
+git clone https://github.com/NeTenebraes/neBSPWM-dotfiles.git
+cd neBSPWM-dotfiles
+./setup.sh
+./Cybersecurity.sh
+```
+**Reiniciar:** `systemctl reboot`
+
+> El script requiere que no estés en una TTY para instalar todo lo necesario. En caso de ejecutarlo en una TTY deberás ejecutar el setup.sh dos veces. (La 1ra vez dentro de la TTY y luego dentro del DE/WM)
+
 ---
 
-## 🖼️ Screenshots
+## 🛠️ Estado del Proyecto y Roadmap
 
-| Componente | Vista |
-|------------|-------|
-| Escritorio | ![Main1](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/Main1.png) |
-| Escritorio | ![Main2](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/Main2.png) |
-| Rofi | ![Rofi](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/Rofi.png) |
-| Login Screen | ![SDDM](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/SDDM.png) |
+Para mantener la documentación organizada y facilitar el reporte de fallos, he dividido el seguimiento técnico en secciones específicas. 
+
+| Sección | Descripción |
+| :--- | :--- | 
+| [**📜 Historial de Cambios**](docs/CHANGELOG.md) | Bugs visuales, problemas de resolución y hardware específico. | 
+| [**🚀 Trabajos Actuales (WIP)**](docs/ROADMAP.md) | Próximas funcionalidades, optimizaciones y tareas pendientes. | 
+| [**📖 Guía de Atajos**](docs/HOTKEYS.md) | Listado completo de keybindings para bspwm y sxhkd. | 
+|  [**🐛 Errores Conocidos**](docs/KNOWN_ISSUES.md) | Registro detallado de versiones y actualizaciones del script. | 
+
+### 💡 ¿Cómo reportar un problema?
+
+Si encuentras un error que no está listado en [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md):
+1. Revisa que tu sistema esté actualizado (`sudo pacman -Syu`).
+2. Abre un **Issue** en GitHub describiendo tu hardware y adjuntando un pantallazo si es un error visual.
+3. Si tienes la solución, ¡no dudes en enviar un **Pull Request**!
 
 ---
 
@@ -158,16 +141,5 @@ En resumen: Un script que convierte tu instalación limpia de Arch en un **labor
 | ✨ Componente | 👤 Autor | 🔗 Enlace | 📄 Licencia | 🎯 Uso |
 |--------------|----------|-----------|-------------|--------|
 | **SDDM Astronaut Theme** | [Keyitdev](https://github.com/Keyitdev) | [GitHub](https://github.com/Keyitdev/sddm-astronaut-theme) | **GPLv3+** | Pantalla de login |
-| **Fondos de pantalla** | [Timeless](https://x.com/Timeless_aiart) | [X/Twitter](https://x.com/Timeless_aiart) | Uso personal | Wallpapers cyberpunk/anime |
 
 > **Nota:** Consulta [`CREDITS.md`](CREDITS.md) para detalles completos.
----
-
-## ⚠️ **Disclaimer**  
-Este entorno es probado únicamente en mis **dos equipos** con la **misma resolución** *(1920x1080)* y hardware similar *(Intel i3 2da + 8 GB RAM)*. Es totalmente funcional en esas condiciones, pero en otros entornos pueden aparecer **errores visuales o pequeños bugs**.
-
-Además mi pana, te lo digo de one: **Eres responsable por TODO lo que hagas en tu computador**. Cualquier comentario con lloros/quejas destructivas será fuertemente ignorado. 
-
-Te recomiendo que si no sabes/entiendes lo que haces, simplemente te abstengas de hacerlo.
-
-> Si algo se rompe puedes sacar un pantallazo y **abrir un issue en GitHub** de forma amable. Cada bug ayuda a mejorar este proyecto.
