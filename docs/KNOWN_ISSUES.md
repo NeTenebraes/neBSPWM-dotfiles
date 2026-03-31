@@ -1,6 +1,6 @@
 # 🐛 Errores Conocidos
 
-Lista de problemas detectados y sus posibles soluciones *workarounds*. Si encuentras algo nuevo, por favor abre un [Issue](https://github.com/NeTenebraeso/neBSPWM-dotfiles/issues).
+Lista de problemas detectados y sus posibles *workarounds*. Si encuentras algo nuevo, por favor abre un [Issue](https://github.com/NeTenebraeso/neBSPWM-dotfiles/issues).
 
 | Componente | Problema | Workaround |
 | :--- | :--- | :--- |
