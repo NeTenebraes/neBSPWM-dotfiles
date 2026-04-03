@@ -36,4 +36,14 @@ opt.smartindent = true
 opt.clipboard = "unnamedplus"
 opt.updatetime = 250
 
+-- =========================================================
+      -- === NUEVO: CONFIGURACIÓN DE PLEGADO (FOLDING) ===
+      -- Esto permite colapsar bloques de código (if, for, funciones)
+      -- de forma inteligente usando el parser de Treesitter.
+      -- =========================================================
+      vim.opt.foldmethod = "expr"
+      vim.opt.foldexpr   = "v:treesitter#foldexpr()"
+      vim.opt.foldenable = false -- Evita que el código se abra plegado por defecto
+      vim.opt.foldlevel  = 99    -- Abre todos los niveles de plegado inicialmente
+
 vim.cmd("syntax on")

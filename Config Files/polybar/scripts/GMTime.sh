@@ -1,25 +1,55 @@
 #!/usr/bin/env bash
 
-STATE_FILE="$HOME/.cache/polybar-time-mode"
+STATE_FILE="${XDG_CACHE_HOME:-$HOME/.cache}/polybar-time-mode"
+ICON=""
 
-# Estado por defecto: "gmt"
-[ ! -f "$STATE_FILE" ] && echo "gmt" > "$STATE_FILE"
+init_state() {
+    mkdir -p "${STATE_FILE%/*}"
+    [[ -f "$STATE_FILE" ]] || printf 'gmt\n' > "$STATE_FILE"
+}
 
-if [ "$1" = "--toggle" ]; then
-    mode=$(cat "$STATE_FILE")
-    [ "$mode" = "gmt" ] && echo "ampm" > "$STATE_FILE" || echo "gmt" > "$STATE_FILE"
-    exit 0
-fi
+read_state() {
+    IFS= read -r MODE < "$STATE_FILE" 2>/dev/null || MODE="gmt"
+}
 
-mode=$(cat "$STATE_FILE")
+toggle_state() {
+    read_state
+    if [[ "$MODE" == "gmt" ]]; then
+        printf 'ampm\n' > "$STATE_FILE"
+    else
+        printf 'gmt\n' > "$STATE_FILE"
+    fi
+}
 
-ICON=""  # Reloj (JetBrainsMono Nerd Font)
+print_gmt() {
+    local now tz
+    printf -v now '%(%b %e - )T' -1
+    printf -v now '%s%s %(%H:%M:%S)T' "$now" "$ICON" -1
+    printf -v tz '%(%z)T' -1
 
-if [ "$mode" = "gmt" ]; then
-    # Dec 25 -   20:43:00 [GMT-5]
-    date +"%b %e - $ICON %H:%M:%S [GMT%:z]"\
-      | sed 's/GMT\([+-]\)\([0-9][0-9]\):[0-9][0-9]/GMT\1\2/'
+    tz="${tz%??}"                 # -0500 -> -05
+    [[ "${tz:1:1}" == "0" ]] && tz="${tz:0:1}${tz:2}"   # -05 -> -5
+
+    printf '%s [GMT%s]\n' "$now" "$tz"
+}
+
+print_ampm() {
+    printf '%(%b %e - )T'"$ICON"'  %(%I:%M:%S %p)T\n' -1 -1
+}
+
+init_state
+
+case "${1:-}" in
+    --toggle)
+        toggle_state
+        exit 0
+        ;;
+esac
+
+read_state
+
+if [[ "$MODE" == "gmt" ]]; then
+    print_gmt
 else
-    # Dec 25 -   08:43:00 PM
-    date +"%b %e - $ICON  %I:%M:%S %p"
+    print_ampm
 fi

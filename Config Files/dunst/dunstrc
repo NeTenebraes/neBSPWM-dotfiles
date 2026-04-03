@@ -25,6 +25,7 @@
     enable_recursive_icon_lookup = true
     icon_position = left
     max_icon_size = 64
+
     # icon_path define rutas extras si el tema falla
     icon_path = /usr/share/icons/Papirus-Dark/48x48/status:/usr/share/icons/Papirus-Dark/48x48/devices:/usr/share/icons/Papirus-Dark/48x48/apps
 

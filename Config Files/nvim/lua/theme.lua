@@ -73,6 +73,7 @@ local function apply_ui(c)
   set("TabLine",     { fg = c.fg0, bg = c.bg1 })
   set("TabLineSel",  { fg = c.bg0, bg = c.red1, bold = true })
   set("TabLineFill", { bg = c.bg0 })
+
 end
 
 local function apply_syntax(c)
@@ -145,9 +146,27 @@ local function apply_plugins(c)
   set("TelescopePromptTitle",  { fg = c.bg0, bg = c.red1, bold = true })
   set("TelescopeSelection",    { fg = c.white, bg = c.bg3, bold = true })
 
-  set("GitSignsAdd",    { fg = c.peach,  bg = c.bg0 })
-  set("GitSignsChange", { fg = c.orange, bg = c.bg0 })
-  set("GitSignsDelete", { fg = c.red1,   bg = c.bg0 })
+  set("GitSignsAdd",    { fg = c.red1, bg = "none" }) 
+  set("GitSignsChange", { fg = c.orange, bg = "none" })
+  set("GitSignsDelete", { fg = c.wine, bg = "none" })
+  set("SignColumn",     { bg = "none" }) 
+
+  set("SnacksDashboardHeader", { fg = c.red1 })     -- El rostro ahora será rojo
+  set("SnacksDashboardTitle",  { fg = c.red2, bold = true }) -- Títulos en rojo claro
+  set("SnacksDashboardIcon",   { fg = c.rose })     -- Iconos en tono rosa/rojizo
+  set("SnacksDashboardDesc",   { fg = c.fg2 })     -- Descripciones en gris suave
+  set("SnacksDashboardKey",    { fg = c.orange })   -- Las teclas de acceso (f, n, g...)
+  
+  -- Si quieres que los archivos recientes también sean rojos:
+  set("SnacksDashboardFile",   { fg = c.fg1 })
+  set("SnacksDashboardDir",    { fg = c.fg2 })
+
+  -- Rainbow Delimiters (Paleta Sangrienta/Cálida)
+set("RainbowDelimiterRed",    { fg = c.red1, bold = true }) -- Rojo sangre
+set("RainbowDelimiterCyan",   { fg = c.ice,  bold = true }) -- EL OPUESTO (Cian)
+set("RainbowDelimiterViolet", { fg = c.rose })              -- Transición suave
+set("RainbowDelimiterOrange", { fg = c.orange })            -- Fuego
+set("RainbowDelimiterGreen",  { fg = "#a3e49b" })           -- Un verde menta (opuesto al vino)
 end
 
 local function apply_lsp(c)

@@ -1,0 +1,11 @@
+-- =========================================================
+-- Plenary: Librería de funciones utilitarias.
+-- No añade funciones visuales por sí mismo, sino que es una 
+-- colección de herramientas (Lua) que otros plugins como 
+-- Telescope, Gitsigns y Neogit necesitan para funcionar.
+-- =========================================================
+
+return {
+  "nvim-lua/plenary.nvim",
+  lazy = true, -- Solo se carga cuando otro plugin lo requiere como dependencia
+}

@@ -32,13 +32,13 @@ function conky_network_main()
     -- Línea 1: Icono y Label (Opacidad 1)
     cairo_set_font_size(cr, 12)
     cairo_set_source_rgba(cr, 1, 1, 1, 1) -- Opacidad total
-    cairo_move_to(cr, 200, 30) -- Ajustado a la derecha
+    cairo_move_to(cr, 180, 30) -- Ajustado a la derecha
     cairo_show_text(cr, "󰬦 DNS")
 
     -- Línea 2: Nombre del Servidor (Opacidad 0.4)
     cairo_set_font_size(cr, 10)
     cairo_set_source_rgba(cr, 1, 1, 1, 0.4) 
-    cairo_move_to(cr, 200, 45)
+    cairo_move_to(cr, 180, 45)
     cairo_show_text(cr, dns_name:upper())
 
     -- Línea separadora
