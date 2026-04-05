@@ -34,7 +34,7 @@ PKGS_PACMAN_Essencials=(
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
     "vlc-plugin-ffmpeg" "vlc-plugin-matroska" "vlc-plugin-freetype" "vlc-plugin-aom" "vlc-plugin-ass" "vlc-plugin-x264" "vlc-plugin-x265"
     "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "xdg-user-dirs"
-    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip"
+    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip" "playerctl" "brightnessctl"
 )
 
 PKGS_PACMAN_optionals=("signal-desktop" "gimp" "obs-studio")
