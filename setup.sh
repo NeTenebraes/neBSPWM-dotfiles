@@ -32,7 +32,8 @@ PKGS_PACMAN_Essencials=(
     "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"
     "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
-    "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "vlc-plugins-all" "xdg-user-dirs"
+    "vlc-plugin-ffmpeg" "vlc-plugin-matroska" "vlc-plugin-freetype" "vlc-plugin-aom" "vlc-plugin-ass" "vlc-plugin-x264" "vlc-plugin-x265"
+    "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "xdg-user-dirs"
     "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip"
 )
 
