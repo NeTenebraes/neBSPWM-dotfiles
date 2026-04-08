@@ -206,6 +206,10 @@ apply_single_target() {
     fix_floating_nodes
     
     [ -x "$MONITOR_DIR/ui_refresh.sh" ] && "$MONITOR_DIR/ui_refresh.sh"
+
+    bspc node any.floating -t tiled
+    sleep 0.2
+    bspc node any.tiled -t floating # Esto obliga a todas a recalcular su posición según el monitor actual
 }
 
 debug_snapshot() {
@@ -225,16 +229,36 @@ debug_snapshot() {
 
 # Nueva función para reparar ventanas flotantes o huérfanas
 fix_floating_nodes() {
-    log "Reparando nodos flotantes/huérfanos..."
+    log "Reparando nodos flotantes/huérfanos (Rescate de GIMP)..."
     local node
-    # Buscamos todos los nodos en el sistema
+    local current_mon_dim
+    
+    # Obtenemos las dimensiones del monitor actual para centrar ventanas perdidas
+    # Formato: WxH+X+Y
+    current_mon_dim=$(bspc query -M -m focused --geometry)
+
     for node in $(bspc query -N); do
-        # Forzamos a que bspwm re-calcule su estado
-        # 1. Si está flotando, lo centramos para que sea visible y enfocable
-        if bspc query -N -n "$node.floating" >/dev/null; then
-            bspc node "$node" -g sticky=off # Evita que se queden pegadas entre cambios
-            bspc node "$node" -t tiled      # Las devolvemos a tiled temporalmente
-            bspc node "$node" -t floating   # Y luego a floating (esto resetea su geometría)
+        # 1. Si la ventana es flotante o GIMP (que suele manejar múltiples ventanas)
+        if bspc query -N -n "$node.floating" >/dev/null || \
+           xtitle "$node" | grep -iq "GIMP"; then
+            
+            log "Rescatando nodo: $(xtitle "$node")"
+            
+            # Quitar 'sticky' por si acaso
+            bspc node "$node" -g sticky=off
+            
+            # Forzar que bspwm la gestione de nuevo
+            bspc node "$node" -t tiled
+            sleep 0.1
+            bspc node "$node" -t floating
+            
+            # Mover la ventana al centro del monitor actual para que sea visible
+            # Esto corrige el problema de GIMP "en el aire"
+            bspc node "$node" -v 0 0 # Reset de posición relativa si aplica
+            bspc node "$node" --rectangle "$current_mon_dim" # Ajustar al monitor
+            
+            # Opcional: Centrarla
+            bspc node "$node" -E
         fi
     done
 }
