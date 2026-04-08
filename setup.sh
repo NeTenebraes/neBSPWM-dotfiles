@@ -396,6 +396,7 @@ EOF
 
     # 6. Finalización
     xdg-user-dirs-update
+    gsettings set org.cinnamon.desktop.default-applications.terminal exec 'kitty'
     echo_ok "🎨 Configuración de Monitores y Temas OK"
 }
 
