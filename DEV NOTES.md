@@ -1,3 +1,15 @@
+# Dev Notes: Notas utiles 
+
+Todas estas notas son de peoqueños problemas a los que no le veo mucha prioridad en este momento, quizá de acá saque alguna función en el futuro pero por ahora, solo se quedarán acá.  
+
+## Definir un navegador por defecto 
+
+En algunos programas en necesario que tengas definido un navegador por defecto, puedes hacerlo con este comando: 
+
+```bash
+xdg-settings set default-web-browser firefox.desktop  
+```
+
 ## Problemas específicos de mi hardware
 
 Tengo un portátil que presenta fallas con el controlador del touchpad. Estaba pensando en modificar el script para que automatice la correción del touchpad. Sin embargo, esto puede afectar el funcionamiento de los otros computadores así que por el momento lo dejo acá para tenerlo en cuenta. 
