@@ -194,8 +194,8 @@ echo_ok "Usando $AUR_HELPER para el resto de la instalación."
 
     # 5.5 VSCodium y 6. Nemo/Fonts
         if command -v codium >/dev/null 2>&1; then
-            mkdir -p ~/.config/vscodium/User
-            write_if_needed ~/.config/vscodium/User/settings.json '{"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono"}'
+            mkdir -p ~/.config/VSCodium/User
+            write_if_needed ~/.config/VSCodium/User/settings.json '{"terminal.integrated.fontFamily": "JetBrainsMono Nerd Font Mono"}'
         fi
         gsettings set org.nemo.preferences show-image-thumbnails 'always'
         gsettings set org.nemo.preferences thumbnail-limit "18446744073709551615"
