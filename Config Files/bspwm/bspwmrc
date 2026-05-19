@@ -1,11 +1,12 @@
 #! /bin/sh
+xrdb -merge ~/.Xresources
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+export _JAVA_AWT_WM_NONREPARENTING=1
 
 # =========================
 # Entorno
 # =========================
-xrdb -merge "$HOME/.Xresources"
-export LANG=en_US.UTF-8
-export LC_ALL=en_US.UTF-8
 
 # Qt / tema
 export QT_QPA_PLATFORM=xcb
@@ -73,7 +74,7 @@ bspc config borderless_monocle false
 bspc config gapless_monocle true
 bspc config focus_follows_pointer true
 
-# Mouse / mover-redimensionar
+# Mouse / mover-redimensionarbspc rule -a install4j-burp-StartBurp state=floating
 bspc config pointer_modifier mod4
 bspc config pointer_action1 move
 bspc config pointer_action2 resize_side
@@ -91,6 +92,12 @@ bspc rule -a VLC state=floating
 bspc rule -a Nemo:nemo:"File conflict" state=floating rectangle=1000x500+183+134 center=on focus=on
 bspc rule -a firefox rectangle=800x600+0+0 center=on focus=on
 bspc rule -a Rofi state=floating center=on
+
+# Games
+# =========================
+bspc rule -a jagexlauncher.exe state=floating center=on manage=on
+# bspc rule -a net-runelite-client-RuneLite:net-runelite-client-RuneLite state=floating manage=on center=on
+
 
 # =========================
 # Colores ventanas
@@ -125,13 +132,12 @@ restart_then_start polkit-gnome-authentication-agent-1 /usr/lib/polkit-gnome/pol
 start_once nm-applet nm-applet
 #start_once keepassxc keepassxc
 start_once flameshot flameshot
-start_once blueman-applet blueman-applet
 start_once unclutter unclutter -idle 5 -root
 
 # Mega a veces se pone nervioso si arranca demasiado temprano
 (sleep 5; pgrep -x megasync >/dev/null 2>&1 || megasync) &
 (sleep 5; pgrep -x keepassxc >/dev/null 2>&1 || keepassxc) &
-
+(sleep 5; pgrep -x blueman-applet >/dev/null 2>&1 || start_once blueman-applet blueman-applet) 
 # =========================
 # Bloqueo y energía
 # =========================
@@ -143,3 +149,6 @@ start_once xidlehook xidlehook \
   --timer 300 'betterlockscreen -l' '' \
   --timer 600 'xset dpms force off' 'xset dpms forces on' \
   --timer 900 'systemctl suspend' '' &
+
+# --- Reglas para OSRS / Jagex ---
+

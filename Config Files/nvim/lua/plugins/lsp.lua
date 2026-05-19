@@ -31,7 +31,7 @@ return {
       -- Lista única de servidores para autoinstalar
       ensure_installed = { 
         "lua_ls", "clangd", "pyright", "bashls", 
-        "html", "cssls", "jsonls", "ts_ls",
+        "html", "cssls", "jsonls", "ts_ls", "emmet_ls", "astro",
       },
       automatic_installation = true,
     },
@@ -76,18 +76,6 @@ return {
           local map = function(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, { buffer = bufnr, desc = desc })
           end
-
-          map("n", "K",          vim.lsp.buf.hover,           "LSP: hover")
-          map("n", "gd",         vim.lsp.buf.definition,      "LSP: definición")
-          map("n", "gD",         vim.lsp.buf.declaration,     "LSP: declaración")
-          map("n", "gi",         vim.lsp.buf.implementation,  "LSP: implementación")
-          map("n", "gr",         vim.lsp.buf.references,      "LSP: referencias")
-          map("n", "<leader>lr", vim.lsp.buf.rename,          "LSP: renombrar")
-          map("n", "<leader>la", vim.lsp.buf.code_action,     "LSP: acciones de código")
-          map("n", "<leader>lf", function() vim.lsp.buf.format({ async = true }) end, "LSP: formatear")
-          map("n", "<leader>ld", vim.diagnostic.open_float,   "LSP: ver error flotante")
-          map("n", "[d",         vim.diagnostic.goto_prev,    "LSP: error anterior")
-          map("n", "]d",         vim.diagnostic.goto_next,    "LSP: error siguiente")
         end,
       })
 
@@ -134,7 +122,22 @@ return {
       })
 
       -- --- E. ACTIVACIÓN DE SERVIDORES ---
-      local servers = { "lua_ls", "clangd", "pyright", "bashls", "html", "cssls", "jsonls", "ts_ls" }
+      local servers = { 
+  "lua_ls", 
+  "clangd", 
+  "pyright", 
+  "bashls", 
+  "html", 
+  "cssls", 
+  "jsonls", 
+  "ts_ls", 
+  "astro",
+  "emmet_ls",
+  "marksman", -- Inteligencia para tu neCyberWiki (Markdown)
+  "eslint",   -- El motor de corrección de errores web
+  "dockerls", -- Para tus laboratorios de hacking en Docker
+  "yamlls"    -- Configuraciones de sistema y web
+}
       
       for _, server in ipairs(servers) do
         -- Si no tienen config especial arriba, los habilitamos con capabilities básicas
@@ -143,6 +146,79 @@ return {
         end
         vim.lsp.enable(server)
       end
+    end,
+  },
+-- 1. MASON-TOOL-INSTALLER: Automatiza la instalación de herramientas (Prettier, Stylua, etc.)
+{
+    "WhoIsSethDaniel/mason-tool-installer.nvim",
+    dependencies = { "williamboman/mason.nvim" },
+    opts = {
+      ensure_installed = {
+  -- Web & Wiki
+  "astro-language-server",
+  "typescript-language-server",
+  "html-lsp",
+  "emmet-language-server",
+  "css-lsp",
+  "marksman",       -- Para tu neCyberWiki (Markdown)
+  "eslint_d",       -- Linter para lógica JS/TS/Astro
+  
+  -- Hacking & Sistema
+  "clangd",         -- C/C++ (Hacking)
+  "pyright",        -- Python (Scripts de automatización)
+  "bashls",         -- Bash (Automatización)
+  
+  -- Formateo
+  "prettier",
+  "stylua",
+},
+      auto_update = true,
+      run_on_start = true,
+    },
+  },
+
+  -- 2. CONFORM.NVIM: El encargado de formatear usando los binarios de Mason
+  {
+    "stevearc/conform.nvim",
+    event = { "BufWritePre" },
+    cmd = { "ConformInfo" },
+    config = function()
+      require("conform").setup({
+        formatters_by_ft = {
+          astro = { "prettier" },
+          lua = { "stylua" },
+          javascript = { "prettier" },
+          typescript = { "prettier" },
+        },
+        -- Formateo automático al guardar
+        format_on_save = {
+          timeout_ms = 500,
+          lsp_fallback = true, -- Si Prettier falla, intenta con el LSP
+        },
+      })
+    end,
+  },
+
+  {
+    "mfussenegger/nvim-lint",
+    event = { "BufReadPre", "BufNewFile" },
+    config = function()
+      local lint = require("lint")
+      -- Configuramos qué linter usar según el tipo de archivo
+      lint.linters_by_ft = {
+        astro = { "eslint_d" },
+        javascript = { "eslint_d" },
+        typescript = { "eslint_d" },
+      }
+
+      -- Crea un comando automático para que te "corrija" al guardar o salir del modo insertar
+      local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
+      vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+        group = lint_augroup,
+        callback = function()
+          lint.try_lint()
+        end,
+      })
     end,
   },
 }

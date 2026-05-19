@@ -188,7 +188,6 @@ apply_single_target() {
     sleep 1
 
     # 2. BSPWM: Eliminar monitores que ya no están en xrandr ANTES de mover desktops
-    # Esto evita que bspwm intente enviar comandos a un monitor muerto
     local m
     for m in $(bspc query -M --names); do
         if [ "$m" != "$target" ]; then
@@ -205,11 +204,7 @@ apply_single_target() {
 
     fix_floating_nodes
     
-    [ -x "$MONITOR_DIR/ui_refresh.sh" ] && "$MONITOR_DIR/ui_refresh.sh"
-
-    bspc node any.floating -t tiled
-    sleep 0.2
-    bspc node any.tiled -t floating # Esto obliga a todas a recalcular su posición según el monitor actual
+   # [ -x "$MONITOR_DIR/ui_refresh.sh" ] && "$MONITOR_DIR/ui_refresh.sh"
 }
 
 debug_snapshot() {
@@ -229,36 +224,26 @@ debug_snapshot() {
 
 # Nueva función para reparar ventanas flotantes o huérfanas
 fix_floating_nodes() {
-    log "Reparando nodos flotantes/huérfanos (Rescate de GIMP)..."
+    log "Reparando ventanas: preservando estados (Modo Nativo)..."
     local node
-    local current_mon_dim
     
-    # Obtenemos las dimensiones del monitor actual para centrar ventanas perdidas
-    # Formato: WxH+X+Y
-    current_mon_dim=$(bspc query -M -m focused --geometry)
+    # 1. TRATAR VENTANAS EN TILE (Mosaico)
+    # Solo refrescamos las que ya son Tiled para que no se muevan a lo loco
+    for node in $(bspc query -N -n .tiled); do
+        bspc node "$node" -t tiled
+    done
 
-    for node in $(bspc query -N); do
-        # 1. Si la ventana es flotante o GIMP (que suele manejar múltiples ventanas)
-        if bspc query -N -n "$node.floating" >/dev/null || \
-           xtitle "$node" | grep -iq "GIMP"; then
-            
-            log "Rescatando nodo: $(xtitle "$node")"
-            
-            # Quitar 'sticky' por si acaso
-            bspc node "$node" -g sticky=off
-            
-            # Forzar que bspwm la gestione de nuevo
-            bspc node "$node" -t tiled
-            sleep 0.1
-            bspc node "$node" -t floating
-            
-            # Mover la ventana al centro del monitor actual para que sea visible
-            # Esto corrige el problema de GIMP "en el aire"
-            bspc node "$node" -v 0 0 # Reset de posición relativa si aplica
-            bspc node "$node" --rectangle "$current_mon_dim" # Ajustar al monitor
-            
-            # Opcional: Centrarla
-            bspc node "$node" -E
-        fi
+    # 2. TRATAR VENTANAS FLOTANTES
+    # Buscamos nodos que son específicamente flotantes
+    for node in $(bspc query -N -n .floating); do
+        
+        # Obtenemos la "clase" de la ventana
+        local class=$(xprop -id "$node" WM_CLASS | awk -F '"' '{print $(NF-1)}')
+        log "Rescatando ventana flotante: $class ($node)"
+        
+        # La centramos en el monitor que tiene el foco actualmente
+        bspc node "$node" -g sticky=off  # Evita que se quede pegada en todos los desktops
+        bspc node "$node" -z center      # La trae al centro del monitor activo
+        bspc node "$node" -f             # Le da el foco para que no quede detrás
     done
 }

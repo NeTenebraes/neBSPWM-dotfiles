@@ -1,0 +1,69 @@
+-- =========================================================
+-- Nvim-Tree: Explorador de archivos lateral.
+-- Permite navegar por las carpetas del proyecto, crear, 
+-- renombrar y eliminar archivos visualmente, mostrando 
+-- iconos y el estado de Git en tiempo real.
+-- =========================================================
+
+return {
+  "nvim-tree/nvim-tree.lua",
+  dependencies = { "nvim-tree/nvim-web-devicons" }, -- Iconos para archivos y carpetas
+  opts = {
+    sort = { sorter = "case_sensitive" },
+    view = { 
+      width = 34,      -- Ancho de la barra lateral
+      side = "left",   -- Aparece a la izquierda
+    },
+    renderer = {
+      group_empty = true,      -- Agrupa carpetas vacías en una sola línea
+      indent_markers = { 
+        enable = true          -- Muestra líneas de guía para la jerarquía
+      },
+      icons = {
+        git_placement = "before",
+        padding = " ",
+        symlink_arrow = " ➛ ",
+        show = { file = true, folder = true, folder_arrow = true, git = true },
+        -- Configuración detallada de iconos (requiere Nerd Font)
+        glyphs = {
+          default = "󰈚",
+          symlink = "",
+          folder = {
+            arrow_open = "", 
+            arrow_closed = "", 
+            default = "󰉋",
+            open = "󰝰", 
+            empty = "󰜌", 
+            empty_open = "󰜌",
+            symlink = "󰉒", 
+            symlink_open = "󰉒",
+          },
+          git = {
+            unstaged = "", 
+            staged = "", 
+            unmerged = "",
+            renamed = "➜", 
+            untracked = "", 
+            deleted = "", 
+            ignored = "◌",
+          },
+        },
+      },
+    },
+    filters = { dotfiles = false }, -- Muestra archivos ocultos (que empiezan por punto)
+    git = { 
+      enable = true, -- Muestra colores e iconos según el estado de Git
+      ignore = false        -- IMPORTANTE: Esto evita que nvim-tree ignore archivos listados en .gitignore
+    },
+    actions = {
+      open_file = { 
+        quit_on_open = true, -- No cierra el árbol al abrir un archivo
+        resize_window = true, -- Reajusta el tamaño automáticamente
+      },
+    },
+    update_focused_file = { 
+      enable = true,      -- Si cambias de pestaña, el árbol resalta el archivo actual
+      update_root = false 
+    },
+  },
+}

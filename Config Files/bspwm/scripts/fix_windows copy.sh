@@ -2,60 +2,31 @@
 set -u
 
 # ==============================================================================
-# FIX WINDOWS - BSPWM HELPER SCRIPT (NeCyber Edition)
+# FIX WINDOWS - BSPWM HELPER SCRIPT
 # ==============================================================================
-# Este script monitorea la creación de ventanas y aplica reglas personalizadas
-# que bspc nativo a veces no captura debido a delays en aplicaciones Java/Electron.
-#
-# ESTRUCTURA DE REGLAS: 'CLASS|NAME|WIDTH|HEIGHT|STATE|STICKY|DELAY|ACTION'
-# ------------------------------------------------------------------------------
-# 1. CLASS:  Clase de la ventana (WM_CLASS). Deja vacío para ignorar.
-# 2. NAME:   Título de la ventana (WM_NAME). 
-#            - "*" coincide con todo.
-#            - "^Regex$" para coincidencia exacta.
-#            - "Texto" para coincidencia por prefijo.
-# 3. WIDTH:  Ancho para la acción 'center'. (0 para ignorar)
-# 4. HEIGHT: Alto para la acción 'center'. (0 para ignorar)
-# 5. STATE:  Estado de BSPWM: [tiled|floating|fullscreen|pseudo_tiled]
-# 6. STICKY: Mantener en todos los escritorios: [on|off]
-# 7. DELAY:  Segundos de espera antes de aplicar (Ej: 0.1). Útil para Java.
-# 8. ACTION: Comportamiento de posicionamiento:
-#    - skip:            Solo aplica STATE/STICKY y termina.
-#    - center:          Redimensiona a WIDTHxHEIGHT y centra en el monitor.
-#    - float_center:    Centra la ventana manteniendo su tamaño actual.
-#    - float_no_border: Pone en flotante, quita bordes y centra (Ideal Splash).
-#    - top_left, top_right, bottom_left, bottom_right: Mueve a las esquinas.
+# Formato de las reglas: 'CLASS|NAME|WIDTH|HEIGHT|STATE|STICKY|DELAY|ACTION'
+# 
+# NOTA SOBRE NAME: Ahora soporta coincidencia parcial. Si pones "RuneLite", 
+# coincidirá con "RuneLite", "RuneLite - Personaje", etc.
 # ==============================================================================
 
 RULES=(
   'MEGAsync|Add sync|700|520|floating|off|0.35|center'
   'Nemo|File conflict|0|0|floating|off|0.01|float_center'
-
-# --- BURP SUITE (RE-ORDENADO Y REFINADO) ---
-  
-  # 1. Splash Screen (Sin clase, solo nombre Java y tamaño)
-  '|Java|912|510|floating|off|0.01|float_no_border'
-
-  # 2. El Proyecto: DEBE IR ANTES QUE EL COMODÍN. 
-  # Usamos ^ para indicar que empieza así y .* para cualquier versión.
-  'install4j-burp-StartBurp|^Burp Suite Community Edition.*Project$|0|0|tiled|off|0.01|skip'
-
-  # 3. Ventana de Settings: Match exacto.
-  'install4j-burp-StartBurp|^Settings$|0|0|floating|off|0.01|skip'
-
-  # 4. Diálogos específicos (como el de "Edit live passive..."):
-  'install4j-burp-StartBurp|^Edit live.*|0|0|floating|off|0.01|skip'
-
-  # 5. El resto de Burp (Lanzador, etc.): 
-  # Lo movemos al final para que sea el último recurso.
-  'install4j-burp-StartBurp|*|0|0|floating|off|0.05|skip'
   
   # --- ESTRATEGIA PARA RUNELITE ---
-  'net-runelite-client-RuneLite|^RuneLite Launcher$|200|274|floating|off|0.01|float_center'
+
+  # 1. ESPECÍFICA: El PiP (siempre primero)
   'net-runelite-client-RuneLite|Picture in Picture|0|0|floating|on|0.001|bottom_right'
+  
+  # 2. EXCEPCIÓN: Si el nombre es EXACTAMENTE "RuneLite", es el lanzador o el cliente sin loguear.
   'net-runelite-client-RuneLite|^RuneLite$|0|0||off|0.1|skip'
+  
+  # 3. CLIENTE LOGUEADO: Si el nombre empieza con "RuneLite -", es el juego principal.
+  # Usamos el prefijo "RuneLite -" para diferenciarlo de otros popups.
   'net-runelite-client-RuneLite|RuneLite -|0|0||off|0.1|skip'
-  # Cambiado a skip para que no te robe el control de los popups:
+  
+  # 4. COMODÍN: Cualquier otra cosa que no sea lo anterior (popups, menús) se centra.
   'net-runelite-client-RuneLite|*|0|0|floating|off|0.01|float_center'
 )
 
@@ -158,112 +129,59 @@ center_current_size_on_monitor() {
   xdotool windowmove --sync "$wid" "$x" "$y"
 }
 
-# --- DEBUG LOGGING MEJORADO ---
-log_debug() {
-  local msg="$1"
-  echo "[$(date +%T)] $msg" >> /tmp/fix_windows.log
-}
-
-# --- APLICACIÓN DE REGLAS CON VERIFICACIÓN ---
 apply_rule() {
   local wid="$1" mon="$2" class="$3" name="$4"
   local rule r_class r_name r_w r_h r_state r_sticky r_delay r_action
-  local matched=false
-
-  log_debug "CAPTURA: WID:[$wid] Class:[$class] Name:[$name]"
 
   for rule in "${RULES[@]}"; do
     IFS='|' read -r r_class r_name r_w r_h r_state r_sticky r_delay r_action <<< "$rule"
 
-    # 1. Validar Clase
-    if [[ -n "$r_class" && "$class" != "$r_class" ]]; then continue; fi
+    [[ "$class" != "$r_class" ]] && continue
     
-    # 2. Validar Nombre (Regex, Prefijo o Todo)
-    matched=false
+    # Lógica de coincidencia:
     if [[ "$r_name" == "*" ]]; then
-        matched=true
+        : # El asterisco coincide siempre, continuamos
     elif [[ "$r_name" == ^* ]]; then
-        [[ "$name" =~ ${r_name} ]] && matched=true
+        # Soporte opcional para Regex si empieza por ^
+        [[ ! "$name" =~ ${r_name} ]] && continue
     else
-        [[ "$name" == "$r_name"* ]] && matched=true
+        # Coincidencia por prefijo (esto arregla lo de RuneLite - Personaje)
+        [[ "$name" != "$r_name"* ]] && continue
     fi
 
-    if [ "$matched" = true ]; then
-        log_debug "  >> MATCH: Regla[$r_name] -> Estado:[$r_state] Acción:[$r_action]"
-        
-        # Delay crítico para Java
-        sleep "$r_delay"
+    [[ "$r_action" == "skip" ]] && return 0
 
-        # Aplicar Estado
-        if [[ -n "$r_state" ]]; then 
-            log_debug "  >> EJECUTANDO: bspc node $wid -t $r_state"
-            bspc node "$wid" -t "$r_state"
-        fi
-        
-        # Aplicar Sticky
-        if [[ "$r_sticky" == "on" || "$r_sticky" == "off" ]]; then 
-            bspc node "$wid" -g sticky="$r_sticky"
-        fi
+    sleep "$r_delay"
+    if [[ -n "$r_state" ]]; then bspc node "$wid" -t "$r_state"; fi
+    [[ "$r_sticky" == "on" || "$r_sticky" == "off" ]] && bspc node "$wid" -g sticky="$r_sticky"
 
-        # Ejecutar Acción de Posicionamiento
-        case "$r_action" in
-          "skip") 
-            log_debug "  >> ACCIÓN: skip (manteniendo posición original)" 
-            ;;
-          "center") 
-            center_window_on_monitor "$wid" "$mon" "$r_w" "$r_h" 
-            ;;
-          "float_center") 
-            center_current_size_on_monitor "$wid" "$mon" 
-            ;;
-          "float_no_border") 
-            bspc node "$wid" -b off
-            center_current_size_on_monitor "$wid" "$mon" 
-            ;;
-          "top_left"|"top_right"|"bottom_left"|"bottom_right") 
-            move_to_corner "$wid" "$mon" "$r_action" 
-            ;;
-        esac
-        
-        # --- VERIFICACIÓN FINAL ---
-        # Consultamos a bspwm qué opina de la ventana ahora
-        local final_status
-        final_status=$(bspc query -T -n "$wid" | jq -r '.client.state' 2>/dev/null || echo "Desconocido (requiere jq)")
-        log_debug "  >> REPORTE FINAL BSPWM: La ventana quedó en modo [$final_status]"
-        
-        return 0
-    fi
+    case "$r_action" in
+      "center") center_window_on_monitor "$wid" "$mon" "$r_w" "$r_h" ;;
+      "float_center") for i in {1..5}; do center_current_size_on_monitor "$wid" "$mon" && break; sleep 0.05; done ;;
+      "top_left"|"top_right"|"bottom_left"|"bottom_right") for i in {1..5}; do move_to_corner "$wid" "$mon" "$r_action" && break; sleep 0.05; done ;;
+    esac
+    return 0
   done
-  
-  # Si llegó aquí es que pasó por todas las reglas y ninguna le sirvió
-  # log_debug "  -- No match --"
   return 1
 }
 
 watch_window() {
   local mon="$1" wid="$2"
   local i props class name
-  
-  # Logueamos que empezamos a observar una ventana nueva
-  log_debug "--- Monitoreando ventana $wid ---"
-  
   for i in {1..20}; do
     props="$(get_props "$wid")"
     class="$(printf '%s\n' "$props" | extract_class)"
     name="$(printf '%s\n' "$props" | extract_name)"
     
-    # Manejo especial para títulos de Java que tardan en aparecer
     if [[ -n "$class" && ( -z "$name" || "$name" == "sun-awt-X11-XFramePeer" ) ]]; then
         name=$(xprop -id "$wid" _NET_WM_NAME 2>/dev/null | cut -d'"' -f2)
     fi
 
     if [[ -n "$class" ]]; then
-      # Si apply_rule encuentra un match, el return 0 rompe el bucle
       if apply_rule "$wid" "$mon" "$class" "$name"; then return 0; fi
     fi
     sleep 0.1
   done
-  log_debug "--- Timeout: No se encontró regla para $wid tras 2 segundos ---"
 }
 
 # --- BUCLE PRINCIPAL ---

@@ -6,15 +6,16 @@
 return {
   {
     "nvim-treesitter/nvim-treesitter",
+    -- Ya no usamos branch = "master", dejamos que instale la versión actual (main)
     build = ":TSUpdate",
-    lazy = false, 
+    lazy = false, -- RECOMENDADO: Treesitter ya no admite lazy-loading
     dependencies = {
       "HiPhish/rainbow-delimiters.nvim",
     },
     config = function()
       local ts = require("nvim-treesitter")
 
-      -- 1. Instalación de parsers
+      -- 1. Instalación de parsers (Ahora es una función directa)
       ts.install({ 
           -- === BASE & CORE ===
           "lua", "vim", "vimdoc", "query", "markdown", "markdown_inline", "python",
@@ -25,6 +26,8 @@ return {
           "awk",           -- Procesamiento de texto (polybar/scripts)
           "ssh_config",    -- Gestión de hosts y llaves
           "passwd",        -- Archivos de sistema /etc/passwd
+          "git_config",    -- Configuración de git
+          "git_rebase",    -- Interactividad en git
           "diff",          -- Comparación de archivos y parches .pacnew
           "tmux",          -- Configuración de multiplexores
           "udev",          -- Reglas de dispositivos en Linux
@@ -46,57 +49,35 @@ return {
 
           -- === DESARROLLO WEB & DATOS ===
           "html", "css", "javascript", "typescript", "tsx", 
-          "json", -- JSON normal y con comentarios
+          "json", "jsonc", -- JSON normal y con comentarios
           "yaml",          -- Configuración de contenedores y servicios
           "toml",          -- Configs modernas (Alacritty/Starship)
           "scss",          -- Estilos avanzados
           "dockerfile",    -- Creación de entornos aislados
           "graphql",       -- Consultas de APIs modernas
           "xml",           -- Formatos de datos y configuraciones
-          "svelte", 
-          "typst", 
-          "vue",
-          "astro",
-
-          -- === VERSION CONTROL (GITHUB WORKFLOW) ===
-          "git_config",
-          "git_rebase",
-          "gitcommit",
-          "gitignore",
-          "gitattributes",
-          "diff",
-          
-          "latex",
         })
-      
-      -- 2. Configuración de características NATIVAS (Highlight & Indent)
-      -- Filtramos para ignorar todo lo que no sea código real
+
+      -- 2. Configuración de características NATIVAS (Neovim 0.12+)
+      -- El resaltado ahora se activa por FileType para mayor eficiencia
       vim.api.nvim_create_autocmd("FileType", {
-        callback = function(args)
-          local buftype = vim.bo[args.buf].buftype
-          local filetype = vim.bo[args.buf].filetype
-
-          -- Ignorar buffers que no son archivos (terminales, prompts, etc.)
-          if buftype ~= "" then return end
-
-          -- Ignorar explícitamente extensiones de plugins y archivos de imagen
-          local ignore_ft = { 
-            "image", "scat", "snacks_picker_list", "snacks_picker_input", 
-            "checkhealth", "help", "qf", "nofile" 
-          }
-          if vim.tbl_contains(ignore_ft, filetype) then return end
-
-          -- Intentamos activar Treesitter de forma segura
-          local success, _ = pcall(vim.treesitter.get_parser, args.buf)
-          if success then
-            vim.treesitter.start(args.buf)
-            -- Activamos también la indentación aquí mismo
-            vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        callback = function()
+          -- Solo activa si hay un parser disponible para el lenguaje
+          local lang = vim.treesitter.language.get_lang(vim.bo.filetype)
+          if lang then
+            vim.treesitter.start()
           end
         end,
       })
 
-      -- 3. Plegado (Folding) - Configuración global
+      -- 3. Indentación (Experimental en la nueva versión)
+      vim.api.nvim_create_autocmd("FileType", {
+        callback = function()
+          vim.bo.indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+        end,
+      })
+
+      -- 4. Plegado (Folding) - Sintaxis simplificada para 0.12
       vim.opt.foldmethod = "expr"
       vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
       vim.opt.foldenable = false

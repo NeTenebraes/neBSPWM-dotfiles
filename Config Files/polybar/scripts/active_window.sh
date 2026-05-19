@@ -42,7 +42,7 @@ get_title() {
     trimmed=$(printf '%s' "$clean" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
     [[ -z "$trimmed" ]] && trimmed="Desktop"
 
-    final=$(printf '%s' "$trimmed" | cut -c 1-25)
+    final=$(printf '%s' "$trimmed" | cut -c 1-20)
     final=${final,,}
     final=${final^}
 

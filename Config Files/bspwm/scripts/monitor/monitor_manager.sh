@@ -42,42 +42,59 @@ while true; do
         INTERNAL="$(get_internal_monitor)"
         EXTERNAL="$(get_external_monitor "$INTERNAL" || true)"
         LID_STATE="$(get_lid_state)"
+
+        # --- LÓGICA DE DETECCIÓN Y RESET INTELIGENTE ---
         
-        # Leer Overrides
-        OVERRIDE_MODE="$(cat /tmp/monitor_override_mode 2>/dev/null || echo "AUTO")"
+        # 1. Si el cable se desconecta físicamente, limpiamos rastro manual para que al re-conectar sea AUTO
+        if [ -z "$EXTERNAL" ]; then
+            if [ -f "/tmp/monitor_override_mode" ] || [ -f "/tmp/monitor_manual_cycle" ]; then
+                log "Cable desconectado: Reseteando modos manuales para futura conexión."
+                rm -f /tmp/monitor_override_mode /tmp/monitor_manual_cycle /tmp/monitor_override_topology
+            fi
+        fi
+
+        # 2. Leer Overrides (si existen tras la limpieza anterior)
+        OVERRIDE_MODE="$(cat /tmp/monitor_override_mode 2>/dev/null || echo "AUTO")" 
         
         # --- LÓGICA DE DECISIÓN DE MODO ---
         MODE="AUTO"
         TARGET="$INTERNAL"
 
-        # Prioridad absoluta: Si la tapa está cerrada y hay monitor externo, forzamos Clamshell
-        # Esto ignora cualquier modo manual previo para evitar la suspensión.
+# --- LÓGICA DE DECISIÓN DE MODO ---
+        
+        # Prioridad 1: Clamshell (Tapa cerrada + Monitor Externo)
         if [ "$LID_STATE" = "closed" ] && [ -n "$EXTERNAL" ]; then
             log "Lid closed with external monitor. Forcing Clamshell Mode."
             MODE="CLAMSHELL"
             TARGET="$EXTERNAL"
-            # Opcional: Limpiar archivos de override para que al abrir la tapa vuelva a AUTO
+            # Limpiamos para que al abrir la tapa vuelva a modo AUTO/DUAL
             rm -f /tmp/monitor_override_mode /tmp/monitor_manual_cycle
-        elif [ "$OVERRIDE_MODE" = "AUTO" ]; then
+
+        # Prioridad 2: Respetar Modo Manual (Ciclo) SI el monitor externo está presente
+        # Solo entramos aquí si el usuario usó monitor_cycle.sh
+        elif [ "$OVERRIDE_MODE" != "AUTO" ] && [ -n "$EXTERNAL" ]; then
+            log "Respetando modo manual: $OVERRIDE_MODE"
+            MODE="$OVERRIDE_MODE"
+            if [[ "$MODE" == *"EXTERNAL"* ]]; then
+                TARGET="$EXTERNAL"
+            else
+                TARGET="$INTERNAL"
+            fi
+
+        # Prioridad 3: Modo Automático (Dual si hay cable, Laptop si no)
+        else
             if [ -n "$EXTERNAL" ]; then
                 MODE="DUAL"
             else
                 MODE="LAPTOP"
                 TARGET="$INTERNAL"
             fi
-        else
-            # Modo Manual (Ciclo)
-            MODE="$OVERRIDE_MODE"
-            if [[ "$MODE" == *"EXTERNAL"* ]]; then
-                TARGET="${EXTERNAL:-$INTERNAL}"
-            elif [[ "$MODE" == *"LAPTOP"* ]]; then
-                TARGET="$INTERNAL"
-            else
-                TARGET="${EXTERNAL:-$INTERNAL}"
-            fi
         fi
 
         log "Applying: $MODE | Target: $TARGET | Lid: $LID_STATE"
+
+
+
 
         # --- EJECUCIÓN ---
         case "$MODE" in
@@ -94,7 +111,7 @@ while true; do
         esac
 
         # Refrescar UI (Polybar, Wallpapers, etc.)
-        [ -x "$MONITOR_DIR/ui_refresh.sh" ] && "$MONITOR_DIR/ui_refresh.sh"
+         [ -x "$MONITOR_DIR/ui_refresh.sh" ] && "$MONITOR_DIR/ui_refresh.sh"
         
         log "Configuration applied successfully."
     fi

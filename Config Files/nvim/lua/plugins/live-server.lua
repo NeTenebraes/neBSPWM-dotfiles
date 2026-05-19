@@ -9,7 +9,7 @@ return {
         -- "--no-css-inject", -- Descomenta si prefieres que NO inyecte CSS automáticamente
       },
       serverPath = vim.fn.stdpath("data") .. "/live-server/",
-      open = "folder", -- "folder" busca el index.html en la raíz, "cwd" usa la carpeta actual
+      open = "cwd", -- "folder" busca el index.html en la raíz, "cwd" usa la carpeta actual
     })
 
     -- Atajos de teclado integrados

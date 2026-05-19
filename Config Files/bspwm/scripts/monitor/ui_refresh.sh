@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 # ~/.config/bspwm/scripts/monitor/ui_refresh.sh
 
+# Importar motor lógico para tener la función log disponible
+MONITOR_DIR="${MONITOR_DIR:-$HOME/.config/bspwm/scripts/monitor}"
+if [ -f "$MONITOR_DIR/layout_engine.sh" ]; then
+    source "$MONITOR_DIR/layout_engine.sh"
+fi
+
 # Definimos el log aquí por si corres el script solo
 LOG_FILE="${XDG_STATE_HOME:-$HOME/.local/state}/monitor_setup.log"
 
