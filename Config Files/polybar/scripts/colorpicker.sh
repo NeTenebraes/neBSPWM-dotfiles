@@ -27,14 +27,33 @@ case "$1" in
         ;;
 
     --right)
-        COL=$(/usr/bin/yad --color --title="WebColorPicker" --init-color="#ef4761" --alpha)
+        # 1. Lanzamos Yad (Formato Hexadecimal nativo)
+        COL=$(/usr/bin/yad --color --title="WebColorPicker" --init-color="$INIT_COLOR" --alpha)
         
         if [ ! -z "$COL" ]; then
-            # Conversión matemática de #AARRGGBB (Yad) a rgba() estándar de CSS
-            RGBA=$(printf "rgba(%d,%d,%d,%.2f)" 0x${COL:3:2} 0x${COL:5:2} 0x${COL:7:2} $(( (0x${COL:1:2} * 1.0) / 255 )))
+            HEX=$(echo "$COL" | /usr/bin/tr -d '#')
+
+            # 2. TRADUCCIÓN MATEMÁTICA EXACTA (#RRGGBBAA)
+            R_DEC=$((16#${HEX:0:2}))
+            G_DEC=$((16#${HEX:2:2}))
+            B_DEC=$((16#${HEX:4:2}))
             
+            # Si el string tiene 8 caracteres, calculamos el Alpha flotante
+            if [ ${#HEX} -eq 8 ]; then
+                A_HEX=${HEX:6:2}
+                A_DEC=$((16#$A_HEX))
+                # Dividimos usando awk forzando el punto decimal de CSS
+                ALPHA=$(LC_NUMERIC=C /usr/bin/awk "BEGIN {printf \"%.2f\", $A_DEC / 255}")
+            else
+                ALPHA="1.00"
+            fi
+
+            # Construimos el formato RGBA final
+            RGBA="rgba($R_DEC,$G_DEC,$B_DEC,$ALPHA)"
+            
+            # Copiamos al portapapeles y disparamos notificación
             echo -n "$RGBA" | /usr/bin/xclip -selection clipboard
-            /usr/bin/notify-send "Web Color" "RGBA: $RGBA" -i "$ICON"
+            /usr/bin/notify-send "Web Color" "Copiado RGBA a portapapeles: $RGBA" -i "$ICON"
         fi
         ;;
 esac
