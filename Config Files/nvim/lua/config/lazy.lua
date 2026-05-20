@@ -24,8 +24,6 @@ require("lazy").setup({
     -- Importa automáticamente todos los archivos .lua de estas carpetas
     { import = "plugins" }, 
     { import = "plugins.UI" },
-    { import = "plugins.Git" },
-    { import = "plugins.Dependencies" },
   },
   rocks = {
     enabled = false,

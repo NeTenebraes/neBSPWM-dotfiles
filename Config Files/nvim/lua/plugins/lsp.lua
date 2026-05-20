@@ -191,10 +191,10 @@ return {
           typescript = { "prettier" },
         },
         -- Formateo automático al guardar
-        format_on_save = {
-          timeout_ms = 500,
-          lsp_fallback = true, -- Si Prettier falla, intenta con el LSP
-        },
+        --format_on_save = {
+          --timeout_ms = 500,
+          --lsp_fallback = true, -- Si Prettier falla, intenta con el LSP
+        --},
       })
     end,
   },

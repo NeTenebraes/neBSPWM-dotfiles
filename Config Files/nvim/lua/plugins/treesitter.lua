@@ -8,9 +8,6 @@ return {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",
     lazy = false, 
-    dependencies = {
-      "HiPhish/rainbow-delimiters.nvim",
-    },
     config = function()
       local ts = require("nvim-treesitter")
 
@@ -25,7 +22,6 @@ return {
           "awk",           -- Procesamiento de texto (polybar/scripts)
           "ssh_config",    -- Gestión de hosts y llaves
           "passwd",        -- Archivos de sistema /etc/passwd
-          "diff",          -- Comparación de archivos y parches .pacnew
           "tmux",          -- Configuración de multiplexores
           "udev",          -- Reglas de dispositivos en Linux
           "make",          -- Automatización de compilación
@@ -46,7 +42,7 @@ return {
 
           -- === DESARROLLO WEB & DATOS ===
           "html", "css", "javascript", "typescript", "tsx", 
-          "json", -- JSON normal y con comentarios
+          "json",          -- JSON normal y con comentarios
           "yaml",          -- Configuración de contenedores y servicios
           "toml",          -- Configs modernas (Alacritty/Starship)
           "scss",          -- Estilos avanzados
@@ -70,7 +66,6 @@ return {
         })
       
       -- 2. Configuración de características NATIVAS (Highlight & Indent)
-      -- Filtramos para ignorar todo lo que no sea código real
       vim.api.nvim_create_autocmd("FileType", {
         callback = function(args)
           local buftype = vim.bo[args.buf].buftype
@@ -79,16 +74,21 @@ return {
           -- Ignorar buffers que no son archivos (terminales, prompts, etc.)
           if buftype ~= "" then return end
 
-          -- Ignorar explícitamente extensiones de plugins y archivos de imagen
+          -- FILTRO DE SEGURIDAD:
+          -- Si el archivo es texto plano o hereda tipos sin código ejecutable, 
+          -- dejamos que Neovim use su resaltado nativo tradicional y salimos sin invocar a Tree-sitter.
           local ignore_ft = { 
             "image", "scat", "snacks_picker_list", "snacks_picker_input", 
-            "checkhealth", "help", "qf", "nofile" 
+            "checkhealth", "help", "qf", "nofile",
+            "text", "plain", "conf" -- Añadidos para proteger .txt y configs planas
           }
           if vim.tbl_contains(ignore_ft, filetype) then return end
 
-          -- Intentamos activar Treesitter de forma segura
-          local success, _ = pcall(vim.treesitter.get_parser, args.buf)
-          if success then
+          -- Intentamos obtener el parser de forma completamente segura.
+          -- Usamos pcall sobre vim.treesitter.get_parser. Si el parser del lenguaje no existe
+          -- o no está instalado, fallará silenciosamente (success = false) en vez de congelar la UI.
+          local success, parser = pcall(vim.treesitter.get_parser, args.buf)
+          if success and parser then
             vim.treesitter.start(args.buf)
             -- Activamos también la indentación aquí mismo
             vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
@@ -102,26 +102,6 @@ return {
       vim.opt.foldenable = false
       vim.opt.foldlevel = 99
 
-      -- === CONFIGURACIÓN DE RAINBOW DELIMITERS ===
-      local rb = require('rainbow-delimiters')
-      
-      vim.g.rainbow_delimiters = {
-        strategy = { [''] = rb.strategy['global'] },
-        query = {
-          [''] = 'rainbow-delimiters',
-          lua = 'rainbow-blocks',
-        },
-        priority = { [''] = 110 },
-      }
-
-      -- Autocomando para asegurar que Rainbow funcione con el nuevo motor
-      vim.api.nvim_create_autocmd({ "BufReadPost", "Syntax" }, {
-        callback = function(args)
-          if vim.treesitter.highlighter.active[args.buf] then
-            rb.enable(args.buf)
-          end
-        end,
-      })
     end,
   }
 }
