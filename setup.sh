@@ -26,7 +26,7 @@ PKGS_PACMAN_Essencials=(
     "git" "base-devel" "wget" "curl" "unzip" "lsd" "sddm" "fastfetch" "neovim"
     "feh" "xorg" "xorg-xinit" "nemo" "flameshot" "zsh" "tmux" "htop" "bat" "blueman" "unclutter"
     "zsh-syntax-highlighting" "zsh-autosuggestions" "python" "python-pip"
-    "nodejs" "npm" "ffmpeg" "qt5ct" "qt6ct" "starship" "glib2" "libxml2" 
+    "nodejs" "pnpm" "ffmpeg" "qt5ct" "qt6ct" "starship" "glib2" "libxml2" 
     "bspwm" "sxhkd" "polybar" "picom" "rofi" "dunst" "kitty" "conky" "pavucontrol" 
     "polkit-gnome" "kvantum" "kvantum-qt5" "xdg-desktop-portal" "xdg-desktop-portal-gtk"
     "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"
@@ -397,6 +397,7 @@ EOF
     # 6. Finalización
     xdg-user-dirs-update
     gsettings set org.cinnamon.desktop.default-applications.terminal exec 'kitty'
+    sudo ln -s $(which pnpm) /usr/local/bin/npm
     echo_ok "🎨 Configuración de Monitores y Temas OK"
 }
 
