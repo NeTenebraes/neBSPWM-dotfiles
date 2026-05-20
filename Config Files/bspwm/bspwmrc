@@ -92,12 +92,11 @@ bspc rule -a VLC state=floating
 bspc rule -a Nemo:nemo:"File conflict" state=floating rectangle=1000x500+183+134 center=on focus=on
 bspc rule -a firefox rectangle=800x600+0+0 center=on focus=on
 bspc rule -a Rofi state=floating center=on
+bspc rule -a Yad title="WebColorPicker" state=floating rectangle=500x550+0+0 center=true focus=true
 
 # Games
 # =========================
 bspc rule -a jagexlauncher.exe state=floating center=on manage=on
-# bspc rule -a net-runelite-client-RuneLite:net-runelite-client-RuneLite state=floating manage=on center=on
-
 
 # =========================
 # Colores ventanas
@@ -137,7 +136,8 @@ start_once unclutter unclutter -idle 5 -root
 # Mega a veces se pone nervioso si arranca demasiado temprano
 (sleep 5; pgrep -x megasync >/dev/null 2>&1 || megasync) &
 (sleep 5; pgrep -x keepassxc >/dev/null 2>&1 || keepassxc) &
-(sleep 5; pgrep -x blueman-applet >/dev/null 2>&1 || start_once blueman-applet blueman-applet) 
+(sleep 5; pgrep -x blueman-applet >/dev/null 2>&1 || start_once blueman-applet blueman-applet)
+
 # =========================
 # Bloqueo y energía
 # =========================
@@ -149,6 +149,4 @@ start_once xidlehook xidlehook \
   --timer 300 'betterlockscreen -l' '' \
   --timer 600 'xset dpms force off' 'xset dpms forces on' \
   --timer 900 'systemctl suspend' '' &
-
-# --- Reglas para OSRS / Jagex ---
 
