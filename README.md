@@ -99,13 +99,6 @@ Para mantener la documentación organizada y facilitar el reporte de fallos, he 
 | [**📖 Guía de Atajos**](docs/HOTKEYS.md) | Listado completo de keybindings para bspwm y sxhkd. | 
 |  [**🐛 Errores Conocidos**](docs/KNOWN_ISSUES.md) | Registro detallado de versiones y actualizaciones del script. | 
 
-### 💡 ¿Cómo reportar un problema?
-
-Si encuentras un error que no está listado en [KNOWN_ISSUES.md](docs/KNOWN_ISSUES.md):
-1. Revisa que tu sistema esté actualizado (`sudo pacman -Syu`).
-2. Abre un **Issue** en GitHub describiendo tu hardware y adjuntando un pantallazo si es un error visual.
-3. Si tienes la solución, ¡no dudes en enviar un **Pull Request**!
-
 ---
 
 ## 🧠 Script de Ciberseguridad
