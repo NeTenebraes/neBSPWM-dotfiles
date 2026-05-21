@@ -4,8 +4,6 @@ Lista de problemas detectados y sus posibles *workarounds*. Si encuentras algo n
 
 | Componente | Problema | Workaround |
 | :--- | :--- | :--- |
-| **Pantalla** | Hay veces en las que el script `monitor_cycle.sh` no detecta la conexión del HDMI. | Usar la tecla predefinida para el cambio de pantalla. |
-| **Pantalla** | Hay veces en las que el script `monitor_cycle.sh` no restablece las ventanas al monitor principal. | Usar la tecla predefinida para el cambio de pantalla. En el peor de los casos, lanzar un `pkill`|
 | **VirtualBox** | Error al inicializar VirtualBox luego de un fresh install (módulos de kernel no cargados). | Ejecutar `sudo vboxreload` para carga manual o `sudo systemctl enable --now vboxdrv` para inicio persistente. |
 
 ### 🔍 Notas de Hardware
