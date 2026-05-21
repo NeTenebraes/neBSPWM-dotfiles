@@ -19,7 +19,7 @@
 
 </div>
 
-Mi entorno para **ciberseguridad, hacking ético y desarrollo en Linux**.  
+Mi entorno para **uso diario, ciberseguridad y desarrollo en Linux**.  
 
 **Formateo mi equipo con frecuencia** y quería poder **restaurar mi entorno completo en minutos**, sin tener que volver a configurar cada detalle desde cero. Esta config esta pensada para mi trabajo en un **equipo modesto** (i3 de segunda generación y 8GB de RAM), por lo que diseñé esta configuración pensando en **rendimiento, ligereza y estabilidad**, sin sacrificar la estética ni la comodidad en largas jornadas de trabajo técnico.
 
