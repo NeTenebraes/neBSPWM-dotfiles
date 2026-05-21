@@ -34,7 +34,7 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 - **Display Manager:** SDDM.
 - **Launcher:** Rofi (drun mode).
 - **Status Bar:** Polybar con módulos de:
-  - Administración de sistema (Power menu, workspaces, volumen, batería, System Tray).
+  - Administración de sistema (Power menu, workspaces, volumen, System Tray).
   - Detección de Tarjetas de red y su IP local.
   - Colorpicker HEX y RGBA.
   - Nombre de venta activa.
