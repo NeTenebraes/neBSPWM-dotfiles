@@ -5,6 +5,28 @@ Todos los cambios notables en este proyecto serán documentados en este archivo.
 > Este documento lo realicé mucho despues de crear el proyecto, empezaré a actualizar el mismo en futuros cambios.
 
 ---
+## [1.2.0] - 2026-05-20
+
+### nvim (EXPERIMENTAL)
+- Se ha hecho una limpieza general a los plugins de `nvim`. La idea es poder contar con un entorno visualmente coherente sin depender de tantos plugins externos. Esto con el fin de mantener una mayor seguridad en el SO.
+
+### Modulo nuevo de Polybar.
+- Colorpicker: Se ha añadido un modulo a `polybar` para facilitar el desarrollo web. Ahora tiene la opcion se poder elegir cualquier color directamente desde la polybar.
+
+### Modificaciones a Fix_Windows.
+- He estado jugando osrs, por lo que he modificado/agregado un par de funciones al script de bspwm `fix_windows.sh` para lograr una coherencia con el entorno.
+
+### Setup.sh (BUGFIX)
+- He agregado las dependecias necesarias para que lo anterior funcione sin problemas. También he corregido un pequeño bug que no incorporaba de forma correcta VSCodium al entorno.
+- Se ha eliminado completamen la dependencia "`npm`" y se ha sibstituido por "`pnpm`". También se ha agregado un enlace símbolico para que todo lo relacionado a `npm` funcione directame con `pnpm`.
+
+### 🚀 Estado del Proyecto
+
+> El entorno ha estado agarrando mucha forma en comparación con la primera versión. Lo siguiente que veo coherente es empezar a mejorar la arquitectura del instalador. He pensado en migrar a otro lenguaje, pero honestamente me gusta mucho BASH.
+
+---
+
+
 ## [1.1.0] - 2026-04-08
 
 ### SCRIPTS - MONITOR_Manager (BUGFIX)
