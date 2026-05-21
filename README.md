@@ -1,4 +1,4 @@
-# neBSPWM - Entorno para Ciberseguridad
+# neBSPWM - Entorno para Ciberseguridad y desarrollo
 
 <div align="center">
 
@@ -19,9 +19,7 @@
 
 </div>
 
-Mi entorno para **uso diario, ciberseguridad y desarrollo en Linux**.  
-
-**Formateo mi equipo con frecuencia** y quería poder **restaurar mi entorno completo en minutos**, sin tener que volver a configurar cada detalle desde cero. Esta config esta pensada para mi trabajo en un **equipo modesto** (i3 de segunda generación y 8GB de RAM), por lo que diseñé esta configuración pensando en **rendimiento, ligereza y estabilidad**, sin sacrificar la estética ni la comodidad en largas jornadas de trabajo técnico.
+**Formateo mi equipo con frecuencia** y quería poder **restaurar mi entorno completo en minutos** sin tener que volver a configurar cada detalle desde cero. Esta config esta pensada para mi trabajo en un **equipo modesto** (i3 de segunda generación y 8GB de RAM), por lo que diseñé esta configuración pensando en **rendimiento, ligereza y estabilidad**, todo sin sacrificar la estética y la comodidad en largas jornadas de trabajo técnico.
 
 El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Polybar**, **Conky**, **Kitty** y una paleta visual **Catppuccin Mocha**, pensado para mantenerse fluido incluso con múltiples herramientas de seguridad abiertas.
 
