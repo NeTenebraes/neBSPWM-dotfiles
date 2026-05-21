@@ -43,6 +43,7 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 - **System Widget:** Conky personalizado:
   - muestra info de sistema, red, almacenamiento y procesos activos
   - incluye panel de **Network & Security** con DNS, uso de red, ping y nombre de tarjeta de red activa.
+  - Espacio en disco y unidades externas.
 - **Terminal:** Kitty + ZSH + Starship  
 - **Lock Screen:** betterlockscreen
 - **Themes:** Catppuccin Mocha + Papirus Dark + Nerd Fonts  
