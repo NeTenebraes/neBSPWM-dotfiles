@@ -68,7 +68,7 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 
 **El script instala y configura automáticamente:**
 - bspwm, sxhkd, polybar, picom, rofi, dunst, kitty, conky  
-- sddm, zsh, starship, neovim, maim, betterlockscreen  
+- sddm, zsh, starship, neovim, flameshot, betterlockscreen  
 - Temas GTK/Qt **Catppuccin Mocha**, íconos **Papirus Dark**, y **Nerd Fonts**
 
 > Apesar se que el script funcione en derivados de arch, se recomienda una **instalación completamente limpia de Archlinux**.
