@@ -1,5 +1,4 @@
 DOTFILES_REPO="https://github.com/NeTenebraes/neBSPWN-dotfiles.git"
-DOTFILES_DIR="$HOME/.config/neBSPWN-dotfiles"
 
 THEME_DEFAULT="catppuccin-mocha-mauve-standard+default"
 THEME_CURSOR="catppuccin-mocha-dark-cursors"
