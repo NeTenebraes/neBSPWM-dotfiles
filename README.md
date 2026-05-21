@@ -103,7 +103,9 @@ Para mantener la documentación organizada y facilitar el reporte de fallos, he 
 
 ## 🧠 Script de Ciberseguridad
 
-Este escript fue Movido al repositorio: [neCybersecurity-Script](https://github.com/NeTenebraes/neCybersecurity-Script)
+Instala las herramientas que utilizo para ciberseguridad así como también automatiza la configuracion del firewall, DNS y enjaulado de aplicaciones con firejail.
+
+Este script fue Movido al repositorio: [neCybersecurity-Script](https://github.com/NeTenebraes/neCybersecurity-Script)
 
 ---
 
