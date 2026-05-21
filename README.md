@@ -77,7 +77,6 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 git clone https://github.com/NeTenebraes/neBSPWM-dotfiles.git
 cd neBSPWM-dotfiles
 ./setup.sh
-./Cybersecurity.sh
 ```
 **Reiniciar:** `systemctl reboot`
 
