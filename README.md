@@ -35,9 +35,10 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 - **Launcher:** Rofi (drun mode).
 - **Status Bar:** Polybar con módulos de:
   - Administración de sistema (Power menu, workspaces, volumen, batería, System Tray).
-  - Detección de Tarjetas de red y su IP local
+  - Detección de Tarjetas de red y su IP local.
+  - Colorpicker HEX y RGBA.
   - Nombre de venta activa.
-  - Batería
+  - Estado de batería.
   - Estado de Firewall y VPN.
 - **System Widget:** Conky personalizado:
   - muestra info de sistema, red, almacenamiento y procesos activos
