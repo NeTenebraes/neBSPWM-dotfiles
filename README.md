@@ -62,14 +62,16 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 
 ## 📦 Requisitos
 
-- Equipo basado en **Arch Linux** (también funciona en derivados como *EndeavourOS* o *Manjaro*).  
-- `paru` (se instala automáticamente).  
-- ~2 GB de espacio para dependencias.  
+- Equipo basado en **Arch Linux** (también funciona en derivados como *EndeavourOS* o *Manjaro*).
+- `paru` (se instala automáticamente).
+- ~2 GB de espacio para dependencias.
 
 **El script instala y configura automáticamente:**
 - bspwm, sxhkd, polybar, picom, rofi, dunst, kitty, conky  
 - sddm, zsh, starship, neovim, maim, betterlockscreen  
 - Temas GTK/Qt **Catppuccin Mocha**, íconos **Papirus Dark**, y **Nerd Fonts**
+
+> Apesar se que el script funcione en derivados de arch, se recomienda una **instalación completamente limpia de Archlinux**.
 
 ## Instalación
 
