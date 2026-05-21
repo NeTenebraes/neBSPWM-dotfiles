@@ -84,7 +84,7 @@ cd neBSPWM-dotfiles
 ```
 **Reiniciar:** `systemctl reboot`
 
-> El script requiere que no estés en una TTY para instalar todo lo necesario. En caso de ejecutarlo en una TTY deberás ejecutar el setup.sh dos veces. (La 1ra vez dentro de la TTY y luego dentro del DE/WM)
+> El script requiere que no estés en una TTY para instalar todo lo necesario. En caso de ejecutarlo en una TTY deberás ejecutar el setup.sh dos veces. (La 1ra vez dentro de la TTY y luego dentro de BSPWM)
 
 ---
 
