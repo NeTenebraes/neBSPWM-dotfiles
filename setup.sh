@@ -397,7 +397,64 @@ EOF
     # 6. Finalización
     xdg-user-dirs-update
     gsettings set org.cinnamon.desktop.default-applications.terminal exec 'kitty'
-    sudo ln -s $(which pnpm) /usr/local/bin/npm
+    
+
+    # Generar el script de emulación de npm para filtrar argumentos incompatibles
+    cat << 'EOF' > "$HOME/.local/bin/npm"
+#!/usr/bin/env bash
+set -euo pipefail
+
+readonly EMULATED_NPM_VERSION="11.4.1"
+
+if [[ $# -eq 0 ]]; then exit 1; fi
+
+COMMAND=$1
+shift
+
+case "$COMMAND" in
+  version) echo "{\"npm\":\"$EMULATED_NPM_VERSION\"}"; exit 0 ;;
+  --version) echo "$EMULATED_NPM_VERSION"; exit 0 ;;
+  init)
+    # Filtra --yes y --scope que pnpm no reconoce
+    pnpm init --silent
+    echo "preferSymlinkedExecutables: true" > pnpm-workspace.yaml
+    exit 0
+    ;;
+  exec)
+    args=()
+    for arg in "$@"; do
+      [[ "$arg" != "--yes" ]] && args+=("$arg")
+    done
+    pnpm exec "${args[@]}"
+    exit 0
+    ;;
+  install|add)
+    pnpm_args=()
+    packages=()
+    is_global=0
+    while [[ $# -gt 0 ]]; do
+      case "$1" in
+        -g|--global) is_global=1 ;;
+        --save-dev|--save-prod|--no-save) pnpm_args+=("$1") ;;
+        -*) pnpm_args+=("$1") ;;
+        *) packages+=("$1") ;;
+      esac
+      shift
+    done
+    [[ $is_global -eq 1 ]] && pnpm_args+=("--global")
+    if [[ ${#packages[@]} -gt 0 ]]; then
+      pnpm add "${pnpm_args[@]}" "${packages[@]}"
+    else
+      pnpm install "${pnpm_args[@]}"
+    fi
+    exit 0
+    ;;
+  *) pnpm "$COMMAND" "$@";;
+esac
+EOF
+
+# Asignar permisos de ejecución al script
+    chmod +x "$HOME/.local/bin/npm"
     echo_ok "🎨 Configuración de Monitores y Temas OK"
 }
 
