@@ -4,6 +4,7 @@
 export GOROOT=/usr/lib/go
 export GOPATH=$HOME/go
 export PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export PATH="$HOME/.local/bin:$PATH"
 # =================================================================
 # 1. ENTORNO Y RUTAS (ENVIRONMENT)
 # =================================================================
@@ -15,7 +16,6 @@ if command -v fzf >/dev/null; then
 fi
 
 export TERM=xterm-256color
-export PATH="$PATH:/home/netenebrae/.local/bin"
 export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border'
 
 # =================================================================
@@ -93,7 +93,6 @@ bindkey '^E' end-of-line             # Ctrl+E
 bindkey '^K' kill-line               # Ctrl+K
 bindkey '^U' backward-kill-line      # Ctrl+U
 bindkey '^W' backward-kill-word      # Ctrl+W
-bindkey '^Y' yank                    # Ctrl+Y
 bindkey '\ed' kill-word              # Alt+D
 
 # HISTORIAL & SUBSTRING SEARCH
