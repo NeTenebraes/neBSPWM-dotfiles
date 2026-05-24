@@ -43,8 +43,6 @@ end, { expr = true, silent = true, desc = "Copilot: Accept Suggestion" })       
 nmap("<leader>co", "<cmd>Copilot panel<CR>",             "Copilot: Open Panel")         -- [Espacio + c + o]   -> Abre el panel lateral con múltiples sugerencias (Plugin: copilot.lua)
 nmap("<leader>ct", "<cmd>Copilot toggle<CR>",            "Copilot: Toggle")             -- [Espacio + c + t]   -> Activa o desactiva Copilot por completo (Plugin: copilot.lua)
 -- Suelo usar máś Gemini, por lo que no he probado muy bien Copilot.
--- Tener en cuenta por futuros bugs
-
 
 -- === SNACKS TERMINAL & TOGGLES COMPACTOS ===
 nmap("<leader>tt", function() Snacks.terminal() end,     "Terminal: Toggle Float")      -- [Espacio + t + t]   -> Abre/esconde la terminal flotante (Plugin: snacks.nvim)
@@ -57,3 +55,6 @@ end, { desc = "Terminal: Close" })  -- [Esc + Esc] (Term)  -> Cierra la terminal
 nmap("<leader>td", function() Snacks.toggle.diagnostics() end, "Toggle: Diagnostics")   -- [Espacio + t + d]   -> Muestra/oculta subrayados de errores de código (Plugin: snacks.nvim)
 nmap("<leader>tl", function() Snacks.toggle.line_number() end, "Toggle: Line Numbers")  -- [Espacio + t + l]   -> Muestra/oculta los números de las líneas (Plugin: snacks.nvim)
 nmap("<leader>tz", function() Snacks.toggle.zen() end,         "Toggle: Zen Mode")      -- [Espacio + t + z]   -> Activa/desactiva el modo de concentración centrado (Plugin: snacks.nvim)
+
+-- === RENDER MARKDOWN TOGGLE ===
+nmap("<leader>tr", "<cmd>RenderMarkdown toggle<CR>", "Toggle: Render Markdown")
