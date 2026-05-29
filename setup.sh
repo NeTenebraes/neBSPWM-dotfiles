@@ -53,9 +53,6 @@ main() {
     setup_fonts_locale
     cleanup_temp_repo
 
-    echo_ok "🎉 ¡LISTO! Reinicia: systemctl reboot"
-}
-
 # TODO
 # Debo incluir esta sección para hacer que nomacs sea el visualizador de imagenes por defecto. 
 xdg-mime default org.nomacs.ImageLounge.desktop image/jpeg                                                                                             at 󱑎 14:48
@@ -66,3 +63,8 @@ xdg-mime default org.nomacs.ImageLounge.desktop image/webp
 xdg-mime default org.nomacs.ImageLounge.desktop image/tiff
 
 main "$@"
+
+
+    echo_ok "🎉 ¡LISTO! Reinicia: systemctl reboot"
+}
+
