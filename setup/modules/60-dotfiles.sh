@@ -1,5 +1,5 @@
 deploy_dotfiles() {
-    echo_msg "🚀 Deploy dotfiles DESTRUCTIVO..."
+    echo_msg "🚀 Deploy dotfiles..."
     local tmp_repo="${NE_TMP_REPO:-/tmp/neBSPWN-dotfiles}"
     local config_src="$tmp_repo/Config Files"
     local home_src="$tmp_repo/Home files"
