@@ -17,7 +17,6 @@ source "$SETUP_DIR/config/themes.sh"
 source "$SETUP_DIR/config/packages.sh"
 
 source "$SETUP_DIR/modules/10-prereq.sh"
-source "$SETUP_DIR/modules/20-aur.sh"
 source "$SETUP_DIR/modules/30-packages.sh"
 source "$SETUP_DIR/modules/40-repo.sh"
 source "$SETUP_DIR/modules/50-backup.sh"
