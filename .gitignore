@@ -1,3 +1,4 @@
 .obsidian/
 .trash
 Config Files/nvim/lazy-lock.json
+setup/ori_se.sh
