@@ -10,8 +10,8 @@ configure_nemo_thumbnails() {
     gsettings set org.nemo.preferences thumbnail-limit "18446744073709551615"
     gsettings set org.nemo.preferences inherit-show-thumbnails true
     rm -rf ~/.cache/thumbnails/*
-    fc-cache -fv
-    echo_ok "Nemo thumbnails ✅"
+
+    echo_ok "Nemo thumbnails"
 }
 
 configure_nemo_engrampa_actions() {
@@ -42,8 +42,9 @@ Quote=double
 EOF
 }
 
+##TODO: Separar esto en dos funciones
 configure_fontconfig_xresources() {
-    echo_msg "🌐 Configurando Fontconfig y X11 rendering..."
+    echo_msg "Configurando Fontconfig y X11 rendering..."
     sudo mkdir -p /etc/fonts/conf.d
     sudo tee /etc/fonts/conf.d/99-nebspwn.conf >/dev/null << 'EOF'
 <?xml version='1.0'?><!DOCTYPE fontconfig SYSTEM 'fonts.dtd'>
