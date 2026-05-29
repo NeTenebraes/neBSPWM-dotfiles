@@ -1,3 +1,5 @@
+#TODO: Este modulo debo repensarlo.
+
 repo_default_branch() {
     local repo="$1"
     local branch
@@ -34,7 +36,7 @@ is_dotfiles_repo() {
 
 ensure_repo() {
     # 7. GESTIÓN INTELIGENTE DEL REPO
-    echo_msg "📥 GESTIONANDO REPO DOTFILES..."
+    echo_msg "GESTIONANDO REPO DE DOTFILES..."
     local tmp_repo="/tmp/neBSPWN-dotfiles"
     local setup_root="${SETUP_ROOT:-}"
 
@@ -58,7 +60,6 @@ ensure_repo() {
                 echo_skip "Usando repo local sin actualizar."
                 export NE_TMP_REPO="$repo_root"
                 echo_ok "Ruta de trabajo establecida en: $NE_TMP_REPO"
-                echo_ok "Fuentes + Repo OK"
                 return 0
             fi
         fi
@@ -78,11 +79,10 @@ ensure_repo() {
     if [[ -d "$tmp_repo/.git" ]]; then
         echo_skip "Repo temporal ya clonado; se omite actualización."
     else
-        echo_msg "📥 Clonando repo en temporal..."
+        echo_msg "Clonando repo en temporal..."
         git clone "$DOTFILES_REPO" "$tmp_repo"
     fi
 
     export NE_TMP_REPO="$tmp_repo"
     echo_ok "Ruta de trabajo establecida en: $NE_TMP_REPO"
-    echo_ok "Fuentes + Repo OK"
 }
