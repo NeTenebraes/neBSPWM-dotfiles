@@ -1,5 +1,5 @@
 setup_defaults() {
-    echo_msg "⚙️  Configurando defaults..."
+    echo_msg "Configurando defaults..."
 
     # Terminal por defecto (Cinnamon)
     gsettings set org.cinnamon.desktop.default-applications.terminal exec 'kitty' 2>/dev/null || true
@@ -12,5 +12,5 @@ setup_defaults() {
     xdg-mime default org.nomacs.ImageLounge.desktop image/webp
     xdg-mime default org.nomacs.ImageLounge.desktop image/tiff
 
-    echo_ok "✅ Defaults aplicados"
+    echo_ok "Defaults aplicados"
 }
