@@ -10,8 +10,8 @@ PKGS_PACMAN_Essencials=(
     "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code"
     "vlc-plugin-ffmpeg" "vlc-plugin-matroska" "vlc-plugin-freetype" "vlc-plugin-aom" "vlc-plugin-ass" "vlc-plugin-x264" "vlc-plugin-x265"
     "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "xdg-user-dirs"
-    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip" "playerctl" "brightnessctl"
-    "tree-sitter-cli" "ripgrep" "fd" "xdotool" "yad" "xcolor"
+    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip" "playerctl" "brightnessctl" "qt6-declarative" "qt6-multimedia-ffmpeg"
+    "tree-sitter-cli" "ripgrep" "fd" "xdotool" "yad" "xcolor" "qt6-virtualkeyboard" "qt6-svg"
 )
 
 PKGS_PACMAN_optionals=("signal-desktop" "gimp" "obs-studio")

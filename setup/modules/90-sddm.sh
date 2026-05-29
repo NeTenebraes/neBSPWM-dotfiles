@@ -1,5 +1,7 @@
+#TODO: Refactorizar
+
 setup_sddm() {
-    echo_msg "🌀 Iniciando módulo SDDM..."
+    echo_msg "Iniciando módulo SDDM..."
 
     # Variables Locales
     local THEME_DEST_NAME="netenebrae"
@@ -10,12 +12,7 @@ setup_sddm() {
     local DATE
     DATE=$(date +%s)
 
-    # 1. Dependencias SDDM (Aseguramos que estén, aunque setup_dependencies ya instala sddm)
-    # Qt6 es vital para este tema específico
-    echo_msg "📦 Verificando dependencias Qt6 para SDDM..."
-    sudo pacman -S --needed --noconfirm sddm qt6-svg qt6-virtualkeyboard qt6-multimedia-ffmpeg qt6-declarative 2>/dev/null || echo_skip "Deps ya instaladas"
-
-    # 2. Localizar archivos en el repo clonado
+    # Localizar archivos en el repo clonado
     local source_path=""
 
     if [[ -f "$CLONE_DIR/SDDM/metadata.desktop" ]]; then
@@ -28,7 +25,7 @@ setup_sddm() {
         if [[ -n "$found" ]]; then
             source_path=$(dirname "$found")
         else
-            echo_err "❌ No se encontró la carpeta del tema SDDM en $CLONE_DIR"
+            echo_err "No se encontró la carpeta del tema SDDM en $CLONE_DIR"
             return 1
         fi
     fi
@@ -37,17 +34,17 @@ setup_sddm() {
 
     # 3. Instalación Limpia
     if [[ -d "$TARGET_DIR" ]]; then
-        echo_msg "♻️  Removiendo tema anterior..."
+        echo_msg "Removiendo tema anterior..."
         sudo rm -fr "$TARGET_DIR"
     fi
 
     sudo mkdir -p "$TARGET_DIR"
-    echo_msg "📂 Copiando archivos a $TARGET_DIR..."
+    echo_msg "Copiando archivos a $TARGET_DIR..."
     sudo cp -r "$source_path"/* "$TARGET_DIR"/
 
     # Fuentes
     if [[ -d "$TARGET_DIR/Fonts" ]]; then
-        echo_msg "🅰️  Instalando fuentes..."
+        echo_msg "Instalando fuentes..."
         sudo cp -r "$TARGET_DIR/Fonts"/* /usr/share/fonts/
         fc-cache -f
     fi
@@ -62,18 +59,18 @@ InputMethod=qtvirtualkeyboard" | sudo tee /etc/sddm.conf.d/virtualkbd.conf >/dev
 
     # 4. Configurar Black Hole (Core Logic)
     if [[ ! -f "$METADATA" ]]; then
-        echo_err "❌ Error crítico: metadata.desktop no encontrado tras copia."
+        echo_err "Error crítico: metadata.desktop no encontrado tras copia."
         return 1
     fi
 
-    echo_msg "⚫ Configurando Tema"
+    echo_msg "Configurando Tema"
     # Forzamos la configuración
     sudo sed -i "s|^ConfigFile=.*|ConfigFile=Themes/netenebrae.conf|" "$METADATA"
 
-    # 5. Parche QML de compatibilidad (Heredado de tu script anterior por seguridad)
+    # 5. Parche QML de compatibilidad
     local qml_file="$TARGET_DIR/Main.qml"
     if [[ -f "$qml_file" ]]; then
-        # Solo aplicamos si detectamos que faltan versiones (seguro simple)
+        # Solo aplicamos si detectamos que faltan versiones
         if ! grep -q "QtQuick 2.15" "$qml_file"; then
              echo_msg "💉 Parcheando imports QML..."
              sudo sed -i 's/^import QtQuick$/import QtQuick 2.15/' "$qml_file"
@@ -84,9 +81,9 @@ InputMethod=qtvirtualkeyboard" | sudo tee /etc/sddm.conf.d/virtualkbd.conf >/dev
 
     # 6. Habilitar Servicio
     if ! systemctl is-enabled sddm &>/dev/null; then
-        echo_msg "🔌 Habilitando servicio SDDM..."
+        echo_msg "Habilitando servicio SDDM..."
         sudo systemctl enable sddm
     fi
 
-    echo_ok "✅ SDDM Listo"
+    echo_ok "SDDM Listo"
 }
