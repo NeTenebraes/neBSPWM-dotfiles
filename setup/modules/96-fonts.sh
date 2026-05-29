@@ -1,25 +1,23 @@
-setup_fonts_locale() {
-    echo_msg "🅰️  Configurando FUENTES + LOCALE (JetBrains + Unicode Global)..."
+detect_system_lang() {
+    local system_lang=""
+    if [[ -f /etc/locale.conf ]]; then
+        system_lang=$(sed -n 's/^LANG=//p' /etc/locale.conf | tr -d '"')
+    fi
+    system_lang=${system_lang:-${LANG:-}}
 
-    # 1. Selección de Idioma (Locale)
-    echo "Selecciona el idioma del sistema:"
-    echo "1) Inglés (en_US.UTF-8)"
-    echo "2) Español LATAM (es_MX.UTF-8)"
-    echo "3) Español España (es_ES.UTF-8)"
-    read -r -p "Opción (1, 2 o 3) [1]: " choice
-    choice=${choice:-1}
+    if [[ -n "$system_lang" ]]; then
+        echo_ok "Idioma del sistema: $system_lang"
+    else
+        echo_skip "No se detectó LANG del sistema; se omite configuración de locale"
+    fi
 
-    case $choice in
-      1) LANG="en_US.UTF-8"; echo_ok "Idioma: INGLÉS" ;;
-      2) LANG="es_MX.UTF-8"; echo_ok "Idioma: ESPAÑOL LATAM" ;;
-      3) LANG="es_ES.UTF-8"; echo_ok "Idioma: ESPAÑOL ESPAÑA" ;;
-      *) LANG="en_US.UTF-8"; echo_ok "Idioma: INGLÉS" ;;
-    esac
+    echo "$system_lang"
+}
 
-    # 2. Configuración GLOBAL de Fontconfig (/etc/fonts/local.conf)
-    # Proporciona soporte de iconos a todos los usuarios, incluido Root.
-    echo_msg "🌐 Configurando Fontconfig Global (/etc/fonts/local.conf)..."
-    sudo tee /etc/fonts/local.conf >/dev/null << 'EOF'
+configure_fontconfig_preference() {
+    echo_msg "🌐 Configurando preferencia de fuentes (Fontconfig)..."
+    sudo mkdir -p /etc/fonts/conf.d
+    sudo tee /etc/fonts/conf.d/50-nebspwm-fonts.conf >/dev/null << 'EOF'
 <?xml version="1.0"?>
 <!DOCTYPE fontconfig SYSTEM "fonts.dtd">
 <fontconfig>
@@ -27,14 +25,10 @@ setup_fonts_locale() {
     <family>monospace</family>
     <prefer>
       <family>JetBrainsMono Nerd Font</family>
+      <family>JetBrains Mono</family>
       <family>Noto Sans Mono</family>
     </prefer>
   </alias>
-
-  <match target="pattern">
-    <test qual="any" name="family"><string>JetBrains Mono</string></test>
-    <edit name="family" mode="assign" binding="same"><string>JetBrainsMono Nerd Font</string></edit>
-  </match>
 
   <alias>
     <family>sans-serif</family>
@@ -46,8 +40,9 @@ setup_fonts_locale() {
   </alias>
 </fontconfig>
 EOF
+}
 
-    # 3. Xresources para renderizado (User Level)
+configure_xresources_rendering() {
     echo_msg "🖥️  Configurando X11 rendering (.Xresources)..."
     cat > "$HOME/.Xresources" << 'EOF'
 Xft.dpi: 96
@@ -57,31 +52,38 @@ Xft.hintstyle: hintslight
 Xft.antialias: 1
 Xft.rgba: rgb
 EOF
+}
 
-    # 4. Inyección de variables en bspwmrc
+inject_bspwm_locale() {
+    local system_lang="$1"
     local bspwm_config="$HOME/.config/bspwm/bspwmrc"
     if [[ -f "$bspwm_config" ]]; then
-        # Limpiar inyecciones previas (evita redundancia)
         sed -i '/xrdb -merge.*Xresources/d; /export LANG=/d; /export LC_ALL=/d' "$bspwm_config"
 
-        # Inyectar tras el shebang (línea 2) para asegurar carga temprana
-        sed -i "2i xrdb -merge ~/.Xresources\nexport LANG=${LANG}\nexport LC_ALL=${LANG}" "$bspwm_config"
+        if [[ -n "$system_lang" ]]; then
+            sed -i "2i xrdb -merge ~/.Xresources\nexport LANG=${system_lang}\nexport LC_ALL=${system_lang}" "$bspwm_config"
+        else
+            sed -i "2i xrdb -merge ~/.Xresources" "$bspwm_config"
+        fi
         echo_ok "Persistencia añadida a bspwmrc"
     fi
+}
 
-    # 5. Aplicar Locale al sistema (Root)
-    echo_msg "🌍 Aplicando cambios de Locale en /etc/locale.gen..."
-    sudo sed -i "s/^#${LANG} UTF-8/${LANG} UTF-8/" /etc/locale.gen
-    sudo locale-gen > /dev/null
-    echo "LANG=${LANG}" | sudo tee /etc/locale.conf >/dev/null
-
-    # 6. Limpieza de basura y Refresco de caché
-    # Borramos config local de usuario para que mande la global de /etc/
-    [[ -f "$HOME/.config/fontconfig/fonts.conf" ]] && rm "$HOME/.config/fontconfig/fonts.conf"
-
+refresh_font_cache() {
     xrdb -merge "$HOME/.Xresources" 2>/dev/null
     sudo fc-cache -fv > /dev/null
     fc-cache -fv > /dev/null
+}
+
+setup_fonts_locale() {
+    echo_msg "🅰️  Configurando FUENTES + LOCALE (JetBrains + Unicode Global)..."
+
+    local system_lang
+    system_lang=$(detect_system_lang)
+    configure_fontconfig_preference
+    configure_xresources_rendering
+    inject_bspwm_locale "$system_lang"
+    refresh_font_cache
 
     echo_ok "🅰️  Fuentes + Locale COMPLETO (Global Mode)"
 }
