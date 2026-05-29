@@ -103,6 +103,8 @@ EOF
     
 
     # Generar el script de emulación de npm para filtrar argumentos incompatibles
+    mkdir -p $HOME/.local/bin
+    
     cat << 'EOF' > "$HOME/.local/bin/npm"
 #!/usr/bin/env bash
 set -euo pipefail
