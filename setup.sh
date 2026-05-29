@@ -19,7 +19,7 @@ source "$SETUP_DIR/config/packages.sh"
 source "$SETUP_DIR/modules/10-prereq.sh"
 source "$SETUP_DIR/modules/30-packages.sh"
 source "$SETUP_DIR/modules/40-repo.sh"
-source "$SETUP_DIR/modules/50-backup.sh"
+
 source "$SETUP_DIR/modules/60-dotfiles.sh"
 source "$SETUP_DIR/modules/70-themes.sh"
 source "$SETUP_DIR/modules/80-zsh.sh"
@@ -40,7 +40,9 @@ main() {
     install_pacman_packages
     install_aur_packages
     configure_desktop_basics
+
     ensure_repo
+
     backup_config
     deploy_dotfiles
     setup_themes
