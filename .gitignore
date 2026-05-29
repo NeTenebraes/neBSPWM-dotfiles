@@ -1,4 +1,8 @@
 .obsidian/
 .trash
 Config Files/nvim/lazy-lock.json
+<<<<<<< HEAD
 Config Files/nomacs/Image Lounge.conf
+=======
+setup/ori_se.sh
+>>>>>>> setup_reestruc

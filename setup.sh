@@ -7,60 +7,57 @@
 
 set -e
 
-# --- 1. VARIABLES GLOBALES Y TEMAS ---
-DOTFILES_REPO="https://github.com/NeTenebraes/neBSPWN-dotfiles.git"
-DOTFILES_DIR="$HOME/.config/neBSPWN-dotfiles"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+SETUP_DIR="$SCRIPT_DIR/setup"
+export SETUP_ROOT="$SCRIPT_DIR"
 
-THEME_DEFAULT="catppuccin-mocha-mauve-standard+default"
-THEME_CURSOR="catppuccin-mocha-dark-cursors"
-THEME_ICONS="Papirus-Dark"
-THEME_FONT="JetBrainsMono Nerd Font 11"
-CURSOR_SIZE="16"
+source "$SETUP_DIR/lib/helpers.sh"
 
-# Limpieza de variables para evitar conflictos de comillas
-THEME_CURSOR_CLEAN="${THEME_CURSOR//\'/}"
-CURSOR_SIZE_CLEAN="${CURSOR_SIZE//\'/}"
+source "$SETUP_DIR/config/themes.sh"
+source "$SETUP_DIR/config/packages.sh"
 
-# --- 2. LISTAS DE PAQUETES ---
-PKGS_PACMAN_Essencials=(
-    "git" "base-devel" "wget" "curl" "unzip" "lsd" "sddm" "fastfetch" "neovim"
-    "feh" "xorg" "xorg-xinit" "nemo" "flameshot" "zsh" "tmux" "htop" "bat" "blueman" "unclutter"
-    "zsh-syntax-highlighting" "zsh-autosuggestions" "python" "python-pip"
-    "nodejs" "pnpm" "ffmpeg" "qt5ct" "qt6ct" "starship" "glib2" "libxml2" 
-    "bspwm" "sxhkd" "polybar" "picom" "rofi" "dunst" "kitty" "conky" "pavucontrol" 
-    "polkit-gnome" "kvantum" "kvantum-qt5" "xdg-desktop-portal" "xdg-desktop-portal-gtk"
-    "ttf-jetbrains-mono-nerd" "ttf-font-awesome" "noto-fonts-emoji" "ttf-iosevka-nerd"
-    "adwaita-icon-theme" "libmtp" "gvfs-mtp" "android-udev" "ttf-jetbrains-mono" 
-    "noto-fonts" "noto-fonts-extra" "noto-fonts-cjk" "ttf-dejavu" "ttf-liberation" "ttf-fira-code" 
-    "vlc-plugin-ffmpeg" "vlc-plugin-matroska" "vlc-plugin-freetype" "vlc-plugin-aom" "vlc-plugin-ass" "vlc-plugin-x264" "vlc-plugin-x265"
-    "vlc" "obsidian" "firefox" "keepassxc" "ffmpegthumbnailer" "engrampa" "xdg-user-dirs"
-    "zsh-history-substring-search" "proton-vpn-cli" "xss-lock" "xclip" "playerctl" "brightnessctl"
-    "tree-sitter-cli" "ripgrep" "fd" "xdotool" "yad" "xcolor"
-)
+source "$SETUP_DIR/modules/10-prereq.sh"
+source "$SETUP_DIR/modules/30-packages.sh"
+source "$SETUP_DIR/modules/40-repo.sh"
+source "$SETUP_DIR/modules/50-defaults.sh"
 
-PKGS_PACMAN_optionals=("signal-desktop" "gimp" "obs-studio")
-PKGS_AUR=(
-    "betterlockscreen" "catppuccin-cursors-mocha" "papirus-icon-theme" "catppuccin-gtk-theme-mocha" "kvantum-theme-catppuccin-git"
-    "vscodium-bin" "nomacs" "xidlehook"
-)
-PKGS_AUR_Optionals=("megasync")
+source "$SETUP_DIR/modules/60-dotfiles.sh"
+source "$SETUP_DIR/modules/70-themes.sh"
+source "$SETUP_DIR/modules/80-zsh.sh"
+source "$SETUP_DIR/modules/85-qt.sh"
+source "$SETUP_DIR/modules/90-sddm.sh"
+source "$SETUP_DIR/modules/95-lock.sh"
+source "$SETUP_DIR/modules/96-fonts.sh"
+source "$SETUP_DIR/modules/99-cleanup.sh"
 
-# --- 3. FUNCIONES HELPER (ESTÉTICA Y LÓGICA) ---
-echo_msg() { echo -e "\n\033[1;34m🛡️ $1\033[0m"; }
-echo_ok()  { echo -e "\033[1;32m✅ $1\033[0m"; }
-echo_skip(){ echo -e "\033[1;33m⏭️ $1\033[0m"; }
-echo_err() { echo -e "\033[0;31m❌ $1\033[0m" >&2; }
+main() {
+    [ "$EUID" -eq 0 ] && { echo "❌ No root"; exit 1; }
 
-# --- HELPERS ---
+    echo_msg "🚀 neBSPWN Setup $(date +'%H:%M')"
 
-# Comprueba si el contenido de un archivo es EXACTAMENTE igual al string proveído
-check_file_content() {
-    local file="$1"
-    local content="$2"
-    # Si el archivo no existe, obviamente no coincide
-    [[ -f "$file" ]] && cmp -s <(echo -e "$content") "$file"
+    check_internet
+    ensure_aur_helper
+    install_pacman_packages
+    install_aur_packages
+    configure_desktop_basics
+
+    ensure_repo
+
+    backup_config
+    deploy_dotfiles
+    setup_themes
+    setup_defaults
+    setup_zsh
+    setup_qt
+    setup_sddm
+    install_betterlockscreen_lock
+    setup_fonts_locale
+    cleanup_temp_repo
+
+    echo_ok "🎉 ¡LISTO! Reinicia: systemctl reboot"
 }
 
+<<<<<<< HEAD
 # Escribe el contenido solo si es necesario, creando el directorio padre si falta
 write_if_needed() {
     local file="$1"
@@ -912,3 +909,6 @@ fi
 
 
 echo_ok "🎉 ¡LISTO! Reinicia: systemctl reboot"
+=======
+main "$@"
+>>>>>>> setup_reestruc
