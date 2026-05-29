@@ -28,7 +28,6 @@ source "$SETUP_DIR/modules/85-qt.sh"
 source "$SETUP_DIR/modules/90-sddm.sh"
 source "$SETUP_DIR/modules/95-lock.sh"
 source "$SETUP_DIR/modules/96-fonts.sh"
-source "$SETUP_DIR/modules/99-cleanup.sh"
 
 main() {
     [ "$EUID" -eq 0 ] && { echo "❌ No root"; exit 1; }
