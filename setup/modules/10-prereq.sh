@@ -25,16 +25,3 @@ install_aur_packages() {
         echo_skip "Opcionales de AUR omitidos."
     fi
 }
-
-select_language() {
-    echo -e "\nSelecciona el idioma del sistema:"
-    echo "1) Inglés | 2) Español LATAM | 3) Español España"
-    read -r -p "Opción [1]: " choice
-    case ${choice:-1} in
-      1) export SYS_LANG="en_US.UTF-8" ;;
-      2) export SYS_LANG="es_MX.UTF-8" ;;
-      3) export SYS_LANG="es_ES.UTF-8" ;;
-      *) export SYS_LANG="en_US.UTF-8" ;;
-    esac
-    echo_ok "Idioma seleccionado: $SYS_LANG"
-}
