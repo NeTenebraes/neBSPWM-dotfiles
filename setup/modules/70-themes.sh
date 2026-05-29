@@ -64,10 +64,23 @@ setup_dconf_themes() {
     dconf_write_if_needed "/org/gnome/desktop/interface/color-scheme" "'prefer-dark'"
 }
 
-setup_lightdm_theme() {
-    sudo -u lightdm dbus-launch dconf write "/x/dm/slick-greeter/cursor-theme-name" "'$THEME_CURSOR'" 2>/dev/null || true
-    sudo -u lightdm dbus-launch dconf write "/x/dm/slick-greeter/icon-theme-name" "'$THEME_ICONS'" 2>/dev/null || true
-    sudo -u lightdm dbus-launch dconf write "/x/dm/slick-greeter/theme-name" "'$THEME_DEFAULT'" 2>/dev/null || true
+setup_sddm_cursor() {
+    local cursor_index="[Icon Theme]
+Inherits=$THEME_CURSOR_CLEAN"
+
+    sudo mkdir -p /etc/sddm.conf.d
+    sudo tee /etc/sddm.conf.d/10-cursor.conf >/dev/null << EOF
+[Theme]
+CursorTheme=$THEME_CURSOR_CLEAN
+CursorSize=$CURSOR_SIZE_CLEAN
+EOF
+
+    sudo mkdir -p /usr/share/icons/default
+    echo "$cursor_index" | sudo tee /usr/share/icons/default/index.theme >/dev/null
+
+    sudo mkdir -p /var/lib/sddm/.icons/default
+    echo "$cursor_index" | sudo tee /var/lib/sddm/.icons/default/index.theme >/dev/null
+    sudo chown -R sddm:sddm /var/lib/sddm/.icons
 }
 
 setup_papirus_folders() {
@@ -159,7 +172,7 @@ setup_themes() {
     setup_cursor_theme
     setup_gtk_themes
     setup_dconf_themes
-    setup_lightdm_theme
+    setup_sddm_cursor
     setup_papirus_folders
     setup_root_gtk_theme
     install_nvim_plug

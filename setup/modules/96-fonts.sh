@@ -4,13 +4,6 @@ detect_system_lang() {
         system_lang=$(sed -n 's/^LANG=//p' /etc/locale.conf | tr -d '"')
     fi
     system_lang=${system_lang:-${LANG:-}}
-
-    if [[ -n "$system_lang" ]]; then
-        echo_ok "Idioma del sistema: $system_lang"
-    else
-        echo_skip "No se detectó LANG del sistema; se omite configuración de locale"
-    fi
-
     echo "$system_lang"
 }
 
@@ -80,6 +73,11 @@ setup_fonts_locale() {
 
     local system_lang
     system_lang=$(detect_system_lang)
+    if [[ -n "$system_lang" ]]; then
+        echo_ok "Idioma del sistema: $system_lang"
+    else
+        echo_skip "No se detectó LANG del sistema; se omite configuración de locale"
+    fi
     configure_fontconfig_preference
     configure_xresources_rendering
     inject_bspwm_locale "$system_lang"
