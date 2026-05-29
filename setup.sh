@@ -12,8 +12,7 @@ SETUP_DIR="$SCRIPT_DIR/setup"
 export SETUP_ROOT="$SCRIPT_DIR"
 
 source "$SETUP_DIR/lib/logging.sh"
-source "$SETUP_DIR/lib/files.sh"
-source "$SETUP_DIR/lib/dconf.sh"
+
 source "$SETUP_DIR/config/themes.sh"
 source "$SETUP_DIR/config/packages.sh"
 
