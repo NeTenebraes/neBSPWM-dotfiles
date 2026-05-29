@@ -76,9 +76,9 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 > **Aviso importante:**  
 > Antes de ejecutar **cualquier script** en tu sistema, **siempre revisa su contenido**. Nunca ejecutes comandos sin verificar su origen.  
 ```
-git clone https://github.com/NeTenebraes/neBSPWM-dotfiles.git
+git clone --depth 1 https://github.com/NeTenebraes/neBSPWM-dotfiles.git
 cd neBSPWM-dotfiles
-./setup.sh
+bash ./setup.sh
 ```
 **Reiniciar:** `systemctl reboot`
 
