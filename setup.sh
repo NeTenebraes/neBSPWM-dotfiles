@@ -19,6 +19,7 @@ source "$SETUP_DIR/config/packages.sh"
 source "$SETUP_DIR/modules/10-prereq.sh"
 source "$SETUP_DIR/modules/30-packages.sh"
 source "$SETUP_DIR/modules/40-repo.sh"
+source "$SETUP_DIR/modules/50-defaults.sh"
 
 source "$SETUP_DIR/modules/60-dotfiles.sh"
 source "$SETUP_DIR/modules/70-themes.sh"
@@ -35,7 +36,6 @@ main() {
     echo_msg "🚀 neBSPWN Setup $(date +'%H:%M')"
 
     check_internet
-    select_language
     ensure_aur_helper
     install_pacman_packages
     install_aur_packages
@@ -46,21 +46,13 @@ main() {
     backup_config
     deploy_dotfiles
     setup_themes
+    setup_defaults
     setup_zsh
     setup_qt
     setup_sddm
     install_betterlockscreen_lock
     setup_fonts_locale
     cleanup_temp_repo
-
-# TODO
-# Debo incluir esta sección para hacer que nomacs sea el visualizador de imagenes por defecto. 
-xdg-mime default org.nomacs.ImageLounge.desktop image/jpeg                                                                                             at 󱑎 14:48
-xdg-mime default org.nomacs.ImageLounge.desktop image/png
-xdg-mime default org.nomacs.ImageLounge.desktop image/gif
-xdg-mime default org.nomacs.ImageLounge.desktop image/bmp
-xdg-mime default org.nomacs.ImageLounge.desktop image/webp
-xdg-mime default org.nomacs.ImageLounge.desktop image/tiff
 
     echo_ok "🎉 ¡LISTO! Reinicia: systemctl reboot"
 }
