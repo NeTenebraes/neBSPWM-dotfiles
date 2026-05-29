@@ -32,7 +32,7 @@ source "$SETUP_DIR/modules/99-cleanup.sh"
 main() {
     [ "$EUID" -eq 0 ] && { echo "❌ No root"; exit 1; }
 
-    echo_msg "🚀 neBSPWN Setup DESTRUCTIVO $(date +'%H:%M')"
+    echo_msg "🚀 neBSPWN Setup $(date +'%H:%M')"
 
     check_internet
     select_language
