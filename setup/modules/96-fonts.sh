@@ -8,7 +8,7 @@ detect_system_lang() {
 }
 
 configure_fontconfig_preference() {
-    echo_msg "🌐 Configurando preferencia de fuentes (Fontconfig)..."
+    echo_msg "Configurando preferencia de fuentes"
     sudo mkdir -p /etc/fonts/conf.d
     sudo tee /etc/fonts/conf.d/50-nebspwm-fonts.conf >/dev/null << 'EOF'
 <?xml version="1.0"?>
@@ -36,7 +36,7 @@ EOF
 }
 
 configure_xresources_rendering() {
-    echo_msg "🖥️  Configurando X11 rendering (.Xresources)..."
+    echo_msg "Configurando X11 rendering (.Xresources)..."
     cat > "$HOME/.Xresources" << 'EOF'
 Xft.dpi: 96
 Xft.autohint: 0
@@ -45,21 +45,6 @@ Xft.hintstyle: hintslight
 Xft.antialias: 1
 Xft.rgba: rgb
 EOF
-}
-
-inject_bspwm_locale() {
-    local system_lang="$1"
-    local bspwm_config="$HOME/.config/bspwm/bspwmrc"
-    if [[ -f "$bspwm_config" ]]; then
-        sed -i '/xrdb -merge.*Xresources/d; /export LANG=/d; /export LC_ALL=/d' "$bspwm_config"
-
-        if [[ -n "$system_lang" ]]; then
-            sed -i "2i xrdb -merge ~/.Xresources\nexport LANG=${system_lang}\nexport LC_ALL=${system_lang}" "$bspwm_config"
-        else
-            sed -i "2i xrdb -merge ~/.Xresources" "$bspwm_config"
-        fi
-        echo_ok "Persistencia añadida a bspwmrc"
-    fi
 }
 
 refresh_font_cache() {
@@ -80,7 +65,6 @@ setup_fonts_locale() {
     fi
     configure_fontconfig_preference
     configure_xresources_rendering
-    inject_bspwm_locale "$system_lang"
     refresh_font_cache
 
     echo_ok "🅰️  Fuentes + Locale COMPLETO (Global Mode)"
