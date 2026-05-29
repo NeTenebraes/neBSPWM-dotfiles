@@ -1,6 +1,6 @@
 install_pacman_packages() {
     # 2. Dependencias Esenciales Pacman
-    echo_msg "📦 Instalando dependencias esenciales (Pacman)..."
+    echo_msg "Instalando dependencias (Pacman)..."
     sudo pacman -S --needed --noconfirm "${PKGS_PACMAN_Essencials[@]}"
 
     # 3. Dependencias Opcionales Pacman
@@ -14,7 +14,7 @@ install_pacman_packages() {
 
 install_aur_packages() {
     # 4. PAQUETES AUR ESENCIALES
-    echo_msg "📦 Instalando paquetes AUR con $AUR_HELPER..."
+    echo_msg "Instalando dependencias (AUR) con $AUR_HELPER..."
     "$AUR_HELPER" -S --needed --noconfirm "${PKGS_AUR[@]}"
 
     # 5. PAQUETES AUR OPCIONALES (CORREGIDO)
