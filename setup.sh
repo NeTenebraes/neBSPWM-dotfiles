@@ -11,7 +11,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SETUP_DIR="$SCRIPT_DIR/setup"
 export SETUP_ROOT="$SCRIPT_DIR"
 
-source "$SETUP_DIR/lib/logging.sh"
+source "$SETUP_DIR/lib/helpers.sh"
 
 source "$SETUP_DIR/config/themes.sh"
 source "$SETUP_DIR/config/packages.sh"
