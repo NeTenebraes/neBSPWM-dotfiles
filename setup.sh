@@ -62,9 +62,7 @@ xdg-mime default org.nomacs.ImageLounge.desktop image/bmp
 xdg-mime default org.nomacs.ImageLounge.desktop image/webp
 xdg-mime default org.nomacs.ImageLounge.desktop image/tiff
 
-main "$@"
-
-
     echo_ok "🎉 ¡LISTO! Reinicia: systemctl reboot"
 }
 
+main "$@"
