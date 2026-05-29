@@ -103,11 +103,13 @@ EOF
     fi
 }
 
+#TODO: Mover esta función a otro documento
 install_nvim_plug() {
     curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
 }
 
+#TODO: Mover esta función a otro documento
 setup_npm_wrapper() {
     mkdir -p "$HOME/.local/bin"
 
@@ -166,6 +168,8 @@ EOF
     chmod +x "$HOME/.local/bin/npm"
 }
 
+
+#Mover las funciones de npm y vim
 setup_themes() {
     echo_msg "🎨 Temas COMPLETOS..."
 
