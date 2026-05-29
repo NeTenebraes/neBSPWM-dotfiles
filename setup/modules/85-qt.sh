@@ -21,7 +21,7 @@ setup_qt() {
     # 🔧 EXTRAER nombre base: "catppuccin-mocha-mauve-standard+default" → "catppuccin-mocha-mauve"
     local kvantum_theme
     kvantum_theme=$(echo "$THEME_DEFAULT" | sed 's|-standard\+.*||' | sed 's|-hdpi||' | sed 's|-xhdpi||')
-    echo_msg "🌑 GTK '$THEMEDEFAULT' → Kvantum '$kvantum_theme'"
+    echo_msg "🌑 GTK '$THEME_DEFAULT' → Kvantum '$kvantum_theme'"
 
 
     # 4. Iniciar servicios de Portal (Run-time fix para la sesión actual)
