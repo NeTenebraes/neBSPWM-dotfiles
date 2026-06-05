@@ -1,239 +1,203 @@
 -- =========================================================
 -- theme.lua
--- Tema rojo/oscuro para Neovim con extrema visibilidad y contraste.
--- Paleta rediseñada para usar colores vibrantes armonizados con burdeos.
--- Reforzado para que TODO Neovim tenga una concordancia cromática,
--- según la lista "nvim_colors_full.txt".
+-- Tema rojo/oscuro para Neovim.
+--
+-- Criterio de diseño:
+-- - UI: Fondos negros rojizos profundos para mitigar fatiga visual.
+-- - Sintaxis: Variantes cálidas (fuegos, melocotones, rosas).
+-- - Colores fríos: Reservados estrictamente para contrastes localizados (LSP/Escapes).
 -- =========================================================
 
 local M = {}
 
+-- Paleta de colores estructurada
 M.colors = {
+  -- Fondos (UI y Editores)
+  bg0    = "#090507", -- Negro rojizo ultra profundo (Fondo principal)
+  bg1    = "#160b10", -- Negro vino sutil (CursorLine y bloques secundarios)
+  bg2    = "#211118", -- Tono medio (Ventanas flotantes y menús)
+  bg3    = "#301721", -- Tono claro de control (Selección visual / Resaltados)
+  border = "#5e2230", -- Bordes y líneas divisorias (Tono vino seco)
 
-  purple = "#bd93f9",
+  -- Texto base y jerarquías
+  fg0    = "#f4dfd8", -- Texto principal (Blanco cálido/rosáceo)
+  fg1    = "#dcc7c0", -- Texto secundario (Gris apagado cálido)
+  fg2    = "#b79a95", -- Texto terciario / Comentarios
+  white  = "#fff6f3", -- Blanco puro brillante para acentos
 
-  test   = "#00ff2f",
+  -- Colores de sintaxis principales
+  red1   = "#ef4761", -- Rojo vivo (Keywords, control de flujo)
+  red2   = "#f06a7f", -- Rojo medio (Funciones y etiquetas HTML)
+  rose   = "#f2a6b3", -- Rosa pastel (Strings y literales de texto)
+  orange = "#e8a15b", -- Naranja fuego (Tipos de datos y atributos)
+  peach  = "#f2b8a0", -- Melocotón (Números, constantes y valores CSS)
+  wine   = "#8a3345", -- Carmín oscuro (Bloques visuales y emparejamientos)
 
-  bg0    = "#090507",
-  bg1    = "#160b10",
-  bg2    = "#211118",
-  bg3    = "#301721",
-  border = "#5e2230",
-  fg0    = "#f4dfd8",
-  fg1    = "#dcc7c0",
-  fg2    = "#b79a95",
-  white  = "#fff6f3", -- para Strings
-  vinotinto = "#7b112c",
-  red1   = "#ef4761",  -- para Include, keywords
-  red2   = "#f06a7f",  -- para Funciones
-  coral  = "#f2a6b3",
-  gold   = "#fce094",
-  cian   = "#8cf8f7",
-  mint   = "#b3f6c0",
-  yellow = "#f1d67a",
-  blue   = "#b8dff2",
-  orange = "#e8a15b",
-  peach  = "#f2b8a0",
-  wine   = "#8a3345",
-  class_fg = "#b8dff2",
-  namespace_fg = "#8a3345",
-  parameter_fg = "#f2b8a0",
-  attribute_fg = "#e8a15b",
-  grey   = "#5e2230",
-  comment_grey = "#b79a95",
-  info_fg = "#e0e2ea", info_bg = "#4f5258",
-  warning_fg = "#fce094", error_fg = "#ffc0b9",
-  folded_fg = "#9b9ea4", added_fg = "#b3f6c0",
-  deleted_fg = "#ffc0b9", changed_fg = "#8cf8f7",
+  -- Colores de rescate para contraste específico
+  yellow = "#f1d67a", -- Amarillo (Alertas, selectores CSS e identificadores)
+  ice    = "#b8dff2", -- Azul gélido (Diagnósticos y secuencias de escape)
 }
 
-local c = M.colors
 local hl = vim.api.nvim_set_hl
-local function set(group, opts) hl(0, group, opts) end
 
-local function apply_ui()
-  set("Normal",       { fg = c.fg0, bg = c.bg0 })
-  set("NormalNC",     { fg = c.fg1, bg = c.bg0 })
-  set("EndOfBuffer",  { fg = c.bg0, bg = c.bg0 })
-  set("SignColumn",   { bg = c.bg0 })
-  set("LineNr", { fg = c.grey, bg = c.bg0 })
-  set("CursorLineNr", { fg = c.white, bg = c.bg0, bold = true })
-  set("CursorLine",   { bg = "#12080d" })
-  set("Visual",       { fg = c.white, bg = c.vinotinto })
-  set("Search",       { fg = c.bg0, bg = c.coral, bold = true })
-  set("IncSearch",    { fg = c.bg0, bg = c.red1, bold = true })
-  set("CurSearch",    { fg = c.bg0, bg = c.gold, bold = true })
+-- Wrapper para simplificar la asignación de grupos de resaltado
+local function set(group, opts)
+  hl(0, group, opts)
+end
+
+-- =========================================================
+-- CONTROLES DE LA INTERFAZ DE USUARIO (UI)
+-- =========================================================
+local function apply_ui(c)
+  set("Normal",       { fg = c.fg0, bg = c.bg0 }) -- Texto y fondo principal
+  set("NormalNC",     { fg = c.fg1, bg = c.bg0 }) -- Ventanas sin foco activo
+  set("EndOfBuffer",  { fg = c.bg0, bg = c.bg0 }) -- Ocultar las tildes (~) del final del archivo
+  set("SignColumn",   { bg = c.bg0 })             -- Columna izquierda para iconos de Git/LSP
+  set("LineNr",       { fg = c.border, bg = c.bg0 }) -- Números de línea inactivos
+  set("CursorLineNr", { fg = c.white, bg = c.bg0, bold = true }) -- Número de línea actual
+
+  -- Ajustes de movimiento y selección
+  set("CursorLine",   { bg = "#12080d" }) -- Franja de la línea actual (Vino ultra oscuro discreto)
+  set("Visual",       { fg = c.white, bg = c.wine }) -- Selección de texto (Bloque vino con letras blancas)
+  set("Search",       { fg = c.bg0, bg = c.rose, bold = true }) -- Búsquedas estáticas
+  set("IncSearch",    { fg = c.bg0, bg = c.red1, bold = true }) -- Búsqueda incremental interactiva
+
+  -- Separadores y paneles
   set("VertSplit",    { fg = c.border, bg = c.bg0 })
   set("WinSeparator", { fg = c.border, bg = c.bg0 })
-  set("ColorColumn",  { bg = c.bg1 })
-  set("Comment",    { fg = c.comment_grey, italic = true })
+  set("ColorColumn",  { bg = c.bg1 }) -- Columna límite (ej. columna 80)
+
+  -- Textos invisibles o especiales
+  set("Comment",    { fg = c.fg2, italic = true })
   set("NonText",    { fg = c.fg2, bg = c.bg0 })
-  set("SpecialKey", { fg = c.coral, bg = c.bg3, bold = true })
+  set("SpecialKey", { fg = c.rose, bg = c.bg3, bold = true })
+
+  -- Ventanas flotantes y menús contextuales
   set("NormalFloat", { fg = c.fg0, bg = c.bg2 })
   set("FloatBorder", { fg = c.red1, bg = c.bg2 })
-  set("Pmenu",         { fg = c.fg1, bg = c.bg2 })
-  set("PmenuSel",      { fg = c.bg0, bg = c.red1, bold = true })
-  set("PmenuMatch",    { fg = c.gold, bold = true })
-  set("PmenuMatchSel", { fg = c.yellow, bold = true })
-  set("PmenuSbar",     { bg = c.bg2 })
-  set("PmenuThumb",    { bg = c.gold })
-  set("StatusLine",   { fg = c.info_fg, bg = c.info_bg })
-  set("StatusLineNC", { fg = "#c4c6cd", bg = "#2c2e33" })
-  set("WinBar",      { fg = c.info_fg, bg = c.bg1, bold = true })
-  set("WinBarNC",    { fg = c.comment_grey, bg = c.bg0 })
-  set("TabLine",      { fg = c.info_fg, bg = c.bg1 })
-  set("TabLineSel",   { fg = c.bg0, bg = c.red1, bold = true })
-  set("TabLineFill",  { bg = c.bg0 })
+  
+  -- Menú de autocompletado (Cmp / Omnifunc)
+  set("Pmenu",      { fg = c.fg1, bg = c.bg2 })          -- Fondo general
+  set("PmenuSel",   { fg = c.bg0, bg = c.red1, bold = true }) -- Elemento seleccionado
+  set("PmenuSbar",  { bg = c.bg2 })                      -- Barra de desplazamiento
+  set("PmenuThumb", { bg = c.border })                   -- Indicador de posición
+
+  -- Barras de estado y pestañas (Tablines)
+  set("WinBar",      { fg = c.fg0, bg = c.bg1, bold = true })
+  set("WinBarNC",    { fg = c.fg2, bg = c.bg0 })
+  set("TabLine",     { fg = c.fg0, bg = c.bg1 })
+  set("TabLineSel",  { fg = c.bg0, bg = c.red1, bold = true })
+  set("TabLineFill", { bg = c.bg0 })
+
+  -- Cursores nativos del sistema
   set("Cursor",       { fg = c.bg0, bg = c.red1 })
   set("TermCursor",   { fg = c.bg0, bg = c.red1 })
-  set("Directory",    { fg = c.cian })
-  set("Question",     { fg = c.cian })
-  set("MoreMsg",      { fg = c.cian })
-  set("WarningMsg",   { fg = c.warning_fg, bold = true })
-  set("ErrorMsg",     { fg = c.error_fg, bold = true })
-  set("Title",        { fg = c.info_fg, bold = true })
 end
 
-local function apply_git()
-  set("DiffAdd",    { fg = c.fg0, bg = c.mint })
-  set("DiffChange", { fg = c.fg0, bg = c.blue })
-  set("DiffDelete", { fg = c.fg0,  bg = c.error_fg })
-  set("DiffText",   { fg = c.bg0,  bg = c.gold, bold = true })
-  set("Added",   { fg = c.mint })
-  set("Changed", { fg = c.blue })
-  set("Removed", { fg = c.error_fg })
-end
-
-local function apply_syntax()
-  set("String",       { fg = c.white }) -- solo esto es blanco puro
-  set("Character",    { fg = c.white })
-  set("Identifier",   { fg = c.cian, italic = true })
+-- =========================================================
+-- CONFIGURACIÓN DE SINTAXIS RECONOCIDA (Sintaxis Estándar y Tree-sitter)
+-- =========================================================
+local function apply_syntax(c)
+  -- Sintaxis Clásica de Vim (Fallbacks del editor)
+  set("String",       { fg = c.rose })
+  set("Character",    { fg = c.rose })
+  set("Identifier",   { fg = c.fg1, italic = true })
   set("Function",     { fg = c.red2, bold = true })
-  set("@function.method",  { fg = c.red2, bold = true })
-  set("@method",           { fg = c.red2, bold = true })
-  set("@constructor",      { fg = c.attribute_fg, bold = true })
   set("Keyword",      { fg = c.red1, bold = true })
-  set("Statement",    { fg = c.vinotinto, bold = true })
+  set("Statement",    { fg = c.red2, bold = true })
   set("Conditional",  { fg = c.red1, bold = true })
   set("Repeat",       { fg = c.red1, bold = true })
-  set("Type",         { fg = c.gold, bold = true })
-  set("@type.builtin",     { fg = c.yellow, bold = true })
-  set("@type.definition",  { fg = c.class_fg, bold = true })
-  set("@type.class",       { fg = c.class_fg, bold = true })
-  set("@type.interface",   { fg = c.class_fg, bold = true })
-  set("@type.enum",        { fg = c.class_fg, bold = true })
-  set("StorageClass", { fg = c.gold, bold = true })
-  set("Structure",    { fg = c.gold, bold = true })
-  set("Typedef",      { fg = c.gold, bold = true })
-  set("Constant",     { fg = c.gold, bold = true })
-  set("Number",       { fg = c.gold })
-  set("Float",        { fg = c.peach })
-  set("Boolean",      { fg = c.yellow, bold = true })
-  set("PreProc",      { fg = c.yellow })
-  set("Include",      { fg = c.red1, bold = true }) -- <stdio.h>, etc.
+  set("Type",         { fg = c.orange, bold = true })
+  set("StorageClass", { fg = c.orange, bold = true })
+  set("Structure",    { fg = c.orange, bold = true })
+  set("Typedef",      { fg = c.orange, bold = true })
+  set("Constant",     { fg = c.peach })
+  set("Number",       { fg = c.peach })
+  set("Boolean",      { fg = c.peach, bold = true })
+  set("PreProc",      { fg = c.orange })
+  set("Include",      { fg = c.red1, bold = true })
   set("Special",      { fg = c.wine })
-  set("SpecialChar",  { fg = c.blue, bold = true })
+  set("SpecialChar",  { fg = c.ice, bold = true })
   set("cFormat",      { fg = c.yellow, bold = true })
-  set("cSpecial",     { fg = c.blue, bold = true })
+  set("cSpecial",     { fg = c.ice, bold = true })
 
-  -- Tree-sitter avanzado
-  set("@variable",         { fg = c.cian, italic = true })
-  set("@variable.member",  { fg = c.info_fg })
-  set("@variable.builtin", { fg = c.yellow, bold = true })
-  set("@parameter",        { fg = c.parameter_fg, italic = true })
-  set("@field",            { fg = c.property, italic = true })
-  set("@property",         { fg = c.gold, italic = true })
-  set("@attribute",        { fg = c.attribute_fg, bold = true })
-  set("@namespace",        { fg = c.namespace_fg, bold = true })
-  set("@module",           { fg = c.namespace_fg, bold = true })
-  set("@label",            { fg = c.yellow, bold = true })
-  set("@property",         { fg = c.gold, italic = true })
-  set("@string",           { fg = c.white }) -- solo esto es blanco puro
-  set("@string.escape",    { fg = c.blue, bold = true })
-  set("@string.regex",     { fg = c.blue, bold = true })
-  set("@string.special",   { fg = c.blue, bold = true })
+  -- Paréntesis y Delimitadores (MatchParen controlado)
+  set("@punctuation.bracket", { fg = c.orange })
+  set("@punctuation.delimiter", { fg = c.peach })
+  set("@operator", { fg = c.red1, bold = true })
+  set("MatchParen", { fg = c.white, bg = c.wine, bold = true }) -- Pareja de paréntesis bajo el cursor
+
+  -- AST / Árboles genéricos de Tree-sitter
+  set("@variable",         { fg = c.fg0, italic = true })
+  set("@variable.member",  { fg = c.fg1 })
+  set("@variable.builtin", { fg = c.orange, bold = true })
+  set("@property",         { fg = c.fg1 })
+  set("@string",           { fg = c.rose })
+  set("@string.escape",    { fg = c.ice, bold = true })
   set("@function",         { fg = c.red2, bold = true })
-  set("@function.call",    { fg = c.gold, bold = true })
+  set("@function.call",    { fg = c.red2 })
   set("@function.builtin", { fg = c.red1, bold = true })
   set("@keyword",          { fg = c.red1, bold = true })
-  set("@keyword.function", { fg = c.red1, bold = true })
-  set("@keyword.operator", { fg = c.red1 })
-  set("@keyword.import",   { fg = c.red1, bold = true })
-  set("@keyword.exception",{ fg = c.red1, bold = true })
   set("@keyword.operator", { fg = c.red1 })
   set("@keyword.return",   { fg = c.red1, bold = true })
-  set("@type",             { fg = c.gold, bold = true })
-  set("@constant",         { fg = c.gold, bold = true })
-  set("@constant.builtin", { fg = c.yellow, bold = true })
-  set("@number",           { fg = c.gold })
-  set("@number.float",     { fg = c.peach })
-  set("@boolean",          { fg = c.yellow, bold = true })
-  set("@comment",          { fg = c.comment_grey, italic = true })
-  set("@punctuation.bracket", { fg = c.gold, bold = true })
-  set("@punctuation.delimiter", { fg = c.peach, bold = true })
-  set("@punctuation.special", { fg = c.wine, bold = true })
-  set("@operator", { fg = c.red1, bold = true })
-  set("MatchParen", { fg = c.white, bg = c.vinotinto, bold = true })
+  set("@type",             { fg = c.orange, bold = true })
+  set("@type.builtin",     { fg = c.orange, bold = true })
+  set("@constant",         { fg = c.peach })
+  set("@number",           { fg = c.peach })
+  set("@boolean",          { fg = c.peach, bold = true })
+  set("@comment",          { fg = c.fg2, italic = true })
+  set("@punctuation",      { fg = c.border })
+  set("@operator",         { fg = c.red1 })
 
-  -- HTML/JSX/Astro/CSS
-  set("@tag",                  { fg = c.red1, bold = true })
-  set("@tag.builtin",          { fg = c.vinotinto, bold = true })
-  set("@tag.attribute",        { fg = c.gold, italic = true })
-  set("@tag.delimiter",        { fg = c.wine })
-  set("@type.tag.css",         { fg = c.red1 })
-  set("@type.css",             { fg = c.class_fg, bold = true })
-  set("@type.class.css",       { fg = c.class_fg, bold = true })
-  set("@type.id.css",          { fg = c.orange, bold = true })
-  set("@property.css",         { fg = c.gold, bold = true })
-  set("cssClassName",          { fg = c.class_fg, bold = true })
-  set("cssClassNameDot",       { fg = c.class_fg, bold = true })
-  set("@string.css",           { fg = c.white })
-  set("@number.css",           { fg = c.gold })
-  set("@label.css",            { fg = c.yellow })
-  set("@keyword.css",          { fg = c.red1 })
-  set("@keyword.modifier.css", { fg = c.gold })
-  set("@keyword.value.css",    { fg = c.gold })
-  set("@constant.css",         { fg = c.gold })
-  set("@string.plain.css",     { fg = c.white })
-  set("@variable.css",         { fg = c.cian })
-  set("@variable.parameter.css", { fg = c.gold, bold = true })
-  set("cssValueKeyword",       { fg = c.gold })
+  -- =========================================================
+  -- ENTORNO DESARROLLO WEB (HTML & CSS)
+  -- =========================================================
+  
+  -- Marcado HTML / JSX / Astro
+  set("@tag",                  { fg = c.red1, bold = true })     -- Etiquetas (<body, <style, <div)
+  set("@tag.builtin",          { fg = c.red1, bold = true })
+  set("@tag.attribute",        { fg = c.orange, italic = true }) -- Atributos (charset, class, id)
+  set("@tag.delimiter",        { fg = c.wine })                  -- Delimitadores (<, >, />)
 
-  -- JS/TS
-  set("@constructor.javascript", { fg = c.yellow, bold = true })
-  set("@variable.parameter",     { fg = c.gold, italic = true })
+  -- CSS Estándar (Archivos .css independientes)
+  set("@type.tag.css",         { fg = c.red2 })             -- Selectores de etiqueta (body, textarea)
+  set("@property.css",         { fg = c.fg0, bold = true }) -- Propiedades CSS (margin, background, resize)
+  set("@string.css",           { fg = c.rose })             -- Rutas de fuentes o recursos (url)
+  set("@number.css",           { fg = c.peach })            -- Dimensiones y unidades (20px, 1100px)
+  set("@label.css",            { fg = c.yellow })           -- Selectores por clase (.container) o id
+  set("@keyword.css",          { fg = c.red1 })             -- Directivas del preprocesador (@media)
+
+  -- =========================================================
+  -- EL REMEDIO PARA LOS VALORES EN CSS EMBEBIDO (HTML <style>)
+  -- =========================================================
+  -- Estos grupos rompen el comportamiento plano obligando a palabras como 'auto' o 'vertical'
+  -- a usar el color melocotón en lugar de heredar el blanco plano de la propiedad.
+  set("@keyword.modifier.css", { fg = c.peach }) -- Modificadores de CSS
+  set("@keyword.value.css",    { fg = c.peach }) -- Constantes de valores CSS
+  set("@constant.css",         { fg = c.peach }) -- Valores planos del sistema
+  set("@string.plain.css",     { fg = c.peach }) -- Texto plano interpretado como valor en árboles modernos
+  
+  -- Forzados de inyección de lenguajes de Tree-sitter (CSS dentro de HTML)
+  set("@variable.css",         { fg = c.peach })
+  set("@variable.parameter.css", { fg = c.fg0, bold = true }) -- Respaldo de propiedad dentro de inyección
+  set("cssValueKeyword",       { fg = c.peach }) -- Respaldo clásico de Vim Syntax
+
+  -- Lenguajes adicionales de soporte
+  -- JavaScript / TypeScript
+  set("@constructor.javascript", { fg = c.orange, bold = true })
+  set("@variable.parameter",     { fg = c.peach, italic = true })
   set("@keyword.import",         { fg = c.red1, bold = true })
-
-  -- Bash
-  set("@function.macro.bash",  { fg = c.red2 })
-  set("@parameter.bash",       { fg = c.cian })
-  set("@string.special.bash",  { fg = c.blue })
+  
+  -- Bash / Shell Scripts
+  set("@function.macro.bash",  { fg = c.red1 })
+  set("@parameter.bash",       { fg = c.peach })
+  set("@string.special.bash",  { fg = c.ice })
 end
 
-local function apply_lsp()
-  set("DiagnosticError", { fg = c.error_fg })
-  set("DiagnosticWarn",  { fg = c.warning_fg })
-  set("DiagnosticInfo",  { fg = c.cian })
-  set("DiagnosticHint",  { fg = c.yellow })
-  set("DiagnosticSignError", { fg = c.error_fg, bg = c.bg0 })
-  set("DiagnosticSignWarn",  { fg = c.warning_fg, bg = c.bg0 })
-  set("DiagnosticSignInfo",  { fg = c.cian, bg = c.bg0 })
-  set("DiagnosticSignHint",  { fg = c.yellow, bg = c.bg0 })
-  set("DiagnosticVirtualTextError", { fg = c.error_fg, bg = c.bg1 })
-  set("DiagnosticVirtualTextWarn",  { fg = c.warning_fg, bg = c.bg1 })
-  set("DiagnosticVirtualTextInfo",  { fg = c.cian, bg = c.bg1 })
-  set("DiagnosticVirtualTextHint",  { fg = c.yellow, bg = c.bg1 })
-  set("DiagnosticUnderlineError", { undercurl = true, sp = c.red1 })
-  set("DiagnosticUnderlineWarn",  { undercurl = true, sp = c.gold })
-  set("DiagnosticUnderlineInfo",  { undercurl = true, sp = c.cian })
-  set("DiagnosticUnderlineHint",  { undercurl = true, sp = c.yellow })
-  set("LspInlayHint", { fg = c.fg2, bg = c.bg1, italic = true })
-  set("LspReferenceText",  { fg = c.cian, bg = c.bg1, bold = true })
-  set("LspReferenceRead",  { fg = c.gold, bg = c.bg1, bold = true })
-  set("LspReferenceWrite", { fg = c.warning_fg, bg = c.bg1, bold = true })
-end
-
-local function apply_plugins()
+-- =========================================================
+-- CONFIGURACIÓN DE COMPONENTES DE PLUGINS (Snacks, etc.)
+-- =========================================================
+local function apply_plugins(c)
   set("SnacksDashboardHeader", { fg = c.red1 })
   set("SnacksDashboardTitle",  { fg = c.red2, bold = true })
   set("SnacksDashboardIcon",   { fg = c.rose })
@@ -241,71 +205,82 @@ local function apply_plugins()
   set("SnacksDashboardKey",    { fg = c.orange })
   set("SnacksDashboardFile",   { fg = c.fg1 })
   set("SnacksDashboardDir",    { fg = c.fg2 })
-  set("LazyNormal",      { fg = c.fg0, bg = c.bg2 })
-  set("LazyButton",      { fg = c.fg1, bg = c.bg3 })
-  set("LazyButtonActive",{ fg = c.white, bg = c.wine, bold = true })
-  set("LazySpecial",     { fg = c.orange })
-  set("LazyH1",          { fg = c.bg0, bg = c.red1, bold = true })
-  set("LazyProgressTodo", { fg = c.fg2, bg = c.bg1 })
-  set("LazyProgressDone", { fg = c.white, bg = c.wine })
-  set("LazyProp",         { fg = c.fg2 })
-  set("LazyComment",      { fg = c.fg2, italic = true })
-  set("MiniStatuslineModeNormal",  { fg = c.bg0, bg = c.red1, bold = true })
-  set("MiniStatuslineModeInsert",  { fg = c.bg0, bg = c.orange, bold = true })
-  set("MiniStatuslineModeVisual",  { fg = c.bg0, bg = c.rose, bold = true })
-  set("MiniStatuslineDevIconAscii", { fg = c.fg0, bg = c.bg1 })
-  set("SnacksBackdrop", { bg = c.bg0 })
-  set("SnacksPickerDir", { fg = c.fg2 })
-  set("SnacksPickerPathHidden", { fg = c.border })
-  set("MiniIconsBlue",   { fg = c.ice })
-  set("MiniIconsRed",    { fg = c.red1 })
-  set("MiniIconsOrange", { fg = c.orange })
-  set("MiniIconsYellow", { fg = c.yellow })
 
--- =========================================================
-  -- RENDER MARKDOWN (TechRedDark Native)
   -- =========================================================
-
-  -- Configuración de Encabezados (Texto y Estilo)
-  set("RenderMarkdownH1", { fg = c.red1, bg = c.vinotinto, bold = true })
-  set("RenderMarkdownH2", { fg = c.red2, bg = c.bg3, bold = true })
-  set("RenderMarkdownH3", { fg = c.orange, bg = c.bg2, bold = true })
-  set("RenderMarkdownH4", { fg = c.coral, bold = true })
-  set("RenderMarkdownH5", { fg = c.yellow, bold = true })
-  set("RenderMarkdownH6", { fg = c.gold, bold = true })
-
-  -- Sincronización de Fondos (Bg) para evitar herencias de DiffAdd
-  -- Vinculamos el fondo al mismo grupo para mantener la coherencia visual
-  set("RenderMarkdownH1Bg", { link = "RenderMarkdownH1" })
-  set("RenderMarkdownH2Bg", { link = "RenderMarkdownH2" })
-  set("RenderMarkdownH3Bg", { link = "RenderMarkdownH3" })
-  set("RenderMarkdownH4Bg", { link = "RenderMarkdownH4" })
-  set("RenderMarkdownH5Bg", { link = "RenderMarkdownH5" })
-  set("RenderMarkdownH6Bg", { link = "RenderMarkdownH6" })
-
-  -- Componentes de Contenido
-  set("RenderMarkdownBold", { fg = c.white, bold = true }) -- Blanco puro TechRed
-  set("RenderMarkdownBullet", { fg = c.red1, bold = true })
-  set("RenderMarkdownLink", { fg = c.cian, underline = true, bold = true })
-  set("RenderMarkdownCodeInline", { fg = c.gold, bg = c.bg2, bold = true })
-  set("RenderMarkdownTableHead", { fg = c.red2, bold = true })
-  set("RenderMarkdownTableRow", { fg = c.fg1 })
+  -- CORRECCIÓN DE CONTRASTE PARA LAZY.NVIM
+  -- =========================================================
+  set("LazyNormal",      { fg = c.fg0, bg = c.bg2 })   -- Panel general un punto más claro
+  set("LazyButton",      { fg = c.fg1, bg = c.bg3 })   -- Botones de la barra superior
+  set("LazyButtonActive",{ fg = c.white, bg = c.wine, bold = true }) -- Botón seleccionado (p. ej. Update)
+  set("LazySpecial",     { fg = c.orange })            -- Versiones y estados mutados
+  set("LazyH1",          { fg = c.bg0, bg = c.red1, bold = true }) -- Título de secciones
   
-  -- Checkboxes (VDP Workflow)
-  set("RenderMarkdownSuccess", { fg = c.mint, bold = true }) -- [x]
-  set("RenderMarkdownTodo", { fg = c.grey })
-
+  -- Los cuadros problemáticos de los plugins individuales:
+  set("LazyProgressTodo", { fg = c.fg2, bg = c.bg1 })  -- Barra de progreso sin cargar
+  set("LazyProgressDone", { fg = c.white, bg = c.wine }) -- Progreso completado
+  set("LazyProp",         { fg = c.fg2 })              -- Propiedades internas de los plugins
+  set("LazyComment",      { fg = c.fg2, italic = true }) -- Tiempos en ms y textos secundarios
 end
 
-M.setup = function()
+-- =========================================================
+-- INTEGRACIÓN CON CLIENTE LSP (Protocolo de Servidor de Lenguajes)
+-- =========================================================
+local function apply_lsp(c)
+  -- Notificaciones y Diagnósticos de Errores integrados en la paleta
+  set("DiagnosticError", { fg = c.red1 })
+  set("DiagnosticWarn",  { fg = c.orange })
+  set("DiagnosticInfo",  { fg = c.peach })
+  set("DiagnosticHint",  { fg = c.ice })
+
+  -- Iconos laterales en el buffer (SignColumn)
+  set("DiagnosticSignError", { fg = c.red1, bg = c.bg0 })
+  set("DiagnosticSignWarn",  { fg = c.orange, bg = c.bg0 })
+  set("DiagnosticSignInfo",  { fg = c.peach, bg = c.bg0 })
+  set("DiagnosticSignHint",  { fg = c.ice, bg = c.bg0 })
+
+  -- Textos flotantes integrados al final de las líneas (VirtualText)
+  set("DiagnosticVirtualTextError", { fg = c.red1, bg = c.bg1 })
+  set("DiagnosticVirtualTextWarn",  { fg = c.orange, bg = c.bg1 })
+  set("DiagnosticVirtualTextInfo",  { fg = c.peach, bg = c.bg1 })
+  set("DiagnosticVirtualTextHint",  { fg = c.ice, bg = c.bg1 })
+
+  -- Subrayados decorativos de errores
+  set("DiagnosticUnderlineError", { undercurl = true, sp = c.red1 })
+  set("DiagnosticUnderlineWarn",  { undercurl = true, sp = c.orange })
+  set("DiagnosticUnderlineInfo",  { undercurl = true, sp = c.peach })
+  set("DiagnosticUnderlineHint",  { undercurl = true, sp = c.ice })
+
+  -- Sugerencias de tipado estático (Inlay Hints)
+  set("LspInlayHint", { fg = c.fg2, bg = c.bg1, italic = true })
+
+  -- =========================================================
+  -- RESALTADO DINÁMICO DE REFERENCIAS LSP
+  -- Esto controla el Extmark que se activa cuando pones el cursor encima de una palabra.
+  -- Cambiamos el fondo opaco anterior por una iluminación de texto limpia y distinguible.
+  -- =========================================================
+  set("LspReferenceText",  { fg = c.peach, bg = c.bg1, bold = true }) -- Al leer referencias generales
+  set("LspReferenceRead",  { fg = c.peach, bg = c.bg1, bold = true }) -- Al leer variables/propiedades bajo el cursor
+  set("LspReferenceWrite", { fg = c.orange, bg = c.bg1, bold = true }) -- Al situarse en una escritura/mutación
+end
+
+-- =========================================================
+-- FLUJO DE INICIALIZACIÓN DEL TEMA
+-- =========================================================
+function M.setup()
   vim.cmd("hi clear")
-  if vim.fn.exists("syntax_on") == 1 then vim.cmd("syntax reset") end
-  vim.g.colors_name = "TechRedDark"
-  apply_ui()
-  apply_syntax()
-  apply_git()
-  apply_lsp()
-  apply_plugins()
+  if vim.fn.exists("syntax_on") == 1 then
+    vim.cmd("syntax reset")
+  end
+  vim.g.colors_name = "mi_tema_rojo"
+
+  local c = M.colors
+  
+  -- El orden de ejecución importa: Cargamos UI, luego sintaxis sintáctica
+  -- y dejamos los plugins/LSP al final asegurándonos de que sus referencias estén bien atadas.
+  apply_ui(c)
+  apply_syntax(c)
+  apply_plugins(c)
+  apply_lsp(c) -- Se ejecuta aquí limpiamente sin pisar tus grupos de UI
 end
 
 return M

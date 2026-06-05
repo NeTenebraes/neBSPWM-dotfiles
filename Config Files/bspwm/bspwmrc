@@ -1,7 +1,4 @@
 #! /bin/sh
-# TODO: May 23 2026
-# He estado pensando en modularizar la configuración de BSPWM para hacerla "modular". Auque honestamente no es una prioridad en este momento.
-
 xrdb -merge ~/.Xresources
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
@@ -15,10 +12,6 @@ export _JAVA_AWT_WM_NONREPARENTING=1
 export QT_QPA_PLATFORM=xcb
 export QT_STYLE_OVERRIDE=kvantum
 export QT_QPA_PLATFORMTHEME=qt5ct
-
-# Definir Neovim como el editor principal.
-export EDITOR="nvim"
-export VISUAL="nvim"
 
 # =========================
 # Configuración Personalizada (Global)

@@ -1,28 +1,68 @@
 #!/bin/bash
 
+# =============
+# 0. Detección de batería (laptop/desktop)
+# =============
+# Busca cualquier BAT* en power_supply
+BAT_PATH=$(ls -d /sys/class/power_supply/BAT* 2>/dev/null | head -n1)
+if [ -z "$BAT_PATH" ]; then
+    # No se encontró batería = comportamiento PC escritorio. Salida minimalista, sin formato Polybar especial.
+    echo "$L_DESKTOP"
+    exit 0
+fi
+
 # 1. Idiomas
 if [[ "$LANG" == *"es"* ]]; then
     L_TITLE="Energía"; L_CHARGE="Carga"; L_HEALTH="Salud"; L_STATUS="Estado"
     L_CHARGING="Cargando"; L_DISCHARGING="Descargando"; L_FULL="Llena"
     L_LOW_BAT="Batería Baja"; L_CRITICAL="Nivel crítico"
+    L_DESKTOP="Sin bat"
 else
     L_TITLE="Power Info"; L_CHARGE="Charge"; L_HEALTH="Health"; L_STATUS="Status"
     L_CHARGING="Charging"; L_DISCHARGING="Discharging"; L_FULL="Full"
     L_LOW_BAT="Low Battery"; L_CRITICAL="Critical level"
+    L_DESKTOP="No battery"
 fi
 
 # 2. Variables
-BAT="/sys/class/power_supply/BAT0"
+BAT="$BAT_PATH"
 PATH_PAPI="/usr/share/icons/Papirus-Dark/48x48/status"
 capacity=$(cat "$BAT/capacity" 2>/dev/null || echo "0")
-status_raw=$(cat "$BAT/status" 2>/dev/null || echo "Discharging")
+# Si la capacidad reportada por el sistema es mayor a 100, la forzamos a 100
+if [ "$capacity" -gt 100 ]; then
+    capacity=100
+fi
+status_raw=$(cat "$BAT/status" 2>/dev/null || echo "Unknown")
 
 # Tags de fuente para Polybar
 T3="%{T3}"
 TE="%{T-}"
 
 # 3. Lógica de Iconos
-if [ "$status_raw" = "Charging" ]; then
+# Considera el estado de cargador AC además del status_raw
+get_charging_status() {
+    # Fallback a status_raw, pero trata de verificar AC online si es posible
+    local ac_path="/sys/class/power_supply/AC"
+    local ac_online=""
+    [[ -d "$ac_path" ]] && ac_online=$(cat "$ac_path/online" 2>/dev/null || echo "")
+    if [[ "$status_raw" =~ [Cc]harging && "$ac_online" == "1" ]]; then
+        echo "Charging"
+    elif [[ "$status_raw" =~ [Ff]ull ]]; then
+        echo "Full"
+    elif [[ "$status_raw" =~ [Dd]ischarging ]]; then
+        echo "Discharging"
+    elif [[ "$ac_online" == "1" ]]; then
+        # Estado dudoso, pero cargador conectado
+        echo "Charging"
+    else
+        # Estado desconocido o valores anómalos
+        echo "Unknown"
+    fi
+}
+
+CHARGING_STATUS=$(get_charging_status)
+
+if [ "$CHARGING_STATUS" = "Charging" ]; then
     status_msg=$L_CHARGING
     if   [ "$capacity" -le 20 ]; then glyph="󰢜"; IMG="$PATH_PAPI/battery-caution-charging.svg"
     elif [ "$capacity" -le 40 ]; then glyph="󰂇"; IMG="$PATH_PAPI/battery-low-charging.svg"
@@ -49,6 +89,11 @@ fi
 
 # 4. Notificación manual (al hacer clic)
 if [ "$1" = "--notify" ]; then
+    # Si es desktop mostrar mensaje adecuado
+    if [ -z "$BAT_PATH" ]; then
+        dunstify -u low -r 9991 "$L_DESKTOP" ""
+        exit 0
+    fi
     health=$(upower -i /org/freedesktop/UPower/devices/battery_BAT0 | grep -E "capacity" | awk '{print $2}' | head -n 1)
     dunstify -u low -i "$IMG" -r 9991 "$glyph $L_TITLE" \
     "<b>$L_CHARGE:</b> $capacity%\n<b>$L_HEALTH:</b> $health\n<b>$L_STATUS:</b> $status_msg"
@@ -56,7 +101,7 @@ if [ "$1" = "--notify" ]; then
 fi
 
 # 5. Colores de salida para Polybar
-if [ "$status_raw" = "Charging" ]; then
+if [ "$CHARGING_STATUS" = "Charging" ]; then
     color="#00FFFF" # Cian para carga
 elif [ "$capacity" -le 20 ]; then
     color="#FF5555" # Rojo para batería crítica
@@ -79,26 +124,27 @@ check_charger_status() {
     if [[ "$prev_status" != "$ac_online" ]]; then
         if [[ "$ac_online" == "1" ]]; then
             local charger_msg=$([[ "$LANG" == *"es"* ]] && echo "Cargador conectado" || echo "Charger connected")
-            dunstify -u normal -i "$IMG" -r 9992 "$glyph 🔌 $charger_msg" "$L_TITLE: $L_CHARGING $capacity%"
+            dunstify -u normal -i "$IMG" -r 9992 "$glyph $charger_msg" "$L_TITLE: $L_CHARGING $capacity%"
             # Resetear el nivel de notificación para que vuelva a avisar al descargar
             echo "100" > /tmp/battery_last_level
         else
             local charger_msg=$([[ "$LANG" == *"es"* ]] && echo "Cargador desconectado" || echo "Charger disconnected")
-            dunstify -u normal -i "$IMG" -r 9992 "$glyph 🔌 $charger_msg" "$L_TITLE: $capacity% ($status_msg)"
+            dunstify -u normal -i "$IMG" -r 9992 "$glyph $charger_msg" "$L_TITLE: $capacity% ($status_msg)"
         fi
         echo "$ac_online" > "$prev_status_file"
     fi
 }
 
 check_battery_levels() {
-    # Solo avisar si no está cargando
-    [[ "$status_raw" == "Charging" || "$status_raw" == "Full" ]] && return
+    # Solo avisar si no está cargando ni llena
+    [[ "$CHARGING_STATUS" == "Charging" || "$CHARGING_STATUS" == "Full" ]] && return
 
     local level_file="/tmp/battery_last_level"
     local last_notified=$(cat "$level_file" 2>/dev/null || echo "100")
     
-    # Umbrales: 50%, 30%, 15%, 5% (puedes cambiarlos aquí)
-    for t in 50 30 15 5; do
+    # Umbrales: 30%, 15%, 5%  (pre-configuración reduce SPAM si batería está vieja)
+    for t in 30 15 5; do
+        # Notifica solo bajando cada UMBRAL hasta reconectar
         if [ "$capacity" -le "$t" ] && [ "$last_notified" -gt "$t" ]; then
             local urgency="normal"
             [[ $t -le 15 ]] && urgency="critical"
@@ -111,8 +157,13 @@ check_battery_levels() {
     done
 }
 
+
 # 7. Ejecución y Salida
 check_charger_status
 check_battery_levels
 
-echo "%{F$color}${T3}${glyph}${TE}%{F-}"
+# =============
+# Output para Polybar
+# (Siempre en una sola línea, minimalista, solo si hay batería)
+# =============
+echo "%{F$color}%{T3}${glyph}%{T-} $capacity%%{F-}"

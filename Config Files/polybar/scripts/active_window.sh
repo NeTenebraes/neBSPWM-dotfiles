@@ -27,7 +27,16 @@ get_title() {
             ;;
         *firefox*|*chromium*)
             icon="󰈹"
-            clean=$(printf '%s' "$title" | sed -E 's/( — )?(Mozilla Firefox|Chromium)//Ig; s/[[:space:]]*[-—][[:space:]]*$//')
+            # Limpiar lo más posible y obtener solo lo útil en Firefox
+clean=$(printf '%s' "$title" \
+    | sed -E 's/( - |- |— )?(Mozilla Firefox|Chromium|Nueva pestaña|Google|YouTube|Gmail|Spotify|Netflix|Twitter|Facebook)//Ig; s/[[:space:]]*[-—][[:space:]]*$//g; s/^[[:space:]]+|[[:space:]]+$//g'
+)
+# Solo el segmento anterior al primer - o —
+short=$(printf '%s' "$clean" | sed -E 's/[—\-].*//')
+# Unicamente la primera palabra si sigue largo
+# Tomar hasta las primeras dos palabras
+short=$(printf '%s' "$short" | awk '{print $1 (NF>1?" "$2:"")}')
+clean=$short
             ;;
         *alacritty*|*kitty*|*terminal*)
             icon="󰆍"
@@ -42,9 +51,26 @@ get_title() {
     trimmed=$(printf '%s' "$clean" | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')
     [[ -z "$trimmed" ]] && trimmed="Desktop"
 
-    final=$(printf '%s' "$trimmed" | cut -c 1-20)
-    final=${final,,}
-    final=${final^}
+smart_trim() {
+    local input="$1"
+    local maxlen="$2"
+    [[ ${#input} -le $maxlen ]] && { printf "%s" "$input"; return; }
+    # Corta sensatamente por palabras
+    echo "$input" | awk -v max="$maxlen" '{
+        l=0; out="";
+        for(i=1;i<=NF;i++) {
+            if (l+length($i)+(i>1?1:0)<=max) {
+                out=(out?out" ":"")$i;
+                l+=length($i)+(i>1?1:0);
+            } else break;
+        }
+        print out "…"
+    }'
+}
+
+final=$(smart_trim "$trimmed" 16)
+final=${final,,}
+final=${final^}
 
     printf '%s %s\n' "$icon" "$final"
 }
