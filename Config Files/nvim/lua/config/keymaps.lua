@@ -16,15 +16,24 @@ local function imap(lhs, rhs, desc)
 end
 
 -- =========================================================
--- NAVEGACIÓN
+-- NAVEGACIÓN Y BUSCADORES (Snacks)
 -- =========================================================
 nmap("<leader>e", function() Snacks.explorer() end, "Explorer: Toggle")
 nmap("<leader>ff", function() Snacks.picker.files() end, "Find: Files")
 nmap("<leader>fg", function() Snacks.picker.grep() end, "Find: Grep")
 nmap("<leader>fb", function() Snacks.picker.buffers() end, "Find: Buffers")
 
+-- Buscar visualmente el texto seleccionado en todo el proyecto
+vmap("<leader>fg", function()
+  local old_reg = vim.fn.getreg("v")
+  vim.cmd('normal! "vy')
+  local text = vim.fn.getreg("v")
+  vim.fn.setreg("v", old_reg)
+  Snacks.picker.grep({ search = text })
+end, "Find: Grep Visual Selection")
+
 -- =========================================================
--- ARCHIVOS / BUFFER
+-- GESTIÓN DE BUFFERS / ARCHIVOS
 -- =========================================================
 nmap("<leader>w", "<cmd>w<CR>", "File: Write")
 nmap("<leader>q", "<cmd>q<CR>", "Window: Quit")
@@ -35,11 +44,27 @@ nmap("<leader>bp", "<cmd>bprevious<CR>", "Buffer: Previous")
 nmap("<Tab>", "<cmd>bnext<CR>", "Buffer: Next")
 nmap("<S-Tab>", "<cmd>bprevious<CR>", "Buffer: Previous")
 
--- Borrado inteligente: Evita romper la maquetación visual de tus paneles abiertos
+-- Borrado seguro (mini.bufremove)
 nmap("<leader>bd", function()
   local ok, bufremove = pcall(require, "mini.bufremove")
   if ok then bufremove.delete(0, false) else vim.cmd("bdelete") end
 end, "Buffer: Delete Safely")
+
+-- Input interactivo para renombrar el buffer actual
+nmap("<leader>br", function()
+  vim.ui.input({ prompt = "Nuevo nombre del Buffer: " }, function(input)
+    if input and input ~= "" then vim.cmd("file " .. input) end
+  end)
+end, "Buffer: Rename / Set Name")
+
+-- ✨ Scratchpad flotante (Bloc de notas temporal de Snacks)
+nmap("<leader>bs", function() Snacks.scratch() end, "Buffer: Scratchpad Temporal")
+
+-- =========================================================
+-- SISTEMA DE NOTIFICACIONES (Snacks Notifier)
+-- =========================================================
+nmap("<leader>un", function() Snacks.notifier.show_history() end, "Notification: History")
+nmap("<leader>uc", function() Snacks.notifier.hide() end, "Notification: Clear All")
 
 -- =========================================================
 -- FORMATO / LSP
@@ -69,62 +94,45 @@ nmap("<leader>p", '"+p', "Paste: Clipboard")
 vmap("<leader>p", '"+p', "Paste: Clipboard")
 nmap("<leader>P", '"+P', "Paste: Clipboard Before")
 
-nmap("<leader>ya", function()
-  vim.cmd('normal! ggVG"+y')
-end, "Yank: All")
-
+nmap("<leader>ya", function() vim.cmd('normal! ggVG"+y') end, "Yank: All")
 vmap("p", '"_dP', "Paste Over Selection")
 
 -- =========================================================
--- COMENTARIOS (Limpio para mini.comment)
+-- COMENTARIOS (Mapeados hacia mini.comment)
 -- =========================================================
-nmap("<leader>/", "gcc", "Comment: Toggle Line")
-vmap("<leader>/", "gc", "Comment: Toggle Selection")
 
+nmap("<leader>/", function() 
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("gcc", true, false, true), "m", true)
+end, "Comment: Toggle Line")
+
+vmap("<leader>/", function() 
+  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("gc", true, false, true), "m", true)
+end, "Comment: Toggle Selection")
 -- =========================================================
--- EDICIÓN RÁPIDA
+-- EDICIÓN RÁPIDA Y ENVOLTURAS (mini.surround / alineación)
 -- =========================================================
+-- Nota: 'mini.align' usa automáticamente 'ga' en Modo Visual (No requiere mapeo manual)
+
 imap("<C-c>", "<Esc>", "Insert: Escape")
 nmap("<C-c>", "<cmd>nohlsearch<CR>", "Clear Search Highlight")
 
 vmap("<", "<gv", "Unindent and Keep Selection")
 vmap(">", ">gv", "Indent and Keep Selection")
 
--- Centrar pantalla en scrolls y búsquedas
-nmap("<C-d>", "<C-d>zz", "Scroll Down and Center")
-nmap("<C-u>", "<C-u>zz", "Scroll Up and Center")
-
+-- Pon esto en la sección de Edición Ágil / Scroll
+nmap("<C-f>", "<C-f>", "Scroll: Page Down")
+nmap("<C-b>", "<C-b>", "Scroll: Page Up")
 nmap("n", "nzzzv", "Next Search Result Centered")
 nmap("N", "Nzzzv", "Previous Search Result Centered")
 
 nmap("<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], "Replace Word Globally")
-
 nmap("<leader>X", "<cmd>!chmod +x %<CR>", "Make File Executable")
 nmap("<leader>re", "<cmd>restart<CR>", "Restart Config")
-
--- Mapeo libre para plegados (Folds)
 nmap("<leader>z", "za", "Fold: Toggle under cursor")
 
--- =========================================================
--- DUPLICAR LÍNEA / BLOQUE
--- =========================================================
+-- Duplicar líneas
 nmap("<leader>dd", "yyp", "Duplicate: Line Below")
 vmap("<leader>dd", "y'>p", "Duplicate: Selection")
-
--- =========================================================
--- UNDOTREE Y GESTIÓN DE BUFFER
--- =========================================================
-nmap("<leader>u", function()
-  vim.cmd.packadd("nvim.undotree")
-  require("undotree").open()
-end, "Toggle Builtin Undotree")
-
--- Input interactivo para renombrar o poner nombre al buffer actual
-nmap("<leader>br", function()
-  vim.ui.input({ prompt = "Nuevo nombre del Buffer: " }, function(input)
-    if input and input ~= "" then vim.cmd("file " .. input) end
-  end)
-end, "Buffer: Rename / Set Name")
 
 -- =========================================================
 -- GESTIÓN Y DIVISIÓN DE VENTANAS (SPLITS)
@@ -132,23 +140,43 @@ end, "Buffer: Rename / Set Name")
 nmap("<leader>v", "<cmd>vsplit<CR>", "Window: Split Vertical")
 nmap("<leader>h", "<cmd>split<CR>", "Window: Split Horizontal")
 
--- Navegar entre paneles usando Ctrl + dirección de movimiento de Vim
 nmap("<C-h>", "<C-w>h", "Window: Focus Left")
 nmap("<C-j>", "<C-w>j", "Window: Focus Down")
 nmap("<C-k>", "<C-w>k", "Window: Focus Up")
 nmap("<C-l>", "<C-w>l", "Window: Focus Right")
 
--- Redimensionar ventanas usando Alt + flechas de dirección en Modo Normal
 nmap("<M-Up>", "<cmd>resize +2<CR>", "Window: Resize Up")
 nmap("<M-Down>", "<cmd>resize -2<CR>", "Window: Resize Down")
 nmap("<M-Left>", "<cmd>vertical resize -2<CR>", "Window: Resize Left")
 nmap("<M-Right>", "<cmd>vertical resize +2<CR>", "Window: Resize Right")
 
--- Buscar visualmente el texto seleccionado en todo el proyecto usando Snacks Grep
-vmap("<leader>fg", function()
-  local old_reg = vim.fn.getreg("v")
-  vim.cmd('normal! "vy')
-  local text = vim.fn.getreg("v")
-  vim.fn.setreg("v", old_reg)
-  require("snacks").picker.grep({ search = text })
-end, "Find: Grep Visual Selection")
+-- =========================================================
+-- HERRAMIENTAS ADICIONALES
+-- =========================================================
+nmap("<leader>u", function()
+  vim.cmd.packadd("nvim.undotree")
+  require("undotree").open()
+end, "Toggle Builtin Undotree")
+
+
+local keymap = vim.keymap.set
+
+-- =========================================================
+-- DEBUGGING (nvim-dap / dap-ui)
+-- =========================================================
+local ok_dap, dap = pcall(require, "dap")
+local ok_dapui, dapui = pcall(require, "dapui")
+
+if ok_dap then
+  nmap("<leader>db", function() dap.toggle_breakpoint() end, "DAP: Toggle Breakpoint")
+  nmap("<leader>dc", function() dap.continue() end, "DAP: Start/Continue Session")
+  nmap("<leader>dx", function() dap.terminate() end, "DAP: Terminate Session")
+  nmap("<leader>do", function() dap.step_over() end, "DAP: Step Over")
+  nmap("<leader>di", function() dap.step_into() end, "DAP: Step Into")
+  nmap("<leader>du", function() dap.step_out() end, "DAP: Step Out")
+  nmap("<leader>dr", function() dap.repl.toggle() end, "DAP: Toggle REPL")
+end
+
+if ok_dapui then
+  nmap("<leader>ui", function() dapui.toggle() end, "DAP: Toggle UI panel")
+end
