@@ -1,21 +1,28 @@
 -- =========================================================
 -- init.lua
--- Punto de entrada mínimo.
--- Mantener este archivo pequeño ayuda a depurar más fácil.
+-- Punto de entrada principal.
 -- =========================================================
 
-vim.g.loaded_perl_provider = 0
-vim.g.loaded_ruby_provider = 0
---vim.g.loaded_node_provider = 0
+vim.g.mapleader = " " -- Leader principal.
+vim.g.maplocalleader = "\\" -- Leader local.
 
-vim.g.mapleader = " "
-vim.g.maplocalleader = "\\"
+vim.api.nvim_create_user_command("PackUpdate", function(opts)
+  if opts.args ~= "" then
+    local plugins = vim.split(opts.args, "%s+", { trimempty = true })
+    vim.pack.update(plugins)
+  else
+    vim.pack.update()
+  end
+end, { nargs = "*", desc = "Update all plugins or specific ones" })
 
--- nvim-tree reemplaza netrw; desactivarlo evita conflictos.
---vim.g.loaded_netrw = 1
---vim.g.loaded_netrwPlugin = 1
+vim.api.nvim_create_autocmd("VimEnter", {
+  callback = function()
+    vim.schedule(function()
+      pcall(vim.pack.update)
+    end)
+  end,
+})
 
-require("config.options")
-require("config.lazy")
-require("config.keymaps")
-require("theme").setup()
+require("config.options") -- Carga opciones.
+require("config.keymaps") -- Carga keymaps.
+require("config.pack") -- Carga plugins y módulos.

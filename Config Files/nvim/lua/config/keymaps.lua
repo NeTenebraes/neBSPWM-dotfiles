@@ -1,59 +1,210 @@
 local map = vim.keymap.set
 
--- Función auxiliar para declarar atajos de forma limpia y silenciosa
+vim.g.mapleader = " "
+
 local function nmap(lhs, rhs, desc)
   map("n", lhs, rhs, { silent = true, desc = desc })
 end
 
--- === NAVEGACIÓN, BUSCADOR Y EXPLORADOR ===
-nmap("<leader>e",  function() Snacks.explorer() end,     "Explorer: Toggle")            -- [Espacio + e]       -> Activa el File Explorer (Plugin: snacks.nvim)
-nmap("<leader>ff", function() Snacks.picker.files() end,  "Find: Files")                 -- [Espacio + f + f]   -> Busca archivos por nombre (Plugin: snacks.nvim)
-nmap("<leader>fg", function() Snacks.picker.grep() end,   "Find: Grep")                  -- [Espacio + f + g]   -> Busca texto dentro de archivos (Plugin: snacks.nvim)
-nmap("<leader>fb", function() Snacks.picker.buffers() end,"Find: Buffers")               -- [Espacio + f + b]   -> Lista y busca buffers abiertos (Plugin: snacks.nvim)
+local function vmap(lhs, rhs, desc)
+  map("v", lhs, rhs, { silent = true, desc = desc })
+end
 
--- === ACCIONES BÁSICAS Y ENTORNO ===
-nmap("<leader>w",  "<cmd>w<CR>",                         "File: Write")                 -- [Espacio + w]       -> Guarda el archivo actual (Nativo de Neovim)
-nmap("<leader>q",  "<cmd>q<CR>",                         "Window: Quit")                -- [Espacio + q]       -> Cierra la ventana actual (Nativo de Neovim)
-nmap("<leader>ve", "<cmd>edit $MYVIMRC<CR>",             "Vim: Edit init.lua")          -- [Espacio + v + e]   -> Abre tu init.lua para editarlo (Nativo de Neovim)
+local function imap(lhs, rhs, desc)
+  map("i", lhs, rhs, { silent = true, desc = desc })
+end
 
--- === CONTROL DE GIT (LAZYGIT VIA SNACKS) ===
-nmap("<leader>gg", function() Snacks.lazygit() end,      "Git: Lazygit")                -- [Espacio + g + g]   -> Abre la interfaz flotante de Lazygit (Plugin: snacks.nvim)
-nmap("<leader>gl", function() Snacks.lazygit.log() end,  "Git: Log History")            -- [Espacio + g + l]   -> Muestra el historial de commits (Plugin: snacks.nvim)
+-- === NAVEGACIÓN ===
+nmap("<leader>e", function() Snacks.explorer() end, "Explorer: Toggle")
+nmap("<leader>ff", function() Snacks.picker.files() end, "Find: Files")
+nmap("<leader>fg", function() Snacks.picker.grep() end, "Find: Grep")
+nmap("<leader>fb", function() Snacks.picker.buffers() end, "Find: Buffers")
 
--- === SERVIDOR DE LENGUAJE (LSP) & FORMATEO ===
-nmap("K",          vim.lsp.buf.hover,                    "LSP: Hover Docs")             -- [Shift + k]         -> Muestra la documentación del código bajo el cursor (Plugin: nvim-lspconfig)
-nmap("gd",         vim.lsp.buf.definition,               "LSP: Go to Definition")       -- [g + d]             -> Salta a la definición de la función/variable (Plugin: nvim-lspconfig)
-nmap("gr",         vim.lsp.buf.references,               "LSP: Go to References")       -- [g + r]             -> Lista todas las referencias de lo seleccionado (Plugin: nvim-lspconfig)
-nmap("<leader>lr", vim.lsp.buf.rename,                   "LSP: Rename Symbol")          -- [Espacio + l + r]   -> Renombra la variable/función en todo el proyecto (Plugin: nvim-lspconfig)
-nmap("<leader>la", vim.lsp.buf.code_action,               "LSP: Code Actions")           -- [Espacio + l + a]   -> Muestra las acciones de código o correcciones del LSP (Plugin: nvim-lspconfig)
-nmap("<leader>ld", vim.diagnostic.open_float,             "LSP: Show Line Diagnostic")   -- [Espacio + l + d]   -> Muestra el error/advertencia de la línea en un float (Plugin: nvim-lspconfig)
-nmap("<leader>lf", function()
-  require("conform").format({ async = true, lsp_fallback = true })
-end, "LSP: Format File")                                                                -- [Espacio + l + f]   -> Fuerza el formateo estético del archivo (Plugin: conform.nvim)
+-- === BÁSICOS ===
+nmap("<leader>w", "<cmd>w<CR>", "File: Write")
+nmap("<leader>q", "<cmd>q<CR>", "Window: Quit")
+nmap("<leader>ve", "<cmd>edit $MYVIMRC<CR>", "Vim: Edit init.lua")
 
--- === GITHUB COPILOT ===
-map("i", "<C-j>", function()
-  if require("copilot.suggestion").is_visible() then
-    require("copilot.suggestion").accept()
+-- === CLIPBOARD / YANK / PASTE ===
+nmap("<leader>y", '"+y', "Yank: Clipboard")
+vmap("<leader>y", '"+y', "Yank: Clipboard")
+nmap("<leader>Y", '"+Y', "Yank: Line to Clipboard")
+nmap("<leader>p", '"+p', "Paste: Clipboard")
+vmap("<leader>p", '"+p', "Paste: Clipboard")
+nmap("<leader>P", '"+P', "Paste: Clipboard Before")
+nmap("<leader>yy", '"+yy', "Yank: Line Clipboard")
+
+nmap("<leader>ya", function()
+  vim.cmd('normal! ggVG"+y')
+end, "Yank: All")
+
+vmap("p", '"_dP', "Paste Over Selection")
+
+-- === EDICIÓN RÁPIDA ===
+imap("<C-c>", "<Esc>", "Insert: Escape")
+nmap("<C-c>", "<cmd>nohlsearch<CR>", "Clear Search Highlight")
+
+vmap("J", ":m '>+1<CR>gv=gv", "Move Selection Down")
+vmap("K", ":m '<-2<CR>gv=gv", "Move Selection Up")
+
+vmap("<", "<gv", "Unindent and Keep Selection")
+vmap(">", ">gv", "Indent and Keep Selection")
+
+nmap("J", "mzJ`z", "Join Lines Without Moving Cursor")
+
+nmap("<C-d>", "<C-d>zz", "Scroll Down and Center")
+nmap("<C-u>", "<C-u>zz", "Scroll Up and Center")
+
+nmap("n", "nzzzv", "Next Search Result Centered")
+nmap("N", "Nzzzv", "Previous Search Result Centered")
+
+nmap("<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], "Replace Word Globally")
+
+nmap("<leader>X", "<cmd>!chmod +x %<CR>", "Make File Executable")
+nmap("<leader>re", "<cmd>restart<CR>", "Restart Config")
+
+nmap("<leader>u", function()
+  vim.cmd.packadd("nvim.undotree")
+  require("undotree").open()
+end, "Toggle Builtin Undotree")
+
+local map = vim.keymap.set
+
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
+
+local function nmap(lhs, rhs, desc)
+  map("n", lhs, rhs, { silent = true, desc = desc })
+end
+
+local function vmap(lhs, rhs, desc)
+  map("v", lhs, rhs, { silent = true, desc = desc })
+end
+
+local function imap(lhs, rhs, desc)
+  map("i", lhs, rhs, { silent = true, desc = desc })
+end
+
+-- =========================================================
+-- NAVEGACIÓN
+-- =========================================================
+nmap("<leader>e", function() Snacks.explorer() end, "Explorer: Toggle")
+nmap("<leader>ff", function() Snacks.picker.files() end, "Find: Files")
+nmap("<leader>fg", function() Snacks.picker.grep() end, "Find: Grep")
+nmap("<leader>fb", function() Snacks.picker.buffers() end, "Find: Buffers")
+
+-- =========================================================
+-- ARCHIVOS / BUFFER
+-- =========================================================
+nmap("<leader>w", "<cmd>w<CR>", "File: Write")
+nmap("<leader>q", "<cmd>q<CR>", "Window: Quit")
+nmap("<leader>ve", "<cmd>edit $MYVIMRC<CR>", "Vim: Edit init.lua")
+
+nmap("<leader>bn", "<cmd>bnext<CR>", "Buffer: Next")
+nmap("<leader>bp", "<cmd>bprevious<CR>", "Buffer: Previous")
+nmap("<leader>bd", "<cmd>bdelete<CR>", "Buffer: Delete")
+nmap("<Tab>", "<cmd>bnext<CR>", "Buffer: Next")
+nmap("<S-Tab>", "<cmd>bprevious<CR>", "Buffer: Previous")
+
+-- =========================================================
+-- FORMATO / LSP
+-- =========================================================
+nmap("<leader>f", function()
+  local ok, conform = pcall(require, "conform")
+  if ok then
+    conform.format({ async = true, lsp_fallback = true })
   else
-    return "<C-j>"
+    vim.lsp.buf.format({ async = true })
   end
-end, { expr = true, silent = true, desc = "Copilot: Accept Suggestion" })               -- [Ctrl + j] (Insert) -> Acepta la sugerencia gris de la IA (Plugin: copilot.lua)
+end, "Format: File")
 
-nmap("<leader>co", "<cmd>Copilot panel<CR>",             "Copilot: Open Panel")         -- [Espacio + c + o]   -> Abre el panel lateral con múltiples sugerencias (Plugin: copilot.lua)
-nmap("<leader>ct", "<cmd>Copilot toggle<CR>",            "Copilot: Toggle")             -- [Espacio + c + t]   -> Activa o desactiva Copilot por completo (Plugin: copilot.lua)
--- Suelo usar máś Gemini, por lo que no he probado muy bien Copilot.
--- Tener en cuenta por futuros bugs
+nmap("K", vim.lsp.buf.hover, "LSP: Hover")
+nmap("gd", vim.lsp.buf.definition, "LSP: Definition")
+nmap("gr", vim.lsp.buf.references, "LSP: References")
+nmap("<leader>rn", vim.lsp.buf.rename, "LSP: Rename")
+nmap("<leader>ca", vim.lsp.buf.code_action, "LSP: Code Action")
 
+-- =========================================================
+-- CLIPBOARD / YANK / PASTE
+-- =========================================================
+nmap("<leader>y", '"+y', "Yank: Clipboard")
+vmap("<leader>y", '"+y', "Yank: Clipboard")
+nmap("<leader>Y", '"+Y', "Yank: Line to Clipboard")
+nmap("<leader>p", '"+p', "Paste: Clipboard")
+vmap("<leader>p", '"+p', "Paste: Clipboard")
+nmap("<leader>P", '"+P', "Paste: Clipboard Before")
+nmap("<leader>yy", '"+yy', "Yank: Line Clipboard")
 
--- === SNACKS TERMINAL & TOGGLES COMPACTOS ===
-nmap("<leader>tt", function() Snacks.terminal() end,     "Terminal: Toggle Float")      -- [Espacio + t + t]   -> Abre/esconde la terminal flotante (Plugin: snacks.nvim)
--- Reemplaza tu línea de terminal por esta:
--- Vamos a usar Ctrl + q (C-q) para cerrar la terminal
-vim.keymap.set("t", "<C-q>", function()
-  Snacks.terminal.toggle()
-end, { desc = "Terminal: Close" })  -- [Esc + Esc] (Term)  -> Cierra la terminal flotante desde dentro de ella (Plugin: snacks.nvim)
+nmap("<leader>ya", function()
+  vim.cmd('normal! ggVG"+y')
+end, "Yank: All")
 
-nmap("<leader>td", function() Snacks.toggle.diagnostics() end, "Toggle: Diagnostics")   -- [Espacio + t + d]   -> Muestra/oculta subrayados de errores de código (Plugin: snacks.nvim)
-nmap("<leader>tl", function() Snacks.toggle.line_number() end, "Toggle: Line Numbers")  -- [Espacio + t + l]   -> Muestra/oculta los números de las líneas (Plugin: snacks.nvim)
-nmap("<leader>tz", function() Snacks.toggle.zen() end,         "Toggle: Zen Mode")      -- [Espacio + t + z]   -> Activa/desactiva el modo de concentración centrado (Plugin: snacks.nvim)
+vmap("p", '"_dP', "Paste Over Selection")
+
+-- =========================================================
+-- COMENTARIOS
+-- Usa Comment.nvim:
+-- gcc  -> comenta línea
+-- gc   -> comenta con motion
+-- gbc  -> comentario de bloque
+-- =========================================================
+nmap("<leader>/", "gcc", "Comment: Toggle Line")
+vmap("<leader>/", "gc", "Comment: Toggle Selection")
+
+-- =========================================================
+-- EDICIÓN RÁPIDA
+-- =========================================================
+imap("<C-c>", "<Esc>", "Insert: Escape")
+nmap("<C-c>", "<cmd>nohlsearch<CR>", "Clear Search Highlight")
+
+vmap("J", ":m '>+1<CR>gv=gv", "Move Selection Down")
+vmap("K", ":m '<-2<CR>gv=gv", "Move Selection Up")
+
+vmap("<", "<gv", "Unindent and Keep Selection")
+vmap(">", ">gv", "Indent and Keep Selection")
+
+nmap("J", "mzJ`z", "Join Lines Without Moving Cursor")
+
+nmap("<C-d>", "<C-d>zz", "Scroll Down and Center")
+nmap("<C-u>", "<C-u>zz", "Scroll Up and Center")
+
+nmap("n", "nzzzv", "Next Search Result Centered")
+nmap("N", "Nzzzv", "Previous Search Result Centered")
+
+nmap("<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], "Replace Word Globally")
+
+nmap("<leader>X", "<cmd>!chmod +x %<CR>", "Make File Executable")
+nmap("<leader>re", "<cmd>restart<CR>", "Restart Config")
+
+-- =========================================================
+-- DUPLICAR LÍNEA / BLOQUE
+-- =========================================================
+nmap("<leader>dd", "yyp", "Duplicate: Line Below")
+vmap("<leader>dd", "y'>p", "Duplicate: Selection")
+
+-- =========================================================
+-- UNDOTREE
+-- =========================================================
+nmap("<leader>u", function()
+  vim.cmd.packadd("nvim.undotree")
+  require("undotree").open()
+end, "Toggle Builtin Undotree")
+
+-- =========================================================
+-- UNDO / REDO
+-- Undo = deshacer cambios
+-- Redo = rehacer cambios deshechos
+--
+-- Atajos nativos de Vim/Neovim:
+-- u    -> undo
+-- Ctrl-r -> redo
+--
+-- Ejemplo:
+-- 1) escribes algo
+-- 2) presionas u para deshacer
+-- 3) presionas Ctrl-r para rehacer
+--
+-- Si quieres atajos extra:
+-- nmap("<leader>z", "u", "Undo")
+-- nmap("<leader>Z", "<C-r>", "Redo")
+-- =========================================================
