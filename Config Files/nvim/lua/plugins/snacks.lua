@@ -1,6 +1,5 @@
 -- =========================================================
 -- lua/plugins/UI/snacks.lua
--- Configuración de Snacks.nvim para Neovim 0.12+ (Vim Pack)
 -- =========================================================
 
 local status, snacks = pcall(require, "snacks")
@@ -8,8 +7,8 @@ if not status then return end
 
 snacks.setup({
   -- Módulos habilitados
-  lazygit = { enabled = true },
   indent = { enabled = true },
+  -- Scroll Suave Animado
   scroll = { enabled = true },
   words = { enabled = true },
   input = { enabled = true },
@@ -18,6 +17,14 @@ snacks.setup({
   quickfile = { enabled = true },
   toggle = { enabled = true },
   zen = { enabled = true },
+  scratch = { enabled = true }, -- ✨ Bloc de notas habilitado
+
+  -- Sistema de Notificaciones Elegante
+  notifier = {
+    enabled = true,
+    timeout = 3000,
+    style = "compact",
+  },
 
   -- Configuración del Dashboard
   dashboard = {

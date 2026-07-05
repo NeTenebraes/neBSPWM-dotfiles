@@ -48,6 +48,7 @@ end
 if ok_mti then
   mason_tool_installer.setup({
     ensure_installed = {
+      -- Formatters / linters (los que ya tenías)
       "prettier",
       "prettierd",
       "stylua",
@@ -58,6 +59,12 @@ if ok_mti then
       "shellcheck",
       "clang-format",
       "markdownlint",
+
+      -- Debuggers
+      "js-debug-adapter",
+      "debugpy",
+      "bash-debug-adapter",
+      "codelldb",
     },
     auto_update = true,
     run_on_start = true,

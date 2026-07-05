@@ -100,3 +100,40 @@ if ok_icons then
   icons.setup({})
   icons.mock_nvim_web_devicons()
 end
+
+-- =========================================================
+-- mini.align
+-- Alineación interactiva de texto (ga en modo Visual)
+-- =========================================================
+local ok_align, align = pcall(require, "mini.align")
+if ok_align then
+  align.setup({})
+end
+
+-- =========================================================
+-- mini.clue
+-- Panel flotante de ayuda para tus atajos de teclado
+-- =========================================================
+local ok_clue, clue = pcall(require, "mini.clue")
+if ok_clue then
+  clue.setup({
+    clues = {
+      clue.gen_clues.builtin_resetted(),
+      clue.gen_clues.g(),
+    },
+    triggers = {
+      -- Despierta al presionar espacio (Leader) en normal y visual
+      { mode = 'n', keys = '<leader>' },
+      { mode = 'x', keys = '<leader>' },
+      -- Despierta al usar comandos 'g' (como gc, gd, gr)
+      { mode = 'n', keys = 'g' },
+      { mode = 'x', keys = 'g' },
+      -- Atajos de ventanas Ctrl+W
+      { mode = 'n', keys = '<C-w>' },
+    },
+    window = {
+      delay = 300, -- Tiempo de espera en ms para que aparezca la ayuda
+      config = { border = 'rounded' },
+    },
+  })
+end
