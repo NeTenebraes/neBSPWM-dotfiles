@@ -180,3 +180,39 @@ end
 if ok_dapui then
   nmap("<leader>ui", function() dapui.toggle() end, "DAP: Toggle UI panel")
 end
+
+-- =========================================================
+-- GIT (Lazygit & Gitsigns)
+-- =========================================================
+nmap("<leader>gg", function() Snacks.lazygit() end, "Git: Lazygit")
+-- Si usas gitsigns, podrías añadir aquí:
+nmap("<leader>gb", "<cmd>Gitsigns blame_line<CR>", "Git: Blame Line")
+
+
+-- =========================================================
+-- TERMINAL (Snacks)
+-- =========================================================
+-- Abrir terminal flotante
+nmap("<leader>tt", function() Snacks.terminal() end, "Terminal: Toggle")
+
+-- =========================================================
+-- FOCUS / DIM (oscurecer fuera de la función)
+-- =========================================================
+nmap("<leader>Z", function() Snacks.toggle.dim():toggle() end, "Focus: Toggle Dim")
+-- =========================================================
+-- LSP: NAVEGACIÓN Y DIAGNÓSTICOS
+-- =========================================================
+nmap("[d", vim.diagnostic.goto_prev, "LSP: Prev Diagnostic")
+nmap("]d", vim.diagnostic.goto_next, "LSP: Next Diagnostic")
+nmap("<leader>de", vim.diagnostic.open_float, "LSP: Show Error Float")
+nmap("<leader>dl", vim.diagnostic.setloclist, "LSP: Open Loclist")
+
+-- Toggle Zen mode usando el toggle integrado
+nmap("<leader>uz", function() Snacks.toggle.zen():toggle() end, "Zen: Toggle Mode")
+
+nmap("<leader>bX", function()
+  local ok, Snacks = pcall(require, "snacks")
+  if ok and Snacks.dashboard and Snacks.dashboard.open then
+    Snacks.dashboard.open()
+  end
+end, "Dashboard: Back to Dashboard")
