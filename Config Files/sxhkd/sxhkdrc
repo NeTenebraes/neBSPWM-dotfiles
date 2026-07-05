@@ -1,6 +1,6 @@
 #
 # wm independent hotkeys
-#
+# 
 
 # Interfaz de Flameshot
 Print
@@ -20,6 +20,10 @@ super + shift + r
 #
 # bspwm hotkeys
 #
+
+# Cambiar de vertical a Horizontal
+super + e
+    bspc node @parent -y next
 
 # quit/restart bspwm
 super + alt + {q,r}
@@ -68,13 +72,8 @@ super + ctrl + {Left,Down,Up,Right}
       ~/.config/bspwm/scripts/bspwm_resize.sh expand {west,south,north,east} 50
 
 # Contraer  
-super + alt + {Left,Down,Up,Right}
-      ~/.config/bspwm/scripts/bspwm_resize.sh contract {west,south,north,east} 50
-
-
-# move a floating window
 super + ctrl + alt + {Left,Down,Up,Right}
-	bspc node -v {-20 0,0 20,0 -20,20 0}a
+      ~/.config/bspwm/scripts/bspwm_resize.sh contract {west,south,north,east} 50
 
 
 # NO USED
