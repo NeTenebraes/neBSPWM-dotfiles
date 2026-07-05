@@ -5,6 +5,9 @@ local capabilities = ok_cmp
 
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
+-- =========================================================
+-- DIAGNÓSTICOS VISUALES
+-- =========================================================
 vim.diagnostic.config({
   virtual_text = {
     spacing = 2,
@@ -33,55 +36,69 @@ vim.diagnostic.config({
   },
 })
 
-vim.lsp.config("lua_ls", {
-  capabilities = capabilities,
-  settings = {
-    Lua = {
-      diagnostics = { globals = { "vim" } },
-      workspace = { checkThirdParty = false },
-      telemetry = { enable = false },
-    },
-  },
-})
-
-vim.lsp.config("clangd", {
-  capabilities = capabilities,
-  cmd = { "clangd", "--background-index", "--clang-tidy", "--header-insertion=iwyu" },
-})
-
-vim.lsp.config("pyright", {
-  capabilities = capabilities,
-  settings = {
-    python = {
-      analysis = {
-        typeCheckingMode = "basic",
-        autoSearchPaths = true,
-        useLibraryCodeForTypes = true,
+-- =========================================================
+-- DICCIONARIO DE CONFIGURACIONES PERSONALIZADAS
+-- =========================================================
+local custom_configs = {
+  lua_ls = {
+    settings = {
+      Lua = {
+        diagnostics = { globals = { "vim" } },
+        workspace = { checkThirdParty = false },
+        telemetry = { enable = false },
       },
     },
   },
-})
-
-vim.lsp.config("emmet_language_server", {
-  capabilities = capabilities,
-  filetypes = {
-    "css",
-    "eruby",
-    "html",
-    "htmldjango",
-    "javascriptreact",
-    "less",
-    "pug",
-    "sass",
-    "scss",
-    "typescriptreact",
-    "htmlangular",
-    "vue",
-    "svelte",
+  clangd = {
+    cmd = { "clangd", "--background-index", "--clang-tidy", "--header-insertion=iwyu" },
   },
-})
+  pyright = {
+    settings = {
+      python = {
+        analysis = {
+          typeCheckingMode = "basic",
+          autoSearchPaths = true,
+          useLibraryCodeForTypes = true,
+        },
+      },
+    },
+  },
+  emmet_language_server = {
+    filetypes = {
+      "css",
+      "eruby",
+      "html",
+      "htmldjango",
+      "javascript",
+      "javascriptreact",
+      "typescriptreact",
+      "typescript",
+      "less",
+      "pug",
+      "sass",
+      "scss",
+      "htmlangular",
+      "vue",
+      "svelte",
+      "astro",
+    },
+  },
+  ts_ls = {
+    settings = {
+      javascript = {
+        implicitProjectConfig = { checkJs = false },
+      },
+      typescript = {
+        preserveSymlinks = true,
+      },
+    },
+  },
+}
 
-for _, server in ipairs({
+-- =========================================================
+-- LISTA DE SERVIDORES A CONFIGURAR Y ACTIVAR
+-- =========================================================
+local servers = {
   "bashls",
   "clangd",
   "cssls",
@@ -100,7 +117,16 @@ for _, server in ipairs({
   "vue_ls",
   "prismals",
   "emmet_language_server",
-}) do
-  vim.lsp.config(server, { capabilities = capabilities })
+}
+
+for _, server in ipairs(servers) do
+  -- Extraemos la config personalizada si existe, o creamos una tabla vacía
+  local config = custom_configs[server] or {}
+  
+  -- Fusionamos de forma segura las capabilities globales con la config específica
+  config.capabilities = vim.tbl_deep_extend("force", capabilities, config.capabilities or {})
+
+  -- Aplicamos la configuración completa y activamos el servidor
+  vim.lsp.config(server, config)
   vim.lsp.enable(server)
 end
