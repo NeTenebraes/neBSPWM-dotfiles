@@ -26,7 +26,7 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 ![Desktop](https://github.com/NeTenebraes/neBSPWM-dotfiles/blob/main/screeshots/Animated.webp)
 > En resumen: **Una configuración que puedes reinstalar rápido, que se siente ágil en hardware antiguo, y que mantiene el mismo “flow” para programar, investigar y crear contenido.**
 
-## ✨ Características
+## Características
 
 - **Window Manager:** bspwm + sxhkd
 - **Display Manager:** SDDM.
@@ -47,7 +47,7 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 - **Themes:** Catppuccin Mocha + Papirus Dark + Nerd Fonts  
 - **Screenshots:** Flameshot 
 
-## 🖼️ Screenshots
+## Screenshots
 
 | Componente | Vista |
 |------------|-------|
@@ -58,7 +58,7 @@ El resultado es un entorno minimalista basado en **bspwm**, con **Rofi**, **Poly
 
 ---
 
-## 📦 Requisitos
+## Requisitos
 
 - Equipo basado en **Arch Linux** (también funciona en derivados como *EndeavourOS* o *Manjaro*).
 - `paru` (se instala automáticamente).
@@ -86,20 +86,20 @@ bash ./setup.sh
 
 ---
 
-## 🛠️ Estado del Proyecto y Roadmap
+## Estado del Proyecto y Roadmap
 
 Para mantener la documentación organizada y facilitar el reporte de fallos, he dividido el seguimiento técnico en secciones específicas. 
 
 | Sección | Descripción |
 | :--- | :--- | 
-| [**📜 Historial de Cambios**](docs/CHANGELOG.md) | Bugs visuales, problemas de resolución y hardware específico. | 
-| [**🚀 Trabajos Actuales (WIP)**](docs/ROADMAP.md) | Próximas funcionalidades, optimizaciones y tareas pendientes. | 
-| [**📖 Guía de Atajos**](docs/HOTKEYS.md) | Listado completo de keybindings para bspwm y sxhkd. | 
+| [** Historial de Cambios**](docs/CHANGELOG.md) | Bugs visuales, problemas de resolución y hardware específico. | 
+| [** Trabajos Actuales (WIP)**](docs/ROADMAP.md) | Próximas funcionalidades, optimizaciones y tareas pendientes. | 
+| [** Guía de Atajos**](docs/HOTKEYS.md) | Listado completo de keybindings para bspwm y sxhkd. | 
 |  [**🐛 Errores Conocidos**](docs/KNOWN_ISSUES.md) | Registro detallado de versiones y actualizaciones del script. | 
 
 ---
 
-## 🧠 Script de Ciberseguridad
+## Script de Ciberseguridad
 
 Instala las herramientas que utilizo para ciberseguridad así como también automatiza la configuracion del firewall, DNS y enjaulado de aplicaciones con firejail.
 
@@ -107,11 +107,11 @@ Este script fue Movido al repositorio: [neCybersecurity-Script](https://github.c
 
 ---
 
-## 🙏 Créditos y Agradecimientos
+## Créditos y Agradecimientos
 
 **neBSPWM** se apoya en el excelente trabajo de la comunidad open source y artistas digitales.
 
-| ✨ Componente | 👤 Autor | 🔗 Enlace | 📄 Licencia | 🎯 Uso |
+| Componente | Autor | Enlace | Licencia | Uso |
 |--------------|----------|-----------|-------------|--------|
 | **SDDM Astronaut Theme** | [Keyitdev](https://github.com/Keyitdev) | [GitHub](https://github.com/Keyitdev/sddm-astronaut-theme) | **GPLv3+** | Pantalla de login |
 
