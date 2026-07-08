@@ -32,7 +32,7 @@ source "$SETUP_DIR/modules/96-fonts.sh"
 main() {
     [ "$EUID" -eq 0 ] && { echo "❌ No root"; exit 1; }
 
-    echo_msg "🚀 neBSPWN Setup $(date +'%H:%M')"
+    echo_msg "neBSPWN Setup $(date +'%H:%M')"
 
     check_internet
     ensure_aur_helper
@@ -53,7 +53,7 @@ main() {
     setup_fonts_locale
     cleanup_temp_repo
 
-    echo_ok "🎉 ¡LISTO! Reinicia: systemctl reboot"
+    echo_ok "¡LISTO! Reinicia: systemctl reboot"
 }
 
 main "$@"
