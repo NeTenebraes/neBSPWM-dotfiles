@@ -92,9 +92,9 @@ Para mantener la documentación organizada y facilitar el reporte de fallos, he 
 
 | Sección | Descripción |
 | :--- | :--- | 
-| [** Historial de Cambios**](docs/CHANGELOG.md) | Bugs visuales, problemas de resolución y hardware específico. | 
-| [** Trabajos Actuales (WIP)**](docs/ROADMAP.md) | Próximas funcionalidades, optimizaciones y tareas pendientes. | 
-| [** Guía de Atajos**](docs/HOTKEYS.md) | Listado completo de keybindings para bspwm y sxhkd. | 
+| [**Historial de Cambios**](docs/CHANGELOG.md) | Bugs visuales, problemas de resolución y hardware específico. | 
+| [**Trabajos Actuales (WIP)**](docs/ROADMAP.md) | Próximas funcionalidades, optimizaciones y tareas pendientes. | 
+| [**Guía de Atajos**](docs/HOTKEYS.md) | Listado completo de keybindings para bspwm y sxhkd. | 
 |  [**🐛 Errores Conocidos**](docs/KNOWN_ISSUES.md) | Registro detallado de versiones y actualizaciones del script. | 
 
 ---
