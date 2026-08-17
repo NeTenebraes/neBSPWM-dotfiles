@@ -1,2 +1,0 @@
-export SXHKD_SHELL=shell
-export QT_QPA_PLATFORMTHEME=qt5ct

@@ -1,5 +1,4 @@
 .obsidian/
 .trash
-Config Files/nvim/lazy-lock.json
-Config Files/nomacs/Image Lounge.conf
-setup/ori_se.sh
+dotfiles/.config/nomacs/Image Lounge.conf
+configuracion-del-sistema/setup/ori_se.sh
